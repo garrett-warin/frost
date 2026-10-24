@@ -13,3 +13,5 @@ Success means the owner can open a site, manage independent tabs, change search 
 
 
 Latest direction: light-only UI, saved tabs alongside local history, site-only fullscreen and owner-published announcement banner. This supersedes earlier dark-theme and session-only-tab requirements. Announcement publishing belongs to the owner's Fly account.
+
+Frosty is a dedicated optional chat page within Frost, reached from a small sparkle control. It shares the handmade branding and keeps the browsing workspace intact when users switch views. The snowman is a minimal two-snowball outline with dot eyes and a small nose. A small intact hop adds character without twisting, detached parts, or a separate animation preview.

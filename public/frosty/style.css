@@ -1,0 +1,38 @@
+.frosty{height:100%;min-height:0;overflow:auto;background:var(--bg);color:var(--text);font-family:var(--ui-font)}
+.frosty[hidden],.frosty [hidden]{display:none!important}
+body.frosty-open>.browser-chrome,body.frosty-open>.content-region,body.frosty-open>.statusbar,body.frosty-open>#browser-menu{display:none!important}
+.frosty-panel{width:min(780px,100%);height:100%;min-height:560px;margin:auto;display:flex;flex-direction:column;padding:0 28px}
+.frosty button,.frosty select,.frosty textarea{font:inherit;color:inherit}
+.frosty button{border:1px solid var(--line);background:transparent;border-radius:3px;padding:8px 11px}
+.frosty button:hover{background:var(--hover)}.frosty button:disabled{opacity:.5}
+.frosty button:focus-visible,.frosty a:focus-visible,.frosty select:focus-visible{outline:2px solid var(--ice);outline-offset:3px}
+.frosty-head{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:24px 0 20px;border-bottom:1px solid var(--line)}
+.frosty-head h1{margin:0;font-size:0}.frosty-head h1 img{display:block;width:132px;height:auto}
+.frosty-close{justify-self:start;border:0!important;padding:10px 0!important;font-size:11px!important}
+
+.frosty-model-row{display:flex;align-items:center;gap:12px;padding:14px 0;font-size:11px}
+.frosty-model-row label{color:var(--secondary)}.frosty-model-row select{min-width:0;max-width:320px;background:var(--bg);border:0;flex:1;padding:8px 0;font-size:11px}.frosty-model-row button{margin-left:auto;font-size:11px}
+.frosty-messages{flex:1;min-height:140px;overflow-y:auto;overscroll-behavior:contain;padding:0 10px;scrollbar-gutter:stable}
+.frosty-welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;text-align:center;padding:12px 0 28px}
+.frosty-mascot{width:76px;height:100px;flex-shrink:0;color:var(--secondary)}
+.frosty-mascot .snowman{display:block;width:100%;height:100%;fill:none;stroke:none;overflow:visible}
+.frosty-welcome h2{font-size:17px;font-weight:400;letter-spacing:-.5px;margin:12px 0}.frosty-welcome p{font-size:11px;line-height:1.8;color:var(--secondary);max-width:330px;margin:0}
+.frosty.has-messages .frosty-welcome{min-height:0;padding:0 0 12px}.frosty.has-messages .frosty-mascot{width:62px;height:76px}.frosty.has-messages .frosty-welcome h2,.frosty.has-messages .frosty-welcome p{display:none}
+.frosty-message{margin:10px 0 24px}.frosty-author{font-size:10px;letter-spacing:1px;color:var(--secondary)}
+.frosty-message.user .frosty-prose{background:var(--elevated);border-radius:3px;padding:10px 13px;margin-top:6px}
+.frosty-prose{font:13px/1.8 var(--ui-font);overflow-wrap:anywhere;white-space:pre-wrap}.frosty-prose:has(p){white-space:normal}.frosty-prose p{margin:8px 0}.frosty-prose a{color:var(--ice);text-decoration:underline}.frosty-prose ul,.frosty-prose ol{padding-left:22px}
+.frosty-prose pre{white-space:pre;overflow:auto;padding:12px;background:var(--elevated);border-radius:3px;font:12px/1.6 var(--ui-font)}.frosty-prose code{font-family:var(--ui-font);font-size:12px}.frosty-prose table{display:block;overflow:auto;border-collapse:collapse}.frosty-prose td,.frosty-prose th{padding:6px;border:1px solid var(--line)}.frosty-prose blockquote{margin:10px 0;padding-left:12px;border-left:2px solid var(--line);color:var(--secondary)}
+.frosty-copy{margin-top:8px;font-size:10px!important;padding:4px 8px!important}
+.frosty-compose-area{flex-shrink:0;padding-top:10px}.frosty-notice{font-size:11px;line-height:1.6;margin:0 0 9px;color:var(--secondary);max-height:70px;overflow:auto}
+.frosty-activity{font-size:10px;margin:0 0 10px;color:var(--secondary)}.frosty-activity summary{cursor:pointer}.frosty-activity ol{padding-left:18px;max-height:70px;overflow:auto;line-height:1.8}
+.frosty-context-actions{display:flex;gap:8px;padding:0 0 10px}.frosty-context-actions button{font-size:11px;padding:7px 9px}
+.frosty-context{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:11px;padding:8px;background:var(--elevated);border-radius:3px}.frosty-context span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}.frosty-context button{border:0;padding:4px;font-size:10px}
+.frosty-composer{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:14px}.frosty-composer:focus-within{border-color:var(--ice)}
+.frosty-composer textarea{display:block;width:100%;resize:none;min-height:50px;max-height:120px;border:0;background:transparent;font-size:13px;line-height:1.6;outline:none}
+.frosty-compose-bottom{display:flex;gap:8px;align-items:center;margin-top:10px}.frosty-compose-bottom small{font-size:9px;color:var(--secondary);flex:1}.frosty-send{background:var(--ice)!important;color:var(--on-accent)!important;border-color:var(--ice)!important}.frosty-privacy{font-size:9px;line-height:1.6;color:var(--secondary);margin:10px 0 20px}.frosty-retry{font-size:11px!important;margin:0 0 10px}
+.hljs-keyword,.hljs-selector-tag,.hljs-literal{color:#785780}.hljs-string,.hljs-attr{color:#37715e}.hljs-number,.hljs-title{color:#a05e35}.hljs-comment{color:#61736e}
+@media(min-width:900px){.frosty-panel{max-height:1000px}.frosty-head{padding-top:32px}}
+@media(max-width:600px){.frosty-panel{padding:0 16px;min-height:520px}.frosty-head{grid-template-columns:1fr auto;padding:12px 0;gap:8px}.frosty-head h1 img{width:110px}.frosty-model-row{padding:8px 0}.frosty-composer textarea{font-size:16px}.frosty-welcome p{max-width:260px}.frosty-compose-bottom small{max-width:180px}.frosty button{min-height:36px}.frosty-privacy{margin-bottom:12px}.frosty-mascot{width:70px;height:88px}}
+@media(prefers-reduced-motion:reduce){.frosty *{transition:none!important;animation:none!important}}
+
+.frosty-message.assistant:has(>.frosty-mascot){display:grid;grid-template-columns:42px minmax(0,1fr);column-gap:12px;align-items:start}.frosty-message.assistant>.frosty-mascot{grid-column:1;grid-row:1/4;width:42px!important;height:58px!important;margin-top:3px}.frosty-message.assistant:has(>.frosty-mascot)>.frosty-author,.frosty-message.assistant:has(>.frosty-mascot)>.frosty-prose,.frosty-message.assistant:has(>.frosty-mascot)>.frosty-copy{grid-column:2}.frosty-copy{justify-self:start}

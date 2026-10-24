@@ -43,3 +43,5 @@ Last updated: 2026-10-20.
 - public/link-routing.mjs: engine page-init routing for new-window links and popups into shell tabs; test/link-routing.test.mjs covers resolution, gestures, popup guard, and form containment.
 
 - device-access.mjs: browser cookie parsing/issuance and bounded10-second status cache; server relay authorization and15-second active-connection checks. public/device-access.mjs: code display and banned screen. admin/service.mjs: owner ban/unban/status and public boolean status; DynamoDB ban:UUID records. test/device-access.test.mjs and deployment/admin tests cover enforcement, privacy and recovery.
+
+Frosty UI: public/frosty/assistant.mjs owns chat and full-page composition, route.mjs handles the /#frosty route, style.css matches browser tokens, companion.mjs owns the minimal snowman and small intact hop. The separate preview files and entry link have been removed. test/frosty-route.test.mjs and test/companion.test.mjs cover route and movement invariants.

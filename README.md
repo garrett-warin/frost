@@ -6,7 +6,7 @@ Frost is a handmade winter browser workspace with tabs, bookmarks, history and D
 
 Clone with `git clone --recurse-submodules https://github.com/garrett-warin/frost.git`. For an existing clone, run `git submodule update --init --recursive` first.
 
-Requires Node 22+. Run `npm ci`, `npm run build`, then `npm start`. Open http://localhost:3100. Local mode binds loopback and validates localhost Host/Origin.
+Requires Node 22.9+. Run `npm ci`, `npm run build`, then `npm start`. Open http://localhost:3100. Local mode binds loopback and validates localhost Host/Origin.
 
 The engine is https://github.com/garrett-warin/engine pinned at 23f410dd46d6bfc66cef5cf51e98bb550251d265. `upstream/app/vendor` contains the matching committed runtime, WASM, controller and HTTP transport. The build copies this bundle and records hashes in public/vendor/manifest.json. Upstream sources and build instructions remain under upstream/. No mixed artifacts from the previous engine are used.
 
@@ -30,3 +30,7 @@ Rollback: retain the prior image reference after each release and redeploy it wi
 Frost uses light mode only and restores tabs on reopening. History remains saved locally. Use the Site fullscreen button to expand a website and Escape to exit. Data stays within the same browser and origin.
 
 Owner publishing: open Admin Console in the three-dot menu and enter your authenticator code. One-time enrollment is required first. The console runs on a separate CloudFront origin; see docs/ANNOUNCEMENTS.md. No production announcement is published by default.
+
+## Frosty API setup
+
+Copy `.env.example` to `.env`, paste an OpenRouter key into `FROST_AI_API_KEY`, then restart `npm start`. Existing shell environment variables take precedence over the file. The example offers two free models in Frosty’s model picker. See [Frosty configuration](docs/FROSTY.md) for provider limits and hosted deployment setup.

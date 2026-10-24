@@ -22,3 +22,5 @@ Status: browser workspace and handmade-theme checkpoints verified within the rec
 
 - [CloudFront addresses and online status](CLOUDFRONT.md)
 - [Browser ban enforcement](decisions/003-browser-bans.md)
+
+- [Frosty API configuration](FROSTY.md)

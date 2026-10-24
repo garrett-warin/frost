@@ -1,5 +1,6 @@
 import { destination, searchEngines } from "./navigation.mjs";
 import { checkDevice } from "./device-access.mjs";
+import { mountFrosty } from "./frosty/assistant.mjs";
 import {
   defaults,
   saveSession,
@@ -44,6 +45,21 @@ const getState = () => ({
   downloads: transfers.items,
   active,
   closedTabs,
+});
+mountFrosty({
+  onOpen(){exitSiteFullscreen();document.getElementById('browser-menu').hidden=true;},
+  getPage(kind){
+    if(!active?.element||active.home||active.error)throw new Error('Open a webpage first.');
+    try {
+      const doc=active.element.contentDocument;
+      if(!doc?.body)throw new Error();
+      let text;
+      if(kind==='selection')text=active.element.contentWindow.getSelection()?.toString();
+      else {const clone=doc.body.cloneNode(true);clone.querySelectorAll('script,style,noscript,input,textarea,select,[hidden],[aria-hidden="true"]').forEach(node=>node.remove());text=clone.textContent;}
+      return {title:active.title||'Current page',text:String(text||'').trim().slice(0,16000)};
+    }catch{throw new Error('This page does not allow Frosty to read its text. You can paste an excerpt instead.');}
+  },
+  openLink(url){if(tabs.length>=24){status('Close a tab before opening another.');return;}const tab=makeTab(crypto.randomUUID());tabs.push(tab);activate(tab);void navigateTo(url,tab);}
 });
 function status(message) {
   $("status").textContent = message;
@@ -622,7 +638,7 @@ document.addEventListener("click", (event) => {
     menu.hidden = true;
 });
 document.addEventListener("keydown", (event) => {
-  if ($("panel-dialog").open) return;
+  if ($("panel-dialog").open || document.body.classList.contains("frosty-open")) return;
   const mod = event.ctrlKey || event.metaKey;
   let action;
   if (mod) {

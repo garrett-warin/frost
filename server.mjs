@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import { WebSocketServer } from "ws";
 import { createPresence } from "./presence.mjs";
+import { createAssistant } from "./assistant.mjs";
 import { createDeviceAccess } from "./device-access.mjs";
 import { resolvePublic } from "./relay-policy.mjs";
 
@@ -49,6 +50,7 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
     ? host === new URL(configuredOrigin).host
     : /^localhost:\d+$/.test(host || "");
   const presence = createPresence();
+  const assistant = createAssistant();
   const deviceAccess = createDeviceAccess({adminOrigin,secure:!!publicOrigin,fetchStatus:deviceStatusFetch});
   const serverLabel = machineId === "683e3d9ae17238" ? "Ashburn 1" : machineId === "839496c774d638" ? "Ashburn 2" : machineId === "local" ? "Local" : machineId;
   logging.set_level(logging.NONE);
@@ -65,6 +67,12 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
     if (!allowedHost(req.headers.host)) {
       res.writeHead(403).end("Unrecognized host.");
       return;
+    }
+    if(req.url==='/api/frosty/config' && req.method==='GET'){
+      res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify(assistant.info()));return;
+    }
+    if(req.url==='/api/frosty/chat' && req.method==='POST'){
+      await assistant.handle(req,res,{device:deviceAccess.read(req),allowedOrigins:[configuredOrigin||`http://localhost:${app.address().port}`,...allowedEdges],checkBan:deviceAccess.banned});return;
     }
     if (!["GET", "HEAD"].includes(req.method)) {
       res.writeHead(405).end();

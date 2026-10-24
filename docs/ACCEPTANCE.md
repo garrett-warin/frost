@@ -53,3 +53,9 @@ Link containment: browser verified Ctrl-click and middle-click each create a bac
 Release passed: 21 automated tests; both Fly machines healthy; main CloudFront internal-tab Ctrl-click verified. Screenshot frost-internal-tabs.png.
 
 Browser bans acceptance: reject unauthenticated/wrong-origin mutations and malformed device codes; preserve TOTP enrollment; show owner status/note only after login; ban/unban record persists; public status excludes private note; relay rejects missing/banned cookie and terminates open banned connections; service failure denies access. Cookie reset/other browser/origin bypass explicitly disclosed.
+
+Frosty: verify real stream parsing/cancellation, invalid inputs, rate caps, disabled config, provider errors, sanitized links/Markdown, context opt-in, conversation persistence/clear, keyboard/reduced-motion/mobile, interrupted motion and navigation regression. Real provider smoke test requires configured credentials; report missing setup honestly.
+
+Frosty page acceptance: sparkle opens /#frosty; Back to Frost/Escape/browser back restore browsing; direct-route reload retains the page; chat/model selection survives view changes. The model has two outline snowballs, dot eyes and a small nose, without arms, buttons, mouth or shadow. Verify a small intact hop with no head separation or rotation, plus a still reduced-motion state. The preview link and controls must be absent and the former preview URL must no longer serve a preview. Provider smoke test is a harmless synthetic message; report each model result independently.
+
+Frosty mascot follows the latest assistant reply; only the empty chat displays it centrally. Restore and clear operations must keep exactly one mascot.

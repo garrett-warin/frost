@@ -15,6 +15,8 @@ kill_timeout = "15s"
   FROST_EDGE_ORIGINS = "https://d2ryor8waw6z1s.cloudfront.net,https://d1q0aijop34kna.cloudfront.net,https://d2zy4ij46v7gqx.cloudfront.net,https://d10u396tqu8xla.cloudfront.net,https://dvjtvu2ebcqkl.cloudfront.net"
   FROST_PRESENCE_MACHINE = "683e3d9ae17238"
   FROST_ADMIN_ORIGIN = "https://d2ftxdtd3x015d.cloudfront.net"
+  FROST_AI_BASE_URL = "https://openrouter.ai/api/v1"
+  FROST_AI_MODELS = "cohere/north-mini-code:free,google/gemma-4-31b-it:free"
 
 [http_service]
   internal_port = 8080

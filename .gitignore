@@ -11,3 +11,5 @@ public/source.zip
 *.key
 *.log
 .aws/
+
+!.env.example
