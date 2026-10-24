@@ -59,3 +59,14 @@ Frosty: verify real stream parsing/cancellation, invalid inputs, rate caps, disa
 Frosty page acceptance: sparkle opens /#frosty; Back to Frost/Escape/browser back restore browsing; direct-route reload retains the page; chat/model selection survives view changes. The model has two outline snowballs, dot eyes and a small nose, without arms, buttons, mouth or shadow. Verify a small intact hop with no head separation or rotation, plus a still reduced-motion state. The preview link and controls must be absent and the former preview URL must no longer serve a preview. Provider smoke test is a harmless synthetic message; report each model result independently.
 
 Frosty mascot follows the latest assistant reply; only the empty chat displays it centrally. Restore and clear operations must keep exactly one mascot.
+
+Frosty image upload: one PNG/JPEG/WebP up to2MiB per send, local preview/remove, explicit Send before transmission, auto-select an available image-capable model with visible notice. Server validates declared MIME against bytes and bounds request size; text-only models reject image payloads. Image bytes are not written to session history or server files; reattach for follow-ups. Verify valid images, mismatched/unsupported/oversized input, selection gating, removal and provider failures.
+
+## Groq provider acceptance — pending, 2026-10-23
+
+- Verify the Groq adapter uses its fixed official endpoint and only `GROQ_API_KEY`; reject unsupported/duplicate models and never expose keys in public configuration or errors.
+- Verify GPT-OSS options reject images; Qwen preview accepts validated PNG/JPEG/WebP up to 2 MiB and attachment auto-selection remains visible.
+- Exercise the 5,440-byte text-only and 3,392-byte image prompt boundaries, including multibyte UTF-8, system instruction, history and page context. Over-budget input must fail before provider access, without silent truncation.
+- Verify 2,048 output-token cap, provider-specific payload fields, real streaming/cancellation, 429 recovery and 413 guidance. Organization quota can still be exhausted within Frost's per-process caps.
+- Verify explicitly selecting OpenRouter retains its separate key, `:free` allowlist, zero prompt/completion price guard and data-collection restriction. No automatic fallback or account upgrade.
+- After the user supplies a Groq key for a Free organization, record each harmless text/image smoke result independently; confirm both existing Fly Machines remain healthy after the authorized rollout. Until then, provider tests, live Groq responses and deployment are pending. Existing image tests are not new-provider evidence.

@@ -1,6 +1,6 @@
 # Current state
 
-Last updated: 2026-10-20.
+Last updated: 2026-10-23.
 
 Frost now has a modular local browser shell, independent tab state, address suggestions, bookmarks/history, settings, command palette, direct-URL downloads, loading/error recovery, and an isolated transport layer. The latest user direction replaces the polished wordmark/theme with an informal handmade winter look: slightly uneven legible lettering with tiny icicle tails, cold charcoal/navy, flat squared controls, monospace utility text, and horizontal quick links. Centered functional search remains; corner cracks, gradients, ambient glow, and marketing footer stay absent. The handmade theme has been inspected in dark and Light desktop views and a narrow mobile view; exact evidence and limits follow. The standalone f was removed from the toolbar and empty tabs; the favicon/fallback icon is a neutral globe. This supersedes the earlier supplied wordmark; no Bonfire, Kin, or Proxy labels remain in the ordinary browser UI. Legal/source attribution is retained.
 
@@ -89,3 +89,15 @@ Final local verification: all35 Node tests passed; JavaScript syntax and diff wh
 Minimal-mascot verification: three targeted motion/route tests passed; assistant JavaScript syntax passed. Browser inspected retained chat with simplified snowman and no preview link. All three removed preview URLs return404. Evidence: .project-memory/evidence/frosty-simple.png. Local-only update; no deployment.
 
 2026-10-23 Frosty release preparation: latest-reply mascot placement added before deployment.35 tests and production asset build passed; independent release review found no blocker. Target frost-browsing existing machines683e3d9ae17238/839496c774d638, iad,1024MB, autostop off. Rollback image registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2. No database/admin migration; AI configuration is additive. Default new visitors to tested North Mini Code; retain Gemma in picker. Deploy and live verification pending.
+
+Release scope expanded before rollout: image attachment UI and server multimodal request support. Three image validation/HTTP tests pass; local browser verified attach, preview, model switching, text-only send blocking and removal. Images are capped2MiB; no binary history persistence. Live vision response and final release checks pending.
+
+## Groq switch before deployment — 2026-10-23
+
+The user accepted Groq Free before the Frosty rollout. The adapter uses `FROST_AI_PROVIDER=groq`, fixed official endpoint, separate `GROQ_API_KEY`, and the GPT-OSS 20B/120B + Qwen 3.8 27B preview allowlist. Qwen handles images; prior Gemma/North Mini smoke results remain OpenRouter-only evidence. OpenRouter is still available by explicit selection with the old `:free` and zero-price safeguards.
+
+Groq requires the account to remain Free; there is no request-level zero-price switch. The conservative all-text UTF-8 guard rejects above 5,440 bytes without an image or 3,392 with one, reserving output/image/framing budget. Existing 2 MiB image UI and validation checks passed; provider-specific tests are pending. User key entry, a live Groq response and deployment have not occurred at this checkpoint. Preserve rollback image `registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2`, both existing Fly Machines, and admin state. Details: [FROSTY.md](FROSTY.md), [ADR 004](decisions/004-frosty-groq.md).
+
+
+
+Pre-release verification, 2026-10-23: all 42 Node tests passed, production build and JavaScript syntax passed, and independent backend review passed 13 targeted tests with no runtime blocker. README setup corrected to Groq. Local browser received real responses from GPT-OSS 20B and 120B; Qwen correctly identified a synthetic red PNG. Model auto-selection, removal and text-only gating verified. The owner saved the Groq key locally, and only GROQ_API_KEY was securely staged in Fly. No rollout has occurred yet. Earlier OpenRouter vision attempt returned a capacity error, not a successful image response.

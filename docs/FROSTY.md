@@ -1,32 +1,45 @@
 # Frosty API configuration
 
-Frosty currently supports one OpenRouter key with multiple approved free models. Its model picker remembers the visitor's choice. Groq and Cloudflare Workers AI are alternatives listed in the user's [free-ai-models repository](https://github.com/ClawLabsAI/free-ai-models), but their direct endpoints need adapter changes; changing only the base URL will not work with the current `:free` model validation and OpenRouter routing options.
+Updated 2026-10-23. The accepted release direction is Groq on its Free plan, selected with `FROST_AI_PROVIDER=groq`. Provider tests, the user's new key entry, a real Groq response, and deployment remain pending. Earlier OpenRouter smoke results do not verify Groq.
 
 ## Local setup
 
-1. Use Node 22.9 or newer. Copy `.env.example` to `.env` if the latter does not exist. Never overwrite a configured file.
-2. Create an API key in [OpenRouter settings](https://openrouter.ai/settings/keys) and paste it into `FROST_AI_API_KEY` in `.env`. Keep it out of chat and source control.
-3. Leave `FROST_AI_BASE_URL` as `https://openrouter.ai/api/v1`. Edit the comma-separated `FROST_AI_MODELS` list to change the picker. Every ID must end in `:free`; up to 12 models are allowed.
-4. Stop the old local server and run `npm start` from the Frost folder. It loads `.env` when present. Shell environment variables take precedence. The example uses port 3104.
+1. Use Node 22.9 or newer. Copy `.env.example` to `.env` only when the latter does not exist; preserve existing configuration.
+2. Create a key in [Groq Console](https://console.groq.com/keys) under an organization that remains on the Free plan. Enter it locally as `GROQ_API_KEY`; never paste it into chat, frontend files, Git, or build output.
+3. Set `FROST_AI_PROVIDER=groq`. `FROST_AI_MODELS` can contain only `openai/gpt-oss-20b`, `openai/gpt-oss-120b`, and `qwen/qwen3.8-27b`. GPT-OSS models are text-only; Qwen is the image-capable preview option. The picker remembers the visitor's selection.
+4. Restart `npm start`. `.env` is loaded when present; shell variables take precedence. The local template uses port 3104.
 
-The template lists [Gemma 4 31B](https://openrouter.ai/google/gemma-4-31b-it:free) and [North Mini Code](https://openrouter.ai/cohere/north-mini-code:free), verified as free catalog entries on 2026-10-23. Catalog presence is not a successful inference test. Availability changes. Requests require a provider that accepts `data_collection: deny`, with prompt/completion prices capped at zero. A model may be unavailable under these restrictions.
+Groq requests use the fixed official endpoint `https://api.groq.com/openai/v1/chat/completions`; changing `FROST_AI_BASE_URL` does not redirect them. The public configuration endpoint exposes readiness and model metadata, never the key. `.env` is excluded from Git, Docker context, and corresponding-source archives. See [Groq API compatibility](https://console.groq.com/docs/openai).
 
-The API key is server-only. `.env` is ignored by Git, excluded from the Docker context, and excluded from the source archive. Only the empty `.env.example` is shareable. Do not put either a key or a configured `.env` in `public/`. The public configuration endpoint exposes model IDs and readiness, never the key.
+## Free-plan limits and safeguards
 
-## Free allowances
+The [Groq limits table](https://console.groq.com/docs/rate-limits), checked 2026-10-23, lists each approved model at 30 requests/minute, 1,000/day, 8,000 tokens/minute, and 200,000/day. Limits apply at organization level, with the account console authoritative for exceptions; switching visitors or Fly Machines does not create new allowances.
 
-As checked on 2026-10-23:
+Keep the organization on Free. Groq has no request-level equivalent of OpenRouter's zero-price routing guard: a model allowlist does not prevent charges if the account is upgraded. Frost does not upgrade the account or switch providers automatically. Limit errors remain visible.
 
-- [OpenRouter limits](https://openrouter.ai/docs/api_reference/limits): the supplied repository reports 20 requests/minute and 50/day for accounts below the paid-credit threshold, shared across free models. Check the account's actual limit. Switching models does not reset the daily allowance.
-- [Groq limits](https://console.groq.com/docs/rate-limits): its free-plan table lists 30 requests/minute, 1,000/day, 8,000 tokens/minute and 200,000 tokens/day for GPT-OSS 20B/120B and Qwen3.8 27B. Limits are organization-level and model-dependent.
-- [Cloudflare Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/): 10,000 Neurons/day on the Free plan, reset at 00:00 UTC. Neurons measure compute, not request count. The Free plan rejects requests over the cap; Paid plans can charge for excess usage.
+The Groq adapter reserves 2,048 output tokens and 512 framing tokens. One image reserves another 2,048 input tokens, as documented in [Groq vision](https://console.groq.com/docs/vision). A conservative UTF-8 byte guard bounds all text sent, including system instruction, conversation, and attached page/selection snapshot:
 
-Frost's own limits apply per server process: five requests/minute per device, twenty/minute globally, four concurrent requests, and a sixty-second deadline. Two Fly processes can allow forty requests/minute and eight concurrent requests in aggregate; provider account limits still apply across both.
+| Request | Maximum text bytes |
+| --- | ---: |
+| Text only | 5,440 |
+| With one image | 3,392 |
 
-## Hosted setup
+Over-budget requests are rejected explicitly with guidance to start a new chat or reduce page text; nothing is silently truncated. This per-request approximation does not guarantee remaining organization quota or exact tokenization.
 
-This local file does not configure the hosted site. Production uses Fly secrets/environment variables with the same three `FROST_AI_*` names. Set the API key as a Fly secret; do not place it in `fly.toml`, Docker images, frontend code, or Git. Do not import the local `PORT=3104` into Fly, which uses port 8080. Deploying the Frosty implementation and verifying a real provider response remain separate release steps.
+Frost's existing per-process limits remain five requests/minute per device, twenty/minute globally, four concurrent requests, and a sixty-second deadline. Two Fly processes can exceed the provider's shared minute allowance, so provider 429 responses must remain an expected recoverable state.
 
-## Data and behavior
+## Images and data
 
-Messages go to the configured provider. Page or selection snapshots are attached only by an explicit click and sent with the next message. They are treated as untrusted reference text. Chat history stays in session storage for the current browser tab until cleared. Frosty has no autonomous browsing/search tools. Activity labels describe actual connection/stream events, not private model reasoning.
+Attach one PNG/JPEG/WebP up to 2 MiB, preview/remove it locally, then explicitly Send. Groq image attachment selects `qwen/qwen3.8-27b` with a visible notice; text-only models reject images. Qwen is a preview model and availability can change; consult the [model catalog](https://console.groq.com/docs/models).
+
+Server validation checks declared type against bytes, base64 encoding, size, and model capability. Image bytes are held in memory, omitted from saved chat history, and must be reattached for follow-ups. Chat text stays in session storage until cleared. Page/selection snapshots are opt-in reference text, not trusted instructions. Frosty has no autonomous browsing/search tools and exposes activity labels, not hidden reasoning.
+
+## Explicit OpenRouter fallback
+
+To deliberately return to OpenRouter, set `FROST_AI_PROVIDER=openrouter`, supply its separate `FROST_AI_API_KEY`, retain `https://openrouter.ai/api/v1`, and provide approved `:free` model IDs in `FROST_AI_MODELS`. The adapter retains `data_collection: deny` and zero prompt/completion price caps. It never sends the Groq key to OpenRouter or silently substitutes a paid model. Availability and account limits still apply. Existing image capability there is `google/gemma-4-31b-it:free`; North Mini Code is text-only.
+
+## Hosted setup and release state
+
+Local configuration does not configure Fly. The intended hosted selection is `FROST_AI_PROVIDER=groq`, the approved model list, and `GROQ_API_KEY` as a Fly secret. Do not import local `PORT=3104`; Fly uses 8080. Preserve the separate OpenRouter credential only if retaining an explicitly selectable fallback.
+
+The user has accepted switching before deployment, but key entry and Groq verification are still pending. Do not report the new provider as live until a real harmless response and the existing two-Machine health checks succeed. No database/admin migration is required. Preserve the prior release image `registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2` and the established rollback procedure. See [provider decision](decisions/004-frosty-groq.md).

@@ -33,4 +33,4 @@ Owner publishing: open Admin Console in the three-dot menu and enter your authen
 
 ## Frosty API setup
 
-Copy `.env.example` to `.env`, paste an OpenRouter key into `FROST_AI_API_KEY`, then restart `npm start`. Existing shell environment variables take precedence over the file. The example offers two free models in Frosty’s model picker. See [Frosty configuration](docs/FROSTY.md) for provider limits and hosted deployment setup.
+If `.env` does not exist, copy `.env.example` to it. Paste a Groq Free-plan key into `GROQ_API_KEY`, then restart `npm start`. Keep the organization on the Free plan; the API cannot force zero pricing for a paid account. Existing shell environment variables take precedence over the file. The example offers GPT-OSS 20B, GPT-OSS 120B, and Qwen 3.8 27B (preview, with images). See [Frosty configuration](docs/FROSTY.md) for limits, the explicit OpenRouter alternative, and hosted setup.

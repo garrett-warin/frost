@@ -24,3 +24,9 @@ Status: browser workspace and handmade-theme checkpoints verified within the rec
 - [Browser ban enforcement](decisions/003-browser-bans.md)
 
 - [Frosty API configuration](FROSTY.md)
+
+- [Frosty Groq Free decision](decisions/004-frosty-groq.md)
+- [2026-10-23 provider worklog](worklog/2026-10-23.md)
+
+Latest status, 2026-10-23: Groq Free switch accepted before deployment; key entry, provider verification and rollout pending.
+
