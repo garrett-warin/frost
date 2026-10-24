@@ -29,4 +29,3 @@ Status: browser workspace and handmade-theme checkpoints verified within the rec
 - [2026-10-23 provider worklog](worklog/2026-10-23.md)
 
 Latest status, 2026-10-23: Groq Free switch accepted before deployment; key entry, provider verification and rollout pending.
-

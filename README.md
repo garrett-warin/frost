@@ -20,9 +20,9 @@ Production requires PUBLIC_ORIGIN=https://frost-browsing.fly.dev, HOST=0.0.0.0 a
 
 ## Checks and limits
 
-`npm test`: sixteen tests pass, including production origins, destination restrictions, browser state and address handling. Local engine browsing loaded Example Domain; production verification is recorded in docs/CURRENT.md. Website compatibility varies and rewriting is not a browser isolation boundary. Downloads supports explicit file URLs up to 100 MB; host-browser download enumeration and OS reveal are unavailable.
+`npm test`: 42 tests passed at the Frosty/Groq release, including production origins, destination restrictions, browser state and address handling. Local engine browsing loaded Example Domain; production verification is recorded in docs/CURRENT.md. Website compatibility varies and rewriting is not a browser isolation boundary. Downloads supports explicit file URLs up to 100 MB; host-browser download enumeration and OS reveal are unavailable.
 
-Rollback: retain the prior image reference after each release and redeploy it with `fly deploy --image <previous-image>`. This first hosted release has no prior hosted image; the previous local source archive is retained in .project-memory/releases. See docs/decisions/002-fly-engine-migration.md for recovery details.
+Rollback: retain the prior image reference after each release and redeploy it with `fly deploy --image <previous-image>`. The exact last-known-good image and latest release evidence are recorded in docs/CURRENT.md. See docs/decisions/002-fly-engine-migration.md for recovery details.
 
 
 ## Announcements and saved tabs
