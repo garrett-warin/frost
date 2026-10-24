@@ -1,0 +1,13 @@
+node_modules/
+public/vendor/
+.project-memory/*
+!.project-memory/README.md
+engine/
+output/
+public/source.zip
+.env
+.env.*
+*.pem
+*.key
+*.log
+.aws/

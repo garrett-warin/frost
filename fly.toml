@@ -1,0 +1,47 @@
+app = "frost-browsing"
+primary_region = "iad"
+kill_signal = "SIGTERM"
+kill_timeout = "15s"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  HOST = "0.0.0.0"
+  PORT = "8080"
+  PUBLIC_ORIGIN = "https://frost-browsing.fly.dev"
+  FROST_EDGE_ORIGIN = "https://d29bikvk0kgibf.cloudfront.net"
+  FROST_EDGE_ORIGINS = "https://d2ryor8waw6z1s.cloudfront.net,https://d1q0aijop34kna.cloudfront.net,https://d2zy4ij46v7gqx.cloudfront.net,https://d10u396tqu8xla.cloudfront.net,https://dvjtvu2ebcqkl.cloudfront.net"
+  FROST_PRESENCE_MACHINE = "683e3d9ae17238"
+  FROST_ADMIN_ORIGIN = "https://d2ftxdtd3x015d.cloudfront.net"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"
+  auto_start_machines = true
+  min_machines_running = 2
+
+  [http_service.concurrency]
+    type = "connections"
+    soft_limit = 50
+    hard_limit = 100
+
+  [[http_service.checks]]
+    grace_period = "15s"
+    interval = "15s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+    [http_service.checks.headers]
+      Host = "frost-browsing.fly.dev"
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory = "1gb"
+
+[[restart]]
+  policy = "always"
+
+

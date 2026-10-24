@@ -1,0 +1,28 @@
+{
+  "name": "frost",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "license": "AGPL-3.0-only",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node scripts/build.mjs",
+    "test": "node --test test/*.test.mjs",
+    "package:source": "node scripts/package-source.mjs",
+    "announce": "node scripts/announce.mjs"
+  },
+  "dependencies": {
+    "@mercuryworkshop/wisp-js": "0.4.1",
+    "ipaddr.js": "2.2.0",
+    "otpauth": "9.5.2",
+    "qrcode": "1.5.4",
+    "ws": "8.22.0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "fflate": "0.8.3"
+  }
+}

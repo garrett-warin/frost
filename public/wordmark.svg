@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="12 10 402 128" role="img" aria-labelledby="title description">
+  <title id="title">frost</title>
+  <desc id="description">A loosely hand-lettered lowercase frost wordmark, drawn in off-white with small frozen tails under the f and t.</desc>
+  <g fill="none" stroke="#edf3f4" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M44 111 47 43C48 28 53 22 65 23c6 0 10 2 13 6M28 65c16-3 33-3 48-1"/>
+    <path d="m106 112 2-47m0 18c9-17 22-24 37-18"/>
+    <path d="M216 62c-19-5-32 9-31 28 1 18 15 27 30 22 18-6 26-24 21-38-3-9-11-13-20-12Z"/>
+    <path d="M308 67c-11-10-29-9-34 1-7 14 12 17 21 21 9 4 15 8 11 16-5 11-24 13-35 4"/>
+    <path d="m358 36-2 54c-1 17 4 23 17 23 8 0 15-2 21-6M337 67c17-2 34-2 51-1"/>
+  </g>
+  <g fill="#edf3f4">
+    <path d="m40 108 3 18q.6 2 1.4 0l4-18Z"/>
+    <path d="m363 108 5 19q.7 2 1.2 0l2-15Z"/>
+  </g>
+</svg>

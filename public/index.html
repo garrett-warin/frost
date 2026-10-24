@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#edf1ec">
+  <meta name="description" content="Frost, a focused browser for the web.">
+  <title>Home | Schoology</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="/panels.css">
+  <script defer src="/vendor/runtimekit.js"></script>
+  <script defer src="/vendor/controller.api.js"></script>
+  <script defer src="/vendor/runtimekit-utils.js"></script>
+  <script defer src="/vendor/httpengine-client.js"></script>
+  <script type="module" src="/app.mjs"></script>
+</head>
+<body data-theme="light">
+  <aside id="announcement" aria-label="Developer Announcement" hidden><strong><svg class="announcement-hammer" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4v1h8l6 4-1 3-5-4h-2v3H9V8H7v1H3Z"/><path d="M9 11h4v10H9Z"/><path d="m17 8 3 2"/></svg>Developer Announcement</strong><p id="announcement-text"></p></aside>
+  <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="m11 5-7 7 7 7M4 12h16"/></symbol>
+    <symbol id="i-forward" viewBox="0 0 24 24"><path d="m13 5 7 7-7 7M20 12H4"/></symbol>
+    <symbol id="i-reload" viewBox="0 0 24 24"><path d="M20 10a8 8 0 1 0-1.8 7M20 4v6h-6"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7M5 9v11h5v-6h4v6h5V9"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3l-5.6 2.9 1.1-6.2L3 9.6l6.2-.9Z"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></symbol>
+  </svg>
+
+  <header class="browser-chrome">
+    <div class="tabstrip">
+      <div id="tabs" role="tablist" aria-label="Open tabs"></div>
+      <button id="new-tab" class="icon-button" type="button" aria-label="New tab" title="New tab (Ctrl+T)"><svg aria-hidden="true"><use href="#i-plus"/></svg></button>
+      <span id="tab-count">1 tab</span>
+    </div>
+    <nav class="toolbar" aria-label="Browser controls">
+      <div class="navigation-controls">
+        <button id="back" class="icon-button" type="button" title="Go back (Alt+Left)" aria-label="Back" disabled><svg aria-hidden="true"><use href="#i-back"/></svg></button>
+        <button id="forward" class="icon-button" type="button" title="Go forward (Alt+Right)" aria-label="Forward" disabled><svg aria-hidden="true"><use href="#i-forward"/></svg></button>
+        <button id="reload" class="icon-button" type="button" title="Reload (Ctrl+R)" aria-label="Reload" disabled><svg aria-hidden="true"><use href="#i-reload"/></svg></button>
+        <button id="home" class="icon-button optional-control" type="button" title="New tab page" aria-label="Home"><svg aria-hidden="true"><use href="#i-home"/></svg></button>
+      </div>
+      <div class="omnibox-wrap">
+        <form id="address-form" role="search">
+          <span class="site-indicator" title="Website address"><svg aria-hidden="true"><use href="#i-globe"/></svg></span>
+          <input id="address" aria-label="Website address or search" role="combobox" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false" placeholder="Search Frost or enter an address" autocomplete="off" spellcheck="false">
+          <button id="bookmark-toggle" class="icon-button" type="button" title="Bookmark this page" aria-label="Bookmark this page" aria-pressed="false" disabled><svg aria-hidden="true"><use href="#i-star"/></svg></button>
+        </form>
+        <div id="suggestions" role="listbox" aria-label="Address suggestions" hidden></div>
+      </div>
+      <label class="sr-only" for="search-engine">Search engine</label>
+      <select id="search-engine" title="Search engine"><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option><option value="brave">Brave</option></select>
+      <button id="site-fullscreen" class="icon-button" type="button" title="Site fullscreen" aria-label="Site fullscreen" disabled>⛶</button>
+      <button id="menu-toggle" class="icon-button" type="button" title="Frost menu" aria-label="Frost menu" aria-expanded="false" aria-controls="browser-menu"><svg aria-hidden="true"><use href="#i-menu"/></svg></button>
+    </nav>
+    <div id="bookmarks-bar" class="bookmarks-bar" aria-label="Bookmarks" hidden></div>
+  </header>
+
+  <div class="content-region">
+    <div id="loading-progress" class="loading-progress" role="progressbar" aria-label="Loading page" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden></div>
+    <main id="landing">
+      <div class="start-content">
+        <h1><img class="wordmark" src="/wordmark.svg" alt="frost"></h1>
+        <form id="search-form" class="search" role="search">
+          <svg class="search-icon" aria-hidden="true"><use href="#i-search"/></svg>
+          <input id="search" aria-label="Search the web or enter a URL" placeholder="Search the web" autocomplete="off" spellcheck="false" autofocus>
+          <button class="search-go" type="submit" aria-label="Search or open website" title="Search or open website"><svg aria-hidden="true"><use href="#i-arrow"/></svg></button>
+        </form>
+        <div class="search-hint"><span id="engine-caption">Searching with DuckDuckGo</span><span class="command-hint"><kbd>Ctrl</kbd> <kbd>K</kbd> commands</span></div>
+        <section class="shortcuts" aria-label="Quick links">
+          <button type="button" data-url="https://en.wikipedia.org"><span class="shortcut-icon wikipedia" aria-hidden="true">W</span><span>Wikipedia</span></button>
+          <button type="button" data-url="https://github.com"><span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.86c-2.78.6-3.37-1.18-3.37-1.18-.45-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.61.07-.61 1 .07 1.53 1.03 1.53 1.03.89 1.52 2.34 1.08 2.91.82.09-.64.35-1.08.64-1.33-2.22-.25-4.55-1.11-4.55-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.65 0 0 .84-.27 2.75 1.03A9.6 9.6 0 0 1 12 6.83c.85 0 1.71.11 2.51.34 1.91-1.3 2.75-1.03 2.75-1.03.55 1.38.2 2.4.1 2.65.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85v2.76c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg></span><span>GitHub</span></button>
+          <button type="button" data-url="https://www.youtube.com"><span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3Z"/></svg></span><span>YouTube</span></button>
+          <button type="button" data-url="https://duckduckgo.com"><span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-search"/></svg></span><span>DuckDuckGo</span></button>
+        </section>
+      </div>
+    </main>
+    <section id="viewport" hidden aria-label="Browsing area"><button id="exit-fullscreen" type="button">Exit fullscreen · Esc</button></section>
+    <section id="error-view" class="error-view" aria-live="polite" hidden></section>
+  </div>
+
+  <footer class="statusbar"><span id="status" role="status" aria-live="polite">Starting engine…</span><span id="device-code" class="device-code"></span><span class="network-status"><span id="online-count" title="Estimated active browsers in the last 75 seconds. Separate site addresses count separately.">Online —</span><span id="server-name" title="Machine answering the latest status check; requests can move between servers as load changes.">Server —</span></span></footer>
+  <div id="browser-menu" class="browser-menu" role="menu" aria-label="Frost menu" hidden></div>
+  <dialog id="panel-dialog" aria-label="Frost panel"></dialog>
+</body>
+</html>
+
+
+
+

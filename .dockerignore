@@ -1,0 +1,10 @@
+**
+!Dockerfile
+!package.json
+!package-lock.json
+!server.mjs
+!relay-policy.mjs
+!public/
+!public/**
+!presence.mjs
+!device-access.mjs
