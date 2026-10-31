@@ -4,7 +4,7 @@ export function createDeviceAccess({adminOrigin, secure=true, fetchStatus=fetch,
  const name=secure?'__Host-frost-device':'frost-device';
  const cache=new Map();
  function read(req){const id=String(req.headers.cookie||'').split(';').map(s=>s.trim()).find(s=>s.startsWith(name+'='))?.slice(name.length+1);return validDevice(id)?id:null;}
- function issue(res){const id=randomUUID();res.setHeader('Set-Cookie',`${name}=${id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${secure?'; Secure':''}`);return id;}
+ function issue(res){const id=randomUUID(),existing=res.getHeader?.('Set-Cookie')||[];res.setHeader('Set-Cookie',[...(Array.isArray(existing)?existing:[existing]),`${name}=${id}; Path=/; HttpOnly; SameSite=Lax; Max-Age=31536000${secure?'; Secure':''}`]);return id;}
  async function banned(id){
   if(!validDevice(id))throw new Error('Device cookie required. Reload Frost.');
   if(!adminOrigin)return false;

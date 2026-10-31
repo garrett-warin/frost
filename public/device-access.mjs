@@ -4,6 +4,19 @@ export function checkDevice() {
  pending=(async()=>{
   const response=await fetch('/api/device',{cache:'no-store',signal:AbortSignal.timeout(6000)});
   const data=await response.json();
+  if(data.redirect){
+   const config=await fetch('/api/config',{cache:'no-store'}).then(r=>r.json());
+   const destination=new URL(data.redirect);
+   if(config.dispenserOrigin&&destination.origin===config.dispenserOrigin&&['/','/appeal'].includes(destination.pathname))location.replace(destination.href);
+   throw new Error(data.error||'Return to the dispenser to continue.');
+  }
+  const identity=document.getElementById('account-identity');
+  if(identity){
+   const account=response.ok&&!data.banned?data.account:null;
+   const valid=account&&typeof account.username==='string'&&typeof account.frostId==='string';
+   identity.hidden=!valid;
+   identity.textContent=valid?'@'+account.username+' · Frost ID: '+account.frostId:'';
+  }
   const badge=document.getElementById('device-code');
   if(badge && data.device){badge.textContent='Device: '+data.device;badge.title='This browser’s device code. Share it with the Frost owner when needed.';}
   let blocked=document.getElementById('device-blocked');

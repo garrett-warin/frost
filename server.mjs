@@ -6,10 +6,35 @@ import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 import { WebSocketServer } from "ws";
 import { createPresence } from "./presence.mjs";
 import { createAssistant } from "./assistant.mjs";
+import { createAccountAccess } from "./account-access.mjs";
 import { createDeviceAccess } from "./device-access.mjs";
 import { resolvePublic } from "./relay-policy.mjs";
 
 const root = fileURLToPath(new URL("./public/", import.meta.url));
+// Fixed deployment targets, never a caller-provided URL or machine ID.
+export function createServerHealth({origin,machineId,fetchHealth=fetch,now=Date.now}) {
+  let cached,pending;
+  const targets=[['683e3d9ae17238','Ashburn 1'],['839496c774d638','Ashburn 2']];
+  return async()=>{
+    if(cached&&now()-cached.checkedAt<15000)return cached;
+    if(pending)return pending;
+    pending=(async()=>{
+      const servers=await Promise.all(targets.map(async([id,name])=>{
+        if(!origin||machineId==='local')return {name,status:'unknown'};
+        const started=now();
+        try{
+          const response=await fetchHealth(new URL('/health',origin),{headers:{'Fly-Force-Instance-Id':id},redirect:'error',signal:AbortSignal.timeout(3000)});
+          const data=await response.json();
+          // Fly can fall back to another instance: that does not prove this one healthy.
+          if(data.machine!==id)return {name,status:'unknown'};
+          return {name,status:response.ok&&data.ok===true?'healthy':'unavailable',latencyMs:Math.max(0,now()-started)};
+        }catch{return {name,status:'unreachable'};}
+      }));
+      return cached={checkedAt:now(),servers};
+    })().finally(()=>{pending=undefined;});
+    return pending;
+  };
+}
 const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css",
@@ -20,7 +45,7 @@ const mime = {
   ".png": "image/png",
   ".json": "application/json",
 };
-export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = process.env.PUBLIC_ORIGIN, edgeOrigin = process.env.FROST_EDGE_ORIGIN || "", edgeOrigins = process.env.FROST_EDGE_ORIGINS || "", machineId = process.env.FLY_MACHINE_ID || "local", presenceMachine = process.env.FROST_PRESENCE_MACHINE || "", announcement = process.env.FROST_ANNOUNCEMENT || "", adminOrigin = process.env.FROST_ADMIN_ORIGIN || "" } = {}) {
+export function createFrostServer({ accountFetch = fetch, dispenserOrigin = process.env.FROST_DISPENSER_ORIGIN || "", accountSecret = process.env.FROST_ACCOUNT_SECRET || "", accountCheckMs = 15000, deviceStatusFetch = fetch, publicOrigin = process.env.PUBLIC_ORIGIN, edgeOrigin = process.env.FROST_EDGE_ORIGIN || "", edgeOrigins = process.env.FROST_EDGE_ORIGINS || "", machineId = process.env.FLY_MACHINE_ID || "local", presenceMachine = process.env.FROST_PRESENCE_MACHINE || "", announcement = process.env.FROST_ANNOUNCEMENT || "", adminOrigin = process.env.FROST_ADMIN_ORIGIN || "" } = {}) {
   if (adminOrigin && !/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(adminOrigin)) throw new Error("Invalid admin origin.");
   const allowedEdges = [...new Set([edgeOrigin, ...edgeOrigins.split(",")].map(value => value.trim()).filter(Boolean))];
   if (allowedEdges.some(origin => !publicOrigin || !/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(origin))) throw new Error("Invalid edge origin.");
@@ -32,7 +57,7 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
         const response = await fetch(adminOrigin + "/announcement", { signal: AbortSignal.timeout(4000) });
         if (response.ok) {
           const data = await response.json();
-          if (typeof data.message === "string") announcementCache = { message: data.message.slice(0, 1000) };
+          if (typeof data.message === "string") announcementCache = { message: data.message.slice(0, 1000), note: typeof data.note === 'string' ? data.note.slice(0,160) : '', maintenance: data.maintenance || {enabled:false} };
         }
       } catch {} finally { announcementChecked = Date.now(); announcementFetch = null; }
       return announcementCache;
@@ -49,6 +74,18 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
   const allowedHost = (host) => configuredOrigin
     ? host === new URL(configuredOrigin).host
     : /^localhost:\d+$/.test(host || "");
+  const accountAccess=dispenserOrigin?createAccountAccess({dispenserOrigin,internalSecret:accountSecret,fetchService:accountFetch}):null;
+  const viewerOrigin=req=>{
+    const value=req.headers['x-frost-viewer-origin']||configuredOrigin||`http://localhost:${app.address().port}`;
+    if(![configuredOrigin||`http://localhost:${app.address().port}`,...allowedEdges].includes(value))throw Error('Invalid browsing origin.');
+    return value;
+  };
+  function watchAccount(grant,origin,deny){
+    let checking=false,closed=false;
+    const timer=setInterval(async()=>{if(checking||closed)return;checking=true;try{const result=await accountAccess.remote('/internal/connection',{grant:{uid:grant.uid,fid:grant.fid,epoch:grant.epoch},origin});if(result.allowed!==true)throw Error('Access denied');}catch{if(!closed)deny();}finally{checking=false;}},accountCheckMs);
+    timer.unref();return ()=>{closed=true;clearInterval(timer);};
+  }
+  const serverHealth = createServerHealth({origin:configuredOrigin,machineId});
   const presence = createPresence();
   const assistant = createAssistant();
   const deviceAccess = createDeviceAccess({adminOrigin,secure:!!publicOrigin,fetchStatus:deviceStatusFetch});
@@ -68,11 +105,22 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
       res.writeHead(403).end("Unrecognized host.");
       return;
     }
+    let accountGrant,requestOrigin;
+    if(accountAccess){
+      try{
+        requestOrigin=viewerOrigin(req);
+        if(await accountAccess.handle(req,res,requestOrigin))return;
+        const pathname=new URL(req.url,requestOrigin).pathname;
+        if(pathname.startsWith('/api/account/')){res.writeHead(404,{'Cache-Control':'no-store'}).end();return;}
+        if(['/', '/index.html','/api/device','/api/frosty/chat'].includes(pathname)||pathname.startsWith('/browse/'))accountGrant=await accountAccess.credentials(req,res,requestOrigin);
+      }catch(error){accountAccess.deny(req,res,error);return;}
+    }
     if(req.url==='/api/frosty/config' && req.method==='GET'){
       res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify(assistant.info()));return;
     }
     if(req.url==='/api/frosty/chat' && req.method==='POST'){
-      await assistant.handle(req,res,{device:deviceAccess.read(req),allowedOrigins:[configuredOrigin||`http://localhost:${app.address().port}`,...allowedEdges],checkBan:deviceAccess.banned});return;
+      const stop=accountGrant?watchAccount(accountGrant,requestOrigin,()=>res.destroy()):()=>{};res.once('close',stop);
+      try{await assistant.handle(req,res,{device:deviceAccess.read(req),allowedOrigins:[configuredOrigin||`http://localhost:${app.address().port}`,...allowedEdges],checkBan:deviceAccess.banned});}finally{stop();res.off('close',stop);}return;
     }
     if (!["GET", "HEAD"].includes(req.method)) {
       res.writeHead(405).end();
@@ -82,11 +130,20 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
       const pathname = decodeURIComponent(
         new URL(req.url, "http://localhost").pathname,
       );
+      if (pathname === '/admin' || pathname === '/admin/') {
+        if (!adminOrigin) {
+          res.writeHead(503, {'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}).end(req.method === 'HEAD' ? undefined : 'Admin console is not configured.');
+          return;
+        }
+        // Do not relay credentials, query parameters or fragments to the console.
+        res.writeHead(303, {'Location':adminOrigin+'/#','Cache-Control':'no-store','Referrer-Policy':'no-referrer','Cross-Origin-Opener-Policy':'same-origin'}).end();
+        return;
+      }
       if (pathname === '/api/device') {
         const id=deviceAccess.read(req) || deviceAccess.issue(res);
         try {
           const banned=await deviceAccess.banned(id);
-          res.writeHead(banned?403:200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,banned}));
+          res.writeHead(banned?403:200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,banned,...(!banned&&accountGrant?.refresh?{refresh:accountGrant.refresh}:{}),...(!banned&&accountGrant&&typeof accountGrant.username==='string'?{account:{username:accountGrant.username,frostId:accountGrant.uid}}:{})}));
         } catch {res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,error:'Device access check unavailable. Try again shortly.'}));}
         return;
       }
@@ -118,13 +175,17 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
       }
       if (pathname === "/api/config") {
         res.writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" });
-        res.end(req.method === "HEAD" ? undefined : JSON.stringify({ adminOrigin }));
+        res.end(req.method === "HEAD" ? undefined : JSON.stringify({ adminOrigin,dispenserOrigin }));
+        return;
+      }
+      if (pathname === '/api/server-health') {
+        res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(req.method==='HEAD'?undefined:JSON.stringify(await serverHealth()));
         return;
       }
       if (pathname === "/health") {
         res
           .writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" })
-          .end('{"ok":true}');
+          .end(req.method==='HEAD'?undefined:JSON.stringify({ok:true,machine:machineId}));
         return;
       }
       const path = resolve(
@@ -136,7 +197,7 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
         return;
       }
       const body = await readFile(path);
-      res.writeHead(200, {
+      res.writeHead(pathname === "/404.html" ? 404 : 200, {
         "Content-Type": mime[extname(path)] || "application/octet-stream",
         "Cache-Control": "no-store",
         "X-Content-Type-Options": "nosniff",
@@ -145,7 +206,11 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
       });
       res.end(req.method === "HEAD" ? undefined : body);
     } catch {
-      res.writeHead(404).end("Not found");
+      const missingPath = new URL(req.url, 'http://localhost').pathname;
+      const isPage = !extname(missingPath) || extname(missingPath) === '.html';
+      const isApi = missingPath.startsWith('/api/');
+      const body = isApi ? JSON.stringify({error:'Not found.'}) : isPage ? await readFile(resolve(root,'404.html')).catch(()=>Buffer.from('Page not found.')) : 'Not found';
+      res.writeHead(404,{'Content-Type':isApi?'application/json; charset=utf-8':isPage?'text/html; charset=utf-8':'text/plain; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','X-Frame-Options':'SAMEORIGIN'}).end(req.method==='HEAD'?undefined:body);
     }
   });
   const upgrades = new WebSocketServer({
@@ -165,6 +230,11 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
       socket.end("HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n");
       return;
     }
+    let accountGrant;
+    if(accountAccess){
+      try{if(viewerOrigin(req)!==req.headers.origin)throw Error('Origin mismatch');accountGrant=await accountAccess.connection(req,req.headers.origin);}
+      catch(error){socket.end(`HTTP/1.1 ${error.status===401?401:error.status===403?403:503} Access Denied\r\nConnection: close\r\n\r\n`);return;}
+    }
     const device=deviceAccess.read(req);
     if(adminOrigin){
       try {if(await deviceAccess.banned(device)){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return;}}
@@ -173,6 +243,7 @@ export function createFrostServer({ deviceStatusFetch = fetch, publicOrigin = pr
     if(socket.destroyed)return;
     upgrades.handleUpgrade(req, socket, head, (ws) => {
       socket.removeListener('error',onSocketError);
+      if(accountGrant){const stop=watchAccount(accountGrant,req.headers.origin,()=>ws.terminate());ws.once('close',stop);}
       if(adminOrigin){
         let checking=false;
         const timer=setInterval(async()=>{

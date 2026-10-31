@@ -410,7 +410,7 @@ export function createPanels({ getState, actions }) {
   function history() {
     const tools = element("div", "panel-intro");
     tools.append(
-      element("p", "panel-description", "Websites visited on this device."),
+      element("p", "panel-description", "Websites visited on this device. Authorized Frost admins can view recent shared history. Clearing local history does not delete the server copy; see the Terms of Service."),
       button(
         "Clear history",
         () =>

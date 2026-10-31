@@ -21,14 +21,35 @@ browser.Comment='Frost browser';
 browser.Origins=[{Id:'FrostFly',DomainName:'frost-browsing.fly.dev',CustomOriginConfig:{OriginProtocolPolicy:'https-only',OriginSSLProtocols:['TLSv1.2'],OriginReadTimeout:60}}];
 browser.DefaultCacheBehavior.TargetOriginId='FrostFly';
 browser.DefaultCacheBehavior.ViewerProtocolPolicy='redirect-to-https';
+// CloudFront overwrites the viewer-origin header; Fly still validates its allowlist.
+template.Resources.BrowserViewerOrigin={Type:'AWS::CloudFront::Function',Properties:{Name:'frost-browser-viewer-origin',AutoPublish:true,FunctionConfig:{Comment:'Preserve exact browser origin for scoped account grants',Runtime:'cloudfront-js-2.0'},FunctionCode:"function handler(event) { var request=event.request; request.headers['x-frost-viewer-origin']={value:'https://'+request.headers.host.value}; return request; }"}};
+browser.DefaultCacheBehavior.FunctionAssociations=[{EventType:'viewer-request',FunctionARN:get('BrowserViewerOrigin','FunctionARN')}];
+
 for(const name of ['UrlPermission','InvokePermission']) template.Resources[name].Properties.SourceArn=sub('arn:aws:cloudfront::${AWS::AccountId}:distribution/${AdminDistribution}');
 template.Outputs.AdminDomain={Value:get('AdminDistribution','DomainName')};
 template.Outputs.AdminDistributionId={Value:ref('AdminDistribution')};
-for(let i=1;i<=5;i++) {
+for(let i=1;i<=15;i++) {
  const name='BrowserDistribution'+i;
  template.Resources[name]=structuredClone(template.Resources.Distribution);
  template.Resources[name].Properties.DistributionConfig.Comment='Frost browser additional '+i;
  template.Outputs['BrowserDomain'+i]={Value:get(name,'DomainName')};
  template.Outputs['BrowserDistributionId'+i]={Value:ref(name)};
 }
+// October 29 address rotation: retain disabled distributions for reversible rollback.
+for(let i=1;i<=15;i++) {
+ const name='FreshBrowser20261029N'+i;
+ template.Resources[name]=structuredClone(template.Resources.Distribution);
+ template.Resources[name].Properties.DistributionConfig.Comment='Frost browser refresh 2026-10-29 '+i;
+ template.Outputs['FreshDomain'+i]={Value:get(name,'DomainName')};
+}
+for(const name of ['Distribution',...Array.from({length:15},(_,i)=>'BrowserDistribution'+(i+1))])template.Resources[name].Properties.DistributionConfig.Enabled=false;
+template.Outputs.Domain={Value:get('FreshBrowser20261029N1','DomainName')};
+template.Outputs.DistributionId={Value:ref('FreshBrowser20261029N1')};
+// Connect only the existing isolated account Lambda; no browser-origin admin API.
+template.Parameters.AccountFunctionArn={Type:'String',AllowedPattern:'arn:aws:lambda:us-east-1:[0-9]{12}:function:frost-accounts-[A-Za-z0-9-]+'};
+template.Resources.Role.Properties.Policies.push({PolicyName:'FrostAccountOwner',PolicyDocument:{Version:'2012-10-17',Statement:[{Effect:'Allow',Action:'lambda:InvokeFunction',Resource:ref('AccountFunctionArn')}]}});
+template.Resources.Function.Properties.Environment.Variables.ACCOUNT_FUNCTION=ref('AccountFunctionArn');
+template.Resources.Function.Properties.Timeout=60;
+template.Resources.Sampler={Type:'AWS::Events::Rule',Properties:{ScheduleExpression:'rate(1 minute)',State:'ENABLED',Targets:[{Id:'FrostActivitySampler',Arn:get('Function','Arn')}]}};
+template.Resources.SamplerPermission={Type:'AWS::Lambda::Permission',Properties:{Action:'lambda:InvokeFunction',FunctionName:ref('Function'),Principal:'events.amazonaws.com',SourceArn:get('Sampler','Arn')}};
 await writeFile('admin/stack.json',JSON.stringify(template,null,2));

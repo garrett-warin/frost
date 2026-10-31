@@ -1,0 +1,5 @@
+# Timed suspensions
+
+Reuse the existing account status, moderation API, transaction/epoch checks and isolated admin services. Add restrictionUntil in epoch seconds and compute effective status with the existing injected server clock. No scheduler, dependency or new permission is required. Database TTL is eventual and therefore cannot enforce the deadline. Legacy suspensions without a deadline remain indefinite. Bans clear a prior deadline. Revocation preserves it. Expiry never decreases the credential epoch. Deleted identity guards retain the deadline; clearing an old deleted record checks ownership before deleting a guard.
+
+Rollback uses saved Lambda archives; old code would treat pending timed suspensions as indefinite, so prefer repair-forward or manually restore affected accounts at their deadlines if rolling back. No schema migration. Owner acceptance: choose Suspend on a test account, select duration/reason, view its restriction page, and verify expiry restores browsing eligibility without reviving old credentials.

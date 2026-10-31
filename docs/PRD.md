@@ -71,3 +71,69 @@ Frosty image upload: one PNG/JPEG/WebP up to2MiB per send, local preview/remove,
 The accepted pre-deployment provider is Groq Free: `FROST_AI_PROVIDER=groq`, fixed official API endpoint, separate `GROQ_API_KEY`, and only `openai/gpt-oss-20b`, `openai/gpt-oss-120b`, or `qwen/qwen3.8-27b`. Qwen is preview/image-capable; GPT-OSS options are text-only. Preserve explicit OpenRouter fallback with its own key, `:free` validation and zero-price guard; no automatic provider fallback or account upgrade.
 
 Keep the Groq organization on Free. Apply the conservative full-prompt UTF-8 budget: 5,440 text bytes without an image, 3,392 with one, including system/history/context; reserve 2,048 output, 512 framing, and 2,048 image tokens. Reject excess explicitly without truncation. Existing 2 MiB image/type/capability controls remain. Provider quota errors are recoverable and shared across visitors/Machines. Key entry, new provider tests, real Groq requests and rollout are pending; see [Frosty configuration](FROSTY.md).
+
+## Account platform requirements — 2026-10-25 (in progress)
+
+- ACC-1: Implement the approved account/dispenser and device-trust specifications. Google Form registration must use Google-verified respondent email, signed idempotent events, bounded polling and recovery through fresh signed Google Form email verification. Public Frost ID never authenticates.
+- ACC-2: Persistent device grants survive server-side inactivity until logout, device revocation, deletion or restriction. Rotate short-lived access and hashed refresh credentials; browser cookie eviction remains possible. A verified user must recover even at the device limit.
+- ACC-3: Save current tabs and website cookies per account in an encrypted, revision-controlled vault. Exclude browsing history and page content. Preserve websites' cookie expiration rules. Clear account-specific local state when switching accounts.
+- ACC-4: Restricted browsing must redirect to the dispenser's appeal route; banned users may authenticate there for support. Ban checks cover navigation, API, relay establishment and active connections. Deleting an account or changing email must not erase an identity restriction.
+- ACC-5: Expose /admin on all main origins as a fixed redirect to the existing isolated TOTP console. Preserve enrollment and never place owner credentials on browsed-content origins.
+- ACC-6: Keep Google setup honest, secrets out of source and browser JavaScript, and live sign-in unchanged until isolated runtime, real registration/recovery/handoff and deployment acceptance are verified.
+
+See ACCOUNT-SETUP.md and plans/account-platform.md for setup and remaining integration work.
+
+
+## Email-only sign-in revision — 2026-10-25
+
+The owner requested site-generated codes with no outgoing email and no visitor OAuth. Frost displays a one-time code which the user manually pastes into the Google Form. A signed Apps Script event must match both this code and the pending Google-verified email. The original dispenser browser completes using its separate private HttpOnly polling cookie. Requests expire after fifteen minutes and complete once; returning verification preserves the Frost ID. Restricted accounts remain appeals-only. Forwarding a code to another person can still authorize the initiating browser: this social-engineering limitation is not solved by the polling cookie. Live integration and deployment remain pending.
+
+## Unified entry and owner dashboard — 2026-10-26
+
+- ACC-7: One email/Continue entry handles returning and new users. Google verification precedes account lookup outcomes. Returning accounts preserve their ID; new identities choose a username only afterward. Concurrent signup, revocation, and restrictions cannot revive older proof.
+- ADM-1: Preserve isolated TOTP enrollment and 15-minute sessions; add owner-only account search, status filters, ban/unban/suspend/session revocation, announcements, support replies, and account action history. Require a reason and confirmation for account moderation.
+- ADM-2: Today/last-seven-days UTC analytics display online browser estimates, observed daily peak, account/ban totals, registrations and open support requests. Minute sampling begins at deployment; missing samples remain gaps. Registration charts count retained accounts (deleted identities are excluded). No historical figures are invented. Main-site online browser estimates are distinct from signed-in account identities.
+- ADM-3: Reuse the existing account control service through IAM direct Lambda invocation, never through a public admin route or a browser-shared secret. Reuse existing Fly presence; store aggregate hourly samples with 32-day retention. No browsing URLs, contents, or tracking identifiers enter analytics. Account restrictions remain dispenser-only until separately verified browser integration ships.
+
+All Frost-owned main, account and admin surfaces use thin cream-track muted-teal scrollbars. Embedded websites retain their own styles. Successful null account API responses are valid and must not expose mixed authenticated/entry views.
+
+## Mirror management — 2026-10-26
+Add ten CloudFront browser mirrors to the existing fifteen-resource total (five existing plus ten new). Automatically assign active accounts to available links using assignment counts. Owner TOTP console lists links and allows reasoned block/unblock and manual account assignment. Blocked links cannot receive assignments; existing assigned active accounts move in bounded background batches or on their next assignment check. No available destination yields a clear waiting state. Existing browser isolation work remains a separate unreleased prerequisite for mandatory account authentication and cookie sync.
+
+## Account ban enforcement
+Require scoped account grants for all browsing relays and Frosty, on Fly and every mirror. Active sockets and AI streams recheck account restrictions, revocation and assignment at15-second intervals and terminate on denial or service failure. Return banned/suspended users to dispenser appeals. Missing/revoked sessions require dispenser verification. Retain persistent refresh grants. No privileged storage/session APIs are enabled on browsing origins.
+
+
+Admin browser refresh: TOTP owner can request one active account or all signed-in browsers to reload for updates. Confirm scope and reason, audit each request, throttle repeated requests per target, and preserve locally saved tabs. Online browsers observe within their 15-second access check; inactive browsers act on resume. Existing pages must load this listener once. Unsaved website state is not preserved.
+
+
+Verification response sheet: TOTP-only read view of latest100 rows from the owner-linked sheet; email/time and masked code suffix. Five-minute private script snapshots, exact source validation, path-bound signing, stale status, seven-day snapshot expiry. Sheet rows never grant sign-in or moderation privileges. Google sheet remains private.
+
+## Account-based admin access
+
+Authorized owner Frost ID fr_a1359b81-1fde-48e7-be73-1cac9a58f425 manages admin membership from isolated dispenser /admin using the existing verified account session without TOTP entry. Members have no admin link or API permissions. Owner alone grants/revokes roles; the owner role is protected from UI removal/deletion. Existing isolated TOTP console is a recovery path approved by the owner.
+
+
+Online account viewer: existing protected Accounts search supports Online now with username, Frost ID and last browsing check. Presence is approximate, refreshed by successful scoped browsing checks, written at most every30seconds and expires after75seconds. Revocation epoch and restriction invalidate presence. No URLs collected. Verify zero/fresh/expired/revoked/banned and owner-only access. Viewer-facing timestamps use local timezone; new-tab page has a quiet local clock.
+
+Viewer timezone correction: client sends its IANA timezone through both TOTP and account-admin routes. Today/7-day local calendar boundaries drive registrations, daily peaks and chart bins; UTC remains storage only. Test spring/fall DST, fractional offsets, invalid zones, and staff-route forwarding.
+
+
+Forced username change: authorized admins select category and explanation for an active account, with existing owner/peer protections. Preserve account sessions/data; block handoff, redemption, new browsing and active connection checks until atomic unique rename clears the flag. Previously flagged names cannot be reused on that account. Dispenser shows mandatory form and reason; deletion cannot bypass pending change. Bans take priority and retain appeals. Test old/in-flight grants, same/invalid/taken names, audit, protected targets and successful recovery.
+
+Server outage notice: main browser shows a compact orange top banner based on existing two-machine health checks. Distinguish a failed probe from unknown or failed status retrieval; explain new-connection routing and refresh guidance without promising seamless migration. Poll every15seconds while visible and clear on verified recovery. Flaticon icon with visible attribution.
+
+Timed suspensions: administrators choose an integer duration (1 minute–365 days); bans remain indefinite. Server-side effective status expires at the deadline, without relying on TTL or a scheduler. Expiry never restores credentials invalidated by the original moderation epoch. Preserve legacy indefinite suspensions, owner/staff protections, username restrictions and deleted-identity restrictions until their deadline. Restricted page shows reason, local end time, remaining time, appeals and a status recheck.
+
+Maintenance notice: existing administrators can enable/remove a blue banner independent of the orange outage banner and developer announcement. Require a reason (1–300 characters), start and expected end in the admin's local timezone. Display immediately as scheduled, then in progress, then hide on the next poll after end. This is a notice only; no service shutdown. Public text and dates are not private. Existing authentication, store and announcement delivery are reused; no permissions or infrastructure added.
+
+404 page: Frost-owned missing page URLs show a quiet branded Lost in the frost page with a home link, custom wordmark and existing tab title/favicon. Return HTTP404, including /404.html and HEAD; missing scripts/styles stay plain text, unknown API returns JSON. Never echo request paths into HTML. No changes to destination-site errors inside browsing tabs.
+
+New-tab visual editor and public template gallery follow docs/plans/customize.md. Mandatory Frost wordmark remains centered and uneditable; all security and shell UI outside the canvas. Draft-only changes until explicit Save, previous version recovery, per-account isolation, user reports and admin template removal. No browsing history collection.
+
+
+2026-10-31 versioned terms: updated disclosure distinguishes planned administrator history access from current local-only history. No history collection added. Build derives terms version from normalized document SHA-256; explicit authenticated CSRF-protected acceptance records version/time on account. All handoff, redemption, browse checks, refresh and ongoing connection checks require current acceptance. Account support, appeals, logout and deletion remain accessible. UI offers explicit unchecked agreement and account-options alternative. No production deployment or GitHub push for this change.
+
+## REQ-HISTORY — 2026-10-31
+
+Add an audited admin account-history viewer using existing isolated staff/TOTP authorization. Collect only newly reported HTTP(S) visits after current explicit terms acceptance; bind identity to browsing credentials, enforce assignment and restrictions, strip URL credentials/query/fragment, and bound URL/title/payload/rate. Keep at most 100 visits for a 30-day visibility window; remove on account deletion. No backfill, no privileged read route on browsing origins, no promise of complete capture. Disclose admin access, retention and local-clear behavior in terms, acceptance screen and local History panel.

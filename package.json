@@ -15,9 +15,11 @@
     "@mercuryworkshop/wisp-js": "0.4.1",
     "dompurify": "3.4.17",
     "highlight.js": "11.12.0",
+    "interactjs": "1.10.28",
     "ipaddr.js": "2.2.0",
     "marked": "18.1.1",
     "otpauth": "9.5.2",
+    "pngjs": "7.0.0",
     "qrcode": "1.5.4",
     "ws": "8.22.0"
   },
@@ -25,6 +27,7 @@
     "node": ">=22.9"
   },
   "devDependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1156.0",
     "esbuild": "0.28.2",
     "fflate": "0.8.3"
   }

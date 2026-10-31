@@ -1,3 +1,8 @@
+import {reportVisit} from './browsing-history.mjs';
+import {mountPublishedDesign} from './customize/runtime.mjs';
+import { createBrowserRefresh } from "./browser-refresh.mjs";
+import { mountServerHealth } from "./server-health.mjs";
+import { createWordmarkIntro } from "./wordmark-intro.mjs";
 import { destination, searchEngines } from "./navigation.mjs";
 import { checkDevice } from "./device-access.mjs";
 import { mountFrosty } from "./frosty/assistant.mjs";
@@ -28,6 +33,7 @@ try {
 let settings = loadPreferences(storage),
   history = readList(storage, "history"),
   bookmarks = readList(storage, "bookmarks");
+const introduceWordmark=createWordmarkIntro(document.querySelector(".wordmark"),{enabled:()=>settings.animations});
 const tabs = [],
   closedTabs = [];
 let active,
@@ -172,6 +178,7 @@ function addVisit(tab) {
   if (!tab.url || tab.error) return;
   const last = history[0];
   if (last?.url === tab.url && Date.now() - last.visitedAt < 3000) return;
+  void reportVisit(tab);
   history.unshift({
     url: tab.url,
     title: tab.title,
@@ -264,6 +271,7 @@ function activate(tab) {
       item.element.hidden = item !== tab || item.home || !!item.error;
   });
   $("landing").hidden = !tab.home || !!tab.error;
+  introduceWordmark(tab);
   $("viewport").hidden = tab.home || !!tab.error;
   showError(tab);
   syncChrome();
@@ -576,7 +584,27 @@ for (const [label, action] of [
   ["Downloads", () => openPanel("downloads")],
   ["Bookmarks", () => openPanel("bookmarks")],
   ["Settings", () => openPanel("settings")],
-  ["Admin Console", () => { if (adminOrigin) window.open(adminOrigin, "_blank", "noopener,noreferrer"); else status("Admin console setup is still in progress."); }],
+  ["Customize new tab", async () => {
+    try {
+      const response=await fetch('/api/config',{cache:'no-store'});
+      if(!response.ok)throw Error('Account service unavailable.');
+      const config=await response.json();
+      if(!/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(config.dispenserOrigin))throw Error('Dispenser is not configured.');
+      if(active)saveSession(storage,tabs,active.id);
+      window.location.assign(config.dispenserOrigin+'/customize');
+    }catch(error){status(error.message);}
+  }],
+  ["Return to dispenser", async () => {
+    try {
+      const response = await fetch("/api/config", {cache:"no-store"});
+      if (!response.ok) throw Error("Dispenser unavailable. Try again shortly.");
+      const config = await response.json();
+      if (!/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(config.dispenserOrigin)) throw Error("Dispenser is not configured.");
+      if (active) saveSession(storage, tabs, active.id);
+      window.location.assign(config.dispenserOrigin + "/");
+    } catch (error) { status(error.message); }
+  }],
+  ["Admin Console", () => { if (adminOrigin) window.open("/admin", "_blank", "noopener,noreferrer"); else status("Admin console setup is still in progress."); }],
   ["Command Palette", () => openPanel("commands")],
   ["About Frost", () => openPanel("about")],
 ]) {
@@ -609,13 +637,14 @@ for (const [label, delta] of [
   zoom.append(button);
 }
 menu.append(zoom);
+const updateServerHealth=mountServerHealth(menu);
 $("menu-toggle").onclick = () => {
   menu.style.top = `${$("menu-toggle").getBoundingClientRect().bottom + 8}px`;
   menu.style.maxHeight = `calc(100dvh - ${$("menu-toggle").getBoundingClientRect().bottom + 16}px)`;
   menu.style.overflowY = "auto";
   menu.hidden = !menu.hidden;
   $("menu-toggle").setAttribute("aria-expanded", String(!menu.hidden));
-  if (!menu.hidden) menu.querySelector("button").focus();
+  if (!menu.hidden) {menu.querySelector("button").focus();updateServerHealth();}
 };
 menu.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
@@ -728,7 +757,9 @@ async function refreshAnnouncement() {
   try {
     const response = await fetch('/api/announcement', {cache:'no-store'});
     if (!response.ok) return;
-    const {message} = await response.json();
+    const {message,note} = await response.json();
+    $('new-tab-note').textContent = typeof note === 'string' ? note.slice(0,160) : '';
+    $('new-tab-note').hidden = !$('new-tab-note').textContent;
     $('announcement-text').textContent = typeof message === 'string' ? message : '';
     $('announcement').hidden = !message;
   } catch {}
@@ -758,6 +789,16 @@ async function refreshPresence(){
 }
 void refreshPresence();
 setInterval(refreshPresence,20000);
-setInterval(()=>void checkDevice().catch(error=>status(error.message)),15000);
+const receiveRefresh=createBrowserRefresh(()=>{
+  if(active)saveSession(storage,tabs,active.id);
+  location.reload();
+});
+const checkBrowser=()=>void checkDevice().then(data=>receiveRefresh(data.refresh)).catch(error=>status(error.message));
+checkBrowser();
+setInterval(checkBrowser,15000);
+addEventListener('online',checkBrowser);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkBrowser();});
 addEventListener('online',refreshPresence);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshPresence();});
+
+mountPublishedDesign({landing:$('landing'),onSearch:value=>void navigateTo(value),onNavigate:value=>void navigateTo(value)});

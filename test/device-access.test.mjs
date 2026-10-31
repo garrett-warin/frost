@@ -5,7 +5,7 @@ const id='ed9e663c-40c6-46d4-97a4-142bb4897c85';
 test('device cookies are host-only HttpOnly, strictly validated, and statuses expire',async()=>{
  let cookie,clock=0,blocked=false,calls=0;
  const access=createDeviceAccess({adminOrigin:'https://admin.test',now:()=>clock,fetchStatus:async()=>{calls++;return {ok:true,json:async()=>({banned:blocked})};}});
- const issued=access.issue({setHeader:(name,value)=>cookie=value});
+ const issued=access.issue({setHeader:(name,value)=>cookie=value.at(-1)});
  assert.ok(validDevice(issued));assert.match(cookie,/^__Host-frost-device=/);assert.match(cookie,/HttpOnly/);assert.match(cookie,/; Secure/);assert.doesNotMatch(cookie,/Domain=/);
  assert.equal(access.read({headers:{cookie:'a=b; __Host-frost-device='+id}}),id);
  assert.equal(access.read({headers:{cookie:'__Host-frost-device=bad'}}),null);
@@ -20,3 +20,9 @@ test('device access fails closed when remote status is unavailable or malformed'
   await assert.rejects(access.banned(id));
  }
 });
+
+ test('issuing a device cookie preserves rotated account cookies',()=>{
+ const headers={'Set-Cookie':['__Host-frost-browse=new-access','__Host-frost-browse-refresh=new-refresh']};
+ createDeviceAccess({}).issue({getHeader:name=>headers[name],setHeader:(name,value)=>headers[name]=value});
+ assert.equal(headers['Set-Cookie'].length,3);assert.deepEqual(headers['Set-Cookie'].slice(0,2),['__Host-frost-browse=new-access','__Host-frost-browse-refresh=new-refresh']);
+ });

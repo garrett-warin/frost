@@ -1,3 +1,4 @@
+await import('./build-terms.mjs');
 import { mkdir, copyFile, readFile, writeFile, readdir, rm } from "node:fs/promises";
 import { createHash } from "node:crypto";
 const source = new URL("../upstream/app/vendor/", import.meta.url);
@@ -13,3 +14,5 @@ for (const obsolete of ["transport.js", "controller.sw.js"]) await rm(new URL(ob
 await writeFile(new URL("manifest.json", destination), JSON.stringify(manifest, null, 2));
 console.log("Copied matching pinned engine bundle and recorded SHA-256 hashes.");
 await import('./build-frosty.mjs');
+
+await import('./build-customize.mjs');

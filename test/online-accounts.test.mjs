@@ -1,0 +1,21 @@
+import test from 'node:test';import assert from 'node:assert/strict';
+import {recordOnline,isOnline} from '../platform/online.mjs';
+import {createAnalytics} from '../platform/analytics.mjs';
+import {memoryStore} from './helpers/platform-store.mjs';import {atomic} from '../platform/store.mjs';
+test('online viewer deduplicates accounts, expires presence and respects bans/revocation',async()=>{
+ const store=memoryStore();let time=1000;const grant={uid:'one',epoch:1};
+ await atomic(store,async tx=>{await tx.put('user:one',{kind:'users',sort:'one',uid:'one',username:'snow',email:'snow@example.test',status:'active',epoch:1});});
+ const analytics=createAnalytics({store,now:()=>time});
+ assert.equal((await analytics.listUsers({status:'online'})).total,0);
+ await recordOnline(store,grant,time);await recordOnline(store,grant,time+10);
+ assert.equal((await store.get('user:one')).browserSeenAt,1000);
+ assert.equal((await analytics.listUsers({status:'online'})).total,1);
+ time=1075;assert.equal((await analytics.listUsers({status:'online'})).total,0);
+ await recordOnline(store,grant,time);assert.equal((await analytics.listUsers({status:'online'})).total,1);
+ await atomic(store,async tx=>{const u=await tx.get('user:one');await tx.put('user:one',{...u,epoch:2});});
+ await recordOnline(store,grant,time+1);assert.equal((await analytics.listUsers({status:'online'})).total,0);
+ await recordOnline(store,{...grant,epoch:2},time+2);time+=2;assert.equal((await analytics.listUsers({status:'online'})).total,1);
+ await atomic(store,async tx=>{const u=await tx.get('user:one');await tx.put('user:one',{...u,status:'banned'});});
+ assert.equal((await analytics.listUsers({status:'online'})).total,0);
+ assert.equal(isOnline({status:'active',epoch:1,browserSeenEpoch:1,browserSeenAt:time+1},time),false);
+});

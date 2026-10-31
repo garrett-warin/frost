@@ -15,9 +15,16 @@
   <script defer src="/vendor/runtimekit-utils.js"></script>
   <script defer src="/vendor/httpengine-client.js"></script>
   <script type="module" src="/app.mjs"></script>
+<link rel="stylesheet" href="/customize/render.css">
 </head>
 <body data-theme="light">
-  <aside id="announcement" aria-label="Developer Announcement" hidden><strong><svg class="announcement-hammer" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h4v1h8l6 4-1 3-5-4h-2v3H9V8H7v1H3Z"/><path d="M9 11h4v10H9Z"/><path d="m17 8 3 2"/></svg>Developer Announcement</strong><p id="announcement-text"></p></aside>
+  <aside id="outage-banner" role="status" aria-live="polite" hidden>
+    <img src="/outage-warning.png" width="22" height="22" alt="">
+    <p id="outage-message"></p>
+    <a class="outage-credit" href="https://www.flaticon.com/free-icon/triangle-warning_12470596" title="Triangle warning icon by iconading — Flaticon">Icon: iconading / Flaticon</a>
+  </aside>
+  <aside id="maintenance-banner" role="status" aria-live="polite" hidden><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><p id="maintenance-message"></p></aside>
+  <aside id="announcement" aria-label="Developer Announcement" hidden><strong><svg class="announcement-hammer" viewBox="0 0 24 24" aria-hidden="true"><!-- Lucide hammer (0.474.0), ISC; see /lucide-LICENSE.txt. --><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></svg>Developer Announcement</strong><p id="announcement-text"></p></aside>
   <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <symbol id="i-back" viewBox="0 0 24 24"><path d="m11 5-7 7 7 7M4 12h16"/></symbol>
     <symbol id="i-forward" viewBox="0 0 24 24"><path d="m13 5 7 7-7 7M20 12H4"/></symbol>
@@ -66,6 +73,8 @@
     <main id="landing">
       <div class="start-content">
         <h1><img class="wordmark" src="/wordmark.svg" alt="frost"></h1>
+        <p id="new-tab-note" class="new-tab-note" hidden></p>
+        <time id="new-tab-clock" class="new-tab-clock" aria-label="Local time"></time>
         <form id="search-form" class="search" role="search">
           <svg class="search-icon" aria-hidden="true"><use href="#i-search"/></svg>
           <input id="search" aria-label="Search the web or enter a URL" placeholder="Search the web" autocomplete="off" spellcheck="false" autofocus>
@@ -79,15 +88,22 @@
           <button type="button" data-url="https://duckduckgo.com"><span class="shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-search"/></svg></span><span>DuckDuckGo</span></button>
         </section>
       </div>
-      <footer aria-label="Frost terms"><a href="/terms.html">Terms of Service</a></footer>
+      <footer class="creator-footer" aria-label="About Frost">
+        <p class="footer-contact">Contact <a href="mailto:hi@garretts.space">hi@garretts.space <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 6 9 7 9-7"/></svg></a></p>
+        <p>frost is not meant for use within learning spaces and administrators may block frost from their network if needed.</p>
+        <p><a href="/terms.html">Terms of Service</a></p>
+      </footer>
     </main>
     <section id="viewport" hidden aria-label="Browsing area"><button id="exit-fullscreen" type="button">Exit fullscreen · Esc</button></section>
     <section id="error-view" class="error-view" aria-live="polite" hidden></section>
   </div>
 
-  <footer class="statusbar"><span id="status" role="status" aria-live="polite">Starting engine…</span><span id="device-code" class="device-code"></span><span class="network-status"><span id="online-count" title="Estimated active browsers in the last 75 seconds. Separate site addresses count separately.">Online —</span><span id="server-name" title="Machine answering the latest status check; requests can move between servers as load changes.">Server —</span></span></footer>
+  <footer class="statusbar"><span id="status" role="status" aria-live="polite">Starting engine…</span><span id="account-identity" class="device-code" hidden></span><span id="device-code" class="device-code"></span><span class="network-status"><span id="online-count" title="Estimated active browsers in the last 75 seconds. Separate site addresses count separately.">Online —</span><span id="server-name" title="Machine answering the latest status check; requests can move between servers as load changes.">Server —</span></span></footer>
   <div id="browser-menu" class="browser-menu" role="menu" aria-label="Frost menu" hidden></div>
   <dialog id="panel-dialog" aria-label="Frost panel"></dialog>
+<script type="module" src="/maintenance-banner.mjs"></script>
+<script type="module" src="/clock.mjs"></script>
+<script type="module" src="/outage-banner.mjs"></script>
 </body>
 </html>
 

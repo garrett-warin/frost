@@ -70,3 +70,72 @@ Frosty image upload: one PNG/JPEG/WebP up to2MiB per send, local preview/remove,
 - Verify 2,048 output-token cap, provider-specific payload fields, real streaming/cancellation, 429 recovery and 413 guidance. Organization quota can still be exhausted within Frost's per-process caps.
 - Verify explicitly selecting OpenRouter retains its separate key, `:free` allowlist, zero prompt/completion price guard and data-collection restriction. No automatic fallback or account upgrade.
 - After the user supplies a Groq key for a Free organization, record each harmless text/image smoke result independently; confirm both existing Fly Machines remain healthy after the authorized rollout. Until then, provider tests, live Groq responses and deployment are pending. Existing image tests are not new-provider evidence.
+
+## Account platform acceptance — pending release, 2026-10-25
+
+- Verified-email registration rejects mismatches, replay, expiration and concurrent claims; failed attempts consume durable rate limits.
+- Sessions renew after long inactivity; logout, per-device revocation, epoch revocation and bans deny access. Verified recovery works at the device limit.
+- Ciphertext contains no plaintext cookies/tabs; cross-account substitution fails authentication; stale revisions fail without overwriting newer saves. Invalid URLs and malformed/expired cookies are rejected or pruned appropriately.
+- Main-site handoff binds destination and browser, consumes once and removes the code from the address bar. Restricted access returns the configured dispenser appeal destination, not an arbitrary request URL. Service failures stay failures, not successful or banned states.
+- Public API changes require exact origin and CSRF; internal calls require body-bound signatures, short timestamps and single-use nonces. Direct Lambda access must remain denied; CloudFront must supply trusted viewer metadata.
+- Restricted account deletion and adopting a deleted banned email cannot bypass the restriction. Owner clearing is explicit and audited. Account deletion removes vault, identity mappings and indexed refresh credentials.
+- Required before enabling: browser-content origin isolation and hostile-page tests; actual shell synchronization; revoke/ban enforcement on active relays; account-switch local-state clearing; browser inspection at mobile/desktop sizes; real Google Form registration/reverification; deployed DynamoDB races and recovery; admin TOTP authorization for new owner controls; live monitoring and rollback checks.
+
+Local automated tests and bundling cover backend foundations only. They do not establish deployed account functionality or runtime isolation.
+
+
+## Email-only sign-in revision — 2026-10-25
+
+The owner requested site-generated codes with no outgoing email and no visitor OAuth. Frost displays a one-time code which the user manually pastes into the Google Form. A signed Apps Script event must match both this code and the pending Google-verified email. The original dispenser browser completes using its separate private HttpOnly polling cookie. Requests expire after fifteen minutes and complete once; returning verification preserves the Frost ID. Restricted accounts remain appeals-only. Forwarding a code to another person can still authorize the initiating browser: this social-engineering limitation is not solved by the polling cookie. Live integration and deployment remain pending.
+
+## Unified entry / expanded admin release acceptance
+
+Verify new/returning entry, verified-only profile creation, concurrent single-use, stale proof after revoke rejection, durable profile attempt budget. Verify owner data/actions reject unauthenticated, wrong-origin and expired sessions; HTTP payloads cannot trigger IAM owner dispatch. Verify chart day/week boundaries, missing versus zero samples, account search pagination, bans/revocation and existing announcements/browser bans. Inspect desktop/narrow admin states using synthetic records and real live locked shell. Preserve TOTP state and capture both stack rollback code before deploy. Historical activity starts at rollout; registration totals exclude deleted accounts.
+
+2026-10-26 release:82 automated tests passed; desktop/390px synthetic admin preview checked; owner TOTP unlock, live day/week aggregates and account listing verified. Live signed-in dispenser handles a null assignment with entry hidden. Main/dispenser health200, matching scrollbar assets, and both Fly Machines started/healthy at1024MB in iad. Production moderation was not exercised against the owner account.
+
+Mirror management: verify ten new distributions preserve existing resources; every new homepage/health/relay works. Test blocked-target rejection, all-blocked recovery, counts, pagination and concurrent block/job races. Confirm new admin endpoints reject unauthenticated requests. Verify owner Links UI and manual assignment with synthetic records. Preserve rollback templates/code and existing TOTP enrollment.
+
+Ban enforcement release: prove missing/forged/revoked/restricted/wrong-origin grants denied at relay and Frosty; active relay and AI interrupted; outage fails closed; HTTP polling redirects to configured appeals; valid refresh works; direct Fly and all mirrors require authorization. Verify derived browse signing key cannot invoke vault or preferences. Complete handoff browser test, record safe live ban test/rollback, preserve existing TOTP and account data.
+
+
+Browser refresh acceptance: reject anonymous/wrong-origin owner operations; validate account/all scope and confirmation; isolated account vs global revisions, no session revocation, throttle and audit; device poll carries only own revision; first observation/stale/duplicate/invalid signals never loop; fresh commands reload once after saving tabs. Verify both Fly Machines and AWS deployment, preserving ban enforcement.
+
+
+Response sheet checks: reject unsigned/wrong-source/wrong-path/oversized snapshots; ignore stale replay; strip unknown fields/full codes; deny anonymous reads; preserve existing Form verification. Confirm owner read-only scope, successful initial sync and scheduled trigger before claiming connected.
+
+## Account admin acceptance
+
+112 full-suite tests passed before rollout, including owner grant/revoke, denial immediately after removal, admin self-escalation/owner protection, wrong CSRF, banned/revoked/browsing-scope credentials, and public forged owner requests. Verify exact real owner account shows Admin in dispenser and can open dashboard without TOTP. Only owner sees membership controls. No real additional admin or moderation action is needed for verification.
+
+
+Online account viewer: existing protected Accounts search supports Online now with username, Frost ID and last browsing check. Presence is approximate, refreshed by successful scoped browsing checks, written at most every30seconds and expires after75seconds. Revocation epoch and restriction invalidate presence. No URLs collected. Verify zero/fresh/expired/revoked/banned and owner-only access. Viewer-facing timestamps use local timezone; new-tab page has a quiet local clock.
+
+Viewer timezone correction: client sends its IANA timezone through both TOTP and account-admin routes. Today/7-day local calendar boundaries drive registrations, daily peaks and chart bins; UTC remains storage only. Test spring/fall DST, fractional offsets, invalid zones, and staff-route forwarding.
+
+
+Forced username change: authorized admins select category and explanation for an active account, with existing owner/peer protections. Preserve account sessions/data; block handoff, redemption, new browsing and active connection checks until atomic unique rename clears the flag. Previously flagged names cannot be reused on that account. Dispenser shows mandatory form and reason; deletion cannot bypass pending change. Bans take priority and retain appeals. Test old/in-flight grants, same/invalid/taken names, audit, protected targets and successful recovery.
+
+Outage banner: six focused tests passed for classification, stale reports, recovery, fetch failure, visibility pause, overlapping requests and teardown plus existing backend probe behavior. Synthetic desktop and390px browser renders inspected; simulated recovery removed the banner without reload. No production outage induced.
+
+Timed suspension checks: reject missing/invalid/out-of-range duration; enforce immediately and until the exact deadline across account, handoff, refresh, redemption and ongoing browsing checks; preserve newer bans, revocation epochs and forced rename; deleted identity restriction expires only at deadline; admin lists/totals reflect effective status. Inspect restricted page and duration dialog at desktop/mobile with synthetic users.
+
+Maintenance acceptance: anonymous/wrong-origin publish rejected; date and reason bounds validated; disabled notices require no dates; announcement remains unchanged. Test scheduled/start/end transitions, literal HTML text, removal and expiry during fetch failure. Desktop and 390px banner plus admin enable/date fields inspected. Roll back using pre-release Lambda code and prior Fly image; stored maintenance record is ignored by old code.
+
+404 acceptance: verify missing extensionless/HTML pages, explicit 404.html, HEAD without body, missing JavaScript MIME, unknown API JSON and healthy endpoint. Check desktop/390px and return-home link. Rollback to Fly deployment-01M622W979BYKCWFWNX0AM0XBF.
+
+Editor acceptance: execute the validation, account-isolation, revision, PNG, gallery/moderation, undo/redo and desktop/mobile browser checks in docs/plans/customize.md before release. Keep incomplete editor off production.
+
+- Wordmark color may change; centered location/visibility/shape are structural and cannot be removed through user designs or templates.
+
+October29 layout/rotation: all143 tests passed; desktop/mobile sizing verified; all15 replacement origins returned health200 and matching renderer assets, plus synthetic authenticated account200 and WebSocket101. All16 old CloudFront browsing distributions disabled; dispenser/admin preserved.
+
+2026-10-31 terms acceptance: 146/146 automated tests passed after updating old browsing fixtures to explicitly accept terms. New tests check matching document hash, stale/false acceptance, CSRF/origin/anonymous/GET rejection, account binding, handoff and old-grant invalidation, resumption and logout. Independent reviewer ran18 focused tests; fixed reviewer finding where required rename blocked declined-user account options. Local synthetic browser verified notice, checkbox, decline/support and acceptance; no real account consent submitted. Production and mobile-specific visual checks not performed.
+
+## Admin browsing history — 2026-10-31
+
+Local implementation, not deployed or pushed. Supersedes the earlier planned/local-only history statements. After current terms acceptance, newly observed visits are sent through the authenticated browsing adapter to the existing account store. No local history backfill. Authorized staff and the TOTP owner can view the latest 100 visits within 30 days from Accounts > Browsing history; reads are audited. URL credentials, queries and fragments are stripped, titles are bounded, times are server-recorded, expired entries are filtered/pruned, and account deletion removes the row. Client reporting is best effort, not a comprehensive or tamper-proof activity log.
+
+Verification: 154/154 tests pass; admin and platform Lambda builds pass. Independent review found no remaining blockers; suggested adapter tests were added. Desktop and 390px synthetic browser dialog inspected, HTML title rendered literally, Close restores focus. No real history collected or real consent submitted. Evidence: `.project-memory/history-test-results.txt` and `.project-memory/history-mobile.png`.
+
+Release remains pending: coordinate account Lambda, admin Lambda and browsing app deployments so terms/hash/gate and collector agree. No schema or IAM change. Preserve current deployment artifacts before rollout; rollback all three components together. New history rows are additive with DynamoDB TTL; stop the collector on rollback and preserve deletion handling or explicitly remove retained synthetic history before retiring it. Earlier deployment artifacts and unrelated pending work were not modified through a release.

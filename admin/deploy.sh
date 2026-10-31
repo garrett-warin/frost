@@ -15,7 +15,9 @@ fi
 setup_hash=$(python3 -c 'import hashlib,pathlib; print(hashlib.sha256(pathlib.Path.home().joinpath(".frost-admin-setup").read_text().strip().encode()).hexdigest())')
 code_hash=$(sha256sum lambda.zip | cut -d' ' -f1)
 aws s3 cp lambda.zip "s3://${bucket}/${code_hash}.zip" --only-show-errors
-aws cloudformation deploy --region us-east-1 --stack-name frost-admin --template-file stack.json --capabilities CAPABILITY_IAM --parameter-overrides "CodeBucket=${bucket}" "CodeKey=${code_hash}.zip" "SetupHash=${setup_hash}" --no-fail-on-empty-changeset
+account_function=$(aws cloudformation describe-stacks --stack-name frost-accounts --query 'Stacks[0].Outputs[?OutputKey==`FunctionName`].OutputValue | [0]' --output text)
+account_function_arn=$(aws lambda get-function-configuration --function-name "$account_function" --query FunctionArn --output text)
+aws cloudformation deploy --region us-east-1 --stack-name frost-admin --template-file stack.json --capabilities CAPABILITY_IAM --parameter-overrides "CodeBucket=${bucket}" "CodeKey=${code_hash}.zip" "SetupHash=${setup_hash}" "AccountFunctionArn=${account_function_arn}" --no-fail-on-empty-changeset
 aws cloudformation describe-stacks --stack-name frost-admin --query 'Stacks[0].Outputs' --output json > outputs.json
 python3 - <<'PY'
 import json,subprocess,pathlib
