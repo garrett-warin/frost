@@ -2,6 +2,8 @@ import {hmac} from './security.mjs';
 export function platformConfig(env,settings){
  const origin=value=>{const url=new URL(value);if(url.protocol!=='https:'||url.origin!==value||url.username||url.password)throw Error('Use an exact HTTPS origin.');return value;};
  const config={
+  // No production enable switch: a separate transparent consent flow is required first.
+  historyCollectionEnabled:false,
   browseSecret:env.FROST_INTERNAL_SECRET?hmac(env.FROST_INTERNAL_SECRET,'browse-gate-v1'):'',origin:origin(settings.origin),endpoints:settings.endpoints.map(origin),internalSecret:env.FROST_INTERNAL_SECRET,formsSecret:env.FROST_FORMS_SECRET||'',vaultKey:env.FROST_VAULT_KEY||'',
   formId:env.FROST_FORM_ID||'',formUrl:env.FROST_FORM_URL||'',
   trustCloudFront:true,assignedOnly:true,reportWindowSeconds:900,reportLimit:3,reportCooldownSeconds:900,reportWarningScore:2,

@@ -15,6 +15,7 @@ export function createBrowsingHistory(accounts){
  const {store,now}=accounts;
  const visible=row=>(row?.items||[]).filter(item=>item.recordedAt>now()-historyRetention).slice(0,historyLimit);
  async function record(access,origin,value){
+  requireThat(accounts.config.historyCollectionEnabled===true,403,'Browsing history collection is disabled.');
   const visit=cleanVisit(value);
   return atomic(store,async tx=>{
    const {user}=await accounts.authorize(tx,access,{scope:'browse',origin});

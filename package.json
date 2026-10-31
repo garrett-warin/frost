@@ -9,7 +9,9 @@
     "build": "node scripts/build.mjs",
     "test": "node --test test/*.test.mjs",
     "package:source": "node scripts/package-source.mjs",
-    "announce": "node scripts/announce.mjs"
+    "announce": "node scripts/announce.mjs",
+    "verify:release": "node scripts/verify-release.mjs",
+    "sync:context": "node scripts/build-context.mjs"
   },
   "dependencies": {
     "@mercuryworkshop/wisp-js": "0.4.1",

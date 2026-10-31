@@ -137,3 +137,5 @@ New-tab visual editor and public template gallery follow docs/plans/customize.md
 ## REQ-HISTORY — 2026-10-31
 
 Add an audited admin account-history viewer using existing isolated staff/TOTP authorization. Collect only newly reported HTTP(S) visits after current explicit terms acceptance; bind identity to browsing credentials, enforce assignment and restrictions, strip URL credentials/query/fragment, and bound URL/title/payload/rate. Keep at most 100 visits for a 30-day visibility window; remove on account deletion. No backfill, no privileged read route on browsing origins, no promise of complete capture. Disclose admin access, retention and local-clear behavior in terms, acceptance screen and local History panel.
+
+October31 repository repair: a clean clone must contain the account source, build its own engine/UI assets in Docker, pass tests, and package only explicitly tracked source. Release verification must reject dirty checkouts or stale Docker context. Disable automatic history reporting and production collection pending separate transparent opt-in.

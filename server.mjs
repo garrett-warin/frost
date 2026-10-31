@@ -130,6 +130,8 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
       const pathname = decodeURIComponent(
         new URL(req.url, "http://localhost").pathname,
       );
+      // Reject Windows separators on every platform before filesystem resolution.
+      if (pathname.includes('\\')) { res.writeHead(403).end(); return; }
       if (pathname === '/admin' || pathname === '/admin/') {
         if (!adminOrigin) {
           res.writeHead(503, {'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}).end(req.method === 'HEAD' ? undefined : 'Admin console is not configured.');

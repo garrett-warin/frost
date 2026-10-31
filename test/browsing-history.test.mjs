@@ -11,7 +11,7 @@ import {hash,token} from '../platform/security.mjs';
 import {termsVersion} from '../platform/terms-document.mjs';
 
 function fixture(){
- const store=memoryStore(),time={value:1800000000},origin='https://browse.example',config={origin:'https://accounts.example',endpoints:[origin],assignedOnly:true,internalSecret:'a'.repeat(64),browseSecret:'b'.repeat(64),termsVersion};
+ const store=memoryStore(),time={value:1800000000},origin='https://browse.example',config={historyCollectionEnabled:true,origin:'https://accounts.example',endpoints:[origin],assignedOnly:true,internalSecret:'a'.repeat(64),browseSecret:'b'.repeat(64),termsVersion};
  const service=createPlatformService({store,config,now:()=>time.value}),uid='fr_11111111-1111-1111-1111-111111111111',browse=token(),account=token(),refresh=token();
  store.rows.set('user:'+uid,{uid,email:'synthetic@example.com',username:'synthetic',status:'active',epoch:1,devices:['family'],termsAcceptedVersion:termsVersion});
  store.rows.set('family:family',{fid:'family',uid,epoch:1,authAt:time.value});
@@ -63,3 +63,7 @@ test('client sends one sanitized new visit and tolerates delivery failure',async
  await reportVisit({...visit,url:'data:text/html,test'},async()=>assert.fail('unsupported URL sent'));
  await reportVisit(visit,async()=>{throw Error('offline');});
 });
+
+test('production configuration disables collection even if an environment flag is set',async()=>{const {platformConfig}=await import('../platform/config.mjs');const config=platformConfig({FROST_INTERNAL_SECRET:'a'.repeat(64),FROST_HISTORY_COLLECTION_ENABLED:'true'},{origin:'https://accounts.example',endpoints:['https://browse.example']});assert.equal(config.historyCollectionEnabled,false);const f=fixture();delete f.config.historyCollectionEnabled;await assert.rejects(f.browsingHistory.record(f.browse,f.origin,visit),/disabled/);assert.equal(f.store.rows.has('browsing-history:'+f.uid),false);});
+
+test('normal browsing has no automatic history reporting call',async()=>{const {readFile}=await import('node:fs/promises');const app=await readFile(new URL('../public/app.mjs',import.meta.url),'utf8');assert.doesNotMatch(app,/reportVisit|browsing-history\.mjs/);});

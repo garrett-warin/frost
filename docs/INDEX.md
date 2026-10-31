@@ -60,3 +60,5 @@ This supersedes older pending-provider status above: Groq was deployed in the pr
 [Admin browsing history decision](decisions/009-browsing-history.md) and [verification / changed files](worklog/2026-10-31-browsing-history.md). Local only; 154 tests pass.
 
 2026-10-31 source publication: prepared on `codex/admin-browsing-history` at owner request, including prerequisite account platform code missing from main. Earlier local-only statements describe the pre-publication checkpoint. Hosting remains unchanged; no merge or deployment performed.
+
+- [Deployment from a clean checkout](DEPLOYMENT.md)

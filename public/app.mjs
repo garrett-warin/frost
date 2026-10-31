@@ -1,4 +1,3 @@
-import {reportVisit} from './browsing-history.mjs';
 import {mountPublishedDesign} from './customize/runtime.mjs';
 import { createBrowserRefresh } from "./browser-refresh.mjs";
 import { mountServerHealth } from "./server-health.mjs";
@@ -178,7 +177,6 @@ function addVisit(tab) {
   if (!tab.url || tab.error) return;
   const last = history[0];
   if (last?.url === tab.url && Date.now() - last.visitedAt < 3000) return;
-  void reportVisit(tab);
   history.unshift({
     url: tab.url,
     title: tab.title,
