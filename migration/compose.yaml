@@ -1,0 +1,75 @@
+name: frost-production
+x-common: &common
+  restart: unless-stopped
+  logging:
+    driver: json-file
+    options:
+      max-size: 5m
+      max-file: '2'
+services:
+  db:
+    <<: *common
+    image: postgres:17-alpine@sha256:266d3c257594e195b309ae9d1805e54c788f1d7b375f56bf6c367aac6c917e7b
+    env_file: db.env
+    volumes: [database:/var/lib/postgresql/data]
+    networks: [backend]
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U frost -d frost]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+  accounts:
+    <<: *common
+    user: '1000:1000'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    image: node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+    env_file: accounts.env
+    working_dir: /app
+    command: [node, run.mjs]
+    volumes: [./app:/app:ro]
+    networks: [backend, egress]
+    depends_on:
+      db: {condition: service_healthy}
+  admin:
+    <<: *common
+    user: '1000:1000'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    image: node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+    env_file: admin.env
+    working_dir: /app
+    command: [node, run.mjs]
+    volumes: [./app:/app:ro]
+    networks: [backend]
+    depends_on:
+      db: {condition: service_healthy}
+  browser:
+    <<: *common
+    user: '1000:1000'
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: ['no-new-privileges:true']
+    image: node:22-alpine@sha256:fe4f6d74e20370acb04ad889077d14d0f64a9c8ea6a42bc60cddf1e844699914
+    env_file: browser.env
+    working_dir: /app
+    command: [node, browser-entry.mjs]
+    volumes: [./browser:/app:ro]
+    networks: [backend, egress]
+  gateway:
+    <<: *common
+    image: caddy:2-alpine@sha256:70b3180738b46cd88e49b300d790ae448a0aca3f58edef0f000bb57d619a9ab3
+    env_file: gateway.env
+    ports: ['80:80', '443:443']
+    volumes: [./Caddyfile:/etc/caddy/Caddyfile:ro, ./gate:/gate:ro, caddy_data:/data, caddy_config:/config]
+    networks: [backend, egress]
+volumes:
+  database:
+  caddy_data:
+  caddy_config:
+networks:
+  backend:
+    internal: true
+  egress:

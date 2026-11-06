@@ -30,9 +30,14 @@ test('health routes identify the responding machine and report uncached local st
  const app=createFrostServer({machineId:'local',publicOrigin:undefined,dispenserOrigin:'',adminOrigin:''}).listen(0,'127.0.0.1');
  await once(app,'listening');const base='http://localhost:'+app.address().port;
  try{
-  assert.deepEqual(await (await fetch(base+'/health')).json(),{ok:true,machine:'local'});
+  assert.deepEqual(await (await fetch(base+'/health')).json(),{ok:true,service:'frost',machine:'local'});
   const response=await fetch(base+'/api/server-health');assert.equal(response.headers.get('cache-control'),'no-store');
   assert.deepEqual((await response.json()).servers.map(s=>s.status),['unknown','unknown']);
   assert.equal(await (await fetch(base+'/api/server-health',{method:'HEAD'})).text(),'');
  }finally{app.closeAllConnections();await new Promise(resolve=>app.close(resolve));}
+});
+
+test('OVH single-server topology does not probe retired Fly machines',async()=>{
+ const health=createServerHealth({machineId:'ovh-bhs-1',now:()=>123,fetchHealth:async()=>{throw Error('Must not probe Fly');}});
+ assert.deepEqual(await health(),{checkedAt:123,topology:'single',servers:[{name:'Canada - Beauharnois',status:'healthy'}]});
 });

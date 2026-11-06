@@ -24,12 +24,12 @@ export function createBrowsingHistory(accounts){
    await accounts.rate(tx,'history:'+user.uid,60,60);
    const key='browsing-history:'+user.uid,items=visible(await tx.get(key));
    if(items[0]?.url===visit.url&&now()-items[0].recordedAt<3)return {ok:true};
-   items.unshift({...visit,recordedAt:now()});
+   items.unshift({...visit,username:user.username,site:new URL(visit.url).hostname,recordedAt:now()});
    await tx.put(key,{uid:user.uid,items:items.slice(0,historyLimit),expires:now()+historyRetention});
    return {ok:true};
   });
  }
- // Call only after staff authorization or the existing IAM owner dispatcher.
+                                                                             
  async function read(body,actor='totp-owner'){
   requireThat(typeof body.uid==='string'&&/^fr_[a-f0-9-]{36}$/.test(body.uid),400,'Choose an account.');
   return atomic(store,async tx=>{
@@ -37,7 +37,7 @@ export function createBrowsingHistory(accounts){
    const row=await tx.get('browsing-history:'+body.uid),items=visible(row),id=randomUUID();
    if(row&&items.length!==row.items.length){if(items.length)await tx.put('browsing-history:'+body.uid,{...row,items});else await tx.remove('browsing-history:'+body.uid);}
    await tx.put('audit:'+id,{kind:'audit',sort:now()+':'+id,id,actor,action:'history:view',target:body.uid,reason:'Viewed browsing history',at:now(),expires:now()+365*86400});
-   return {items,limit:historyLimit,retentionDays:30};
+   return {uid:user.uid,username:user.username,items,limit:historyLimit,retentionDays:30};
   });
  }
  return {record,read};

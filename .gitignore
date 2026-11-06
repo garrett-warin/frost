@@ -11,5 +11,7 @@ public/source.zip
 *.key
 *.log
 .aws/
+__pycache__/
+*.pyc
 
 !.env.example

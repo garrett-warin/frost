@@ -16,7 +16,7 @@ export function emailAddress(value){
 export function username(value){
  requireThat(typeof value==='string'&&/^[a-zA-Z0-9_-]{3,24}$/.test(value),400,'Use 3–24 letters, numbers, underscores or hyphens.');
  const name=value.toLowerCase();
- requireThat(!['admin','administrator','frost','frosty','developer','support','moderator','official','root','system','staff'].some(word=>name===word||name.startsWith(word+'_')||name.startsWith(word+'-')),400,'Choose a different username.');
+ requireThat(!['admin','administrator','frost','frosty','grove','developer','support','moderator','official','root','system','staff'].some(word=>name===word||name.startsWith(word+'_')||name.startsWith(word+'-')),400,'Choose a different username.');
  return name;
 }
 export function plain(value,max,label='Text') {requireThat(typeof value==='string'&&value.trim().length>0&&value.length<=max,400,`${label} must contain 1–${max} characters.`);return value.trim();}
@@ -26,7 +26,7 @@ export function deviceInfo(userAgent=''){
  const os=/Android/.test(ua)?'Android':/iPhone|iPad/.test(ua)?'iOS':/Windows/.test(ua)?'Windows':/Macintosh/.test(ua)?'macOS':/Linux/.test(ua)?'Linux':'Unknown OS';
  return {browser,os,type:/iPad|Tablet/.test(ua)?'tablet':/Mobile|iPhone|Android/.test(ua)?'phone':'computer',label:`${browser} on ${os}`};
 }
-export function approvedOrigin(value,allowed){requireThat(typeof value==='string'&&allowed.includes(value),400,'Choose a registered Frost endpoint.');return value;}
+export function approvedOrigin(value,allowed){requireThat(typeof value==='string'&&allowed.includes(value),400,'Choose a registered Grove endpoint.');return value;}
 export function cleanPreferences(value){
  requireThat(value&&typeof value==='object'&&!Array.isArray(value),400,'Invalid preferences.');
  requireThat(Object.keys(value).every(k=>['accentIntensity','reducedMotion','language'].includes(k)),400,'Only appearance, motion and language can be synchronized.');

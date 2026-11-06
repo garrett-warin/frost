@@ -1,4 +1,4 @@
-// Private owner script. Reads only the linked Frost response sheet; never publish.
+                                                                                   
 function syncFrostResponseSheet() {
  const settings=frostSettings(),sheetId='1Q_M7yfHg4A6tiDBQhXwLUTnrVFNSkTGSxir3qDt8Too';
  if(FormApp.openById(settings.formId).getDestinationId()!==sheetId)throw new Error('The Frost Form is linked to a different sheet.');

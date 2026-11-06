@@ -7,11 +7,11 @@ import {signInternal} from '../platform/internal.mjs';
 import {memoryStore} from './helpers/platform-store.mjs';
 import {token,hash,hmac} from '../platform/security.mjs';
 
-function setup(){
+function setup(assets={}){
  const config={origin:'https://accounts.example',internalSecret:'i'.repeat(64),formsSecret:'s'.repeat(64),formId:'verified-form',formUrl:'https://docs.google.com/forms/d/e/example/viewform',formEntry:'entry.123',endpoints:['https://frost.example'],assignedOnly:true,vaultKey:Buffer.alloc(32,3).toString('base64')};
- const now=()=>1700000000,service=createPlatformService({store:memoryStore(),config,now});
+ const now=()=>1700000000,service=createPlatformService({store:memoryStore(),config,now,assets});
  const event=(path,{method='GET',body,cookies=[],headers={}}={})=>({rawPath:path.split('?')[0],rawQueryString:path.split('?')[1]||'',requestContext:{http:{method,sourceIp:'127.0.0.1'}},headers:{origin:config.origin,'content-type':'application/json',...headers},cookies,body:body===undefined?'':JSON.stringify(body)});
- async function register(){const result=await service.handler(event('/api/register',{method:'POST',body:{username:'snow_user',email:'snow@example.com'}}));assert.equal(result.statusCode,200);const correlation=JSON.parse(result.body).siteCode,body={eventId:token(),formId:config.formId,email:'snow@example.com',correlation},raw=JSON.stringify(body),timestamp=String(now());const verified=await service.handler(event('/forms/verified',{method:'POST',body,headers:{'x-frost-time':timestamp,'x-frost-signature':hmac(config.formsSecret,`${timestamp}\n${hash(raw)}`)}}));assert.equal(verified.statusCode,200);const complete=await service.handler(event('/api/register/complete',{method:'POST',cookies:result.cookies.map(c=>c.split(';')[0])}));assert.equal(complete.statusCode,200);const sessionAccess=complete.cookies.find(c=>c.startsWith('__Host-frost-account=')).split(';')[0].split('=')[1];await service.accounts.acceptTerms(sessionAccess,{accept:true,version:(await service.accounts.me(sessionAccess)).terms.version});return {cookies:complete.cookies.filter(c=>!c.includes('Max-Age=0')).map(c=>c.split(';')[0]),csrf:JSON.parse(complete.body).csrf};}
+ async function register(){const result=await service.handler(event('/api/register',{method:'POST',body:{username:'snow_user',email:'snow@example.com'}}));assert.equal(result.statusCode,200);const correlation=JSON.parse(result.body).siteCode,body={eventId:token(),formId:config.formId,email:'snow@example.com',correlation},raw=JSON.stringify(body),timestamp=String(now());const verified=await service.handler(event('/forms/verified',{method:'POST',body,headers:{'x-frost-time':timestamp,'x-frost-signature':hmac(config.formsSecret,`${timestamp}\n${hash(raw)}`)}}));assert.equal(verified.statusCode,200);const complete=await service.handler(event('/api/register/complete',{method:'POST',cookies:result.cookies.map(c=>c.split(';')[0])}));assert.equal(complete.statusCode,200);const sessionAccess=complete.cookies.find(c=>c.startsWith('__Host-frost-account=')).split(';')[0].split('=')[1];return {cookies:complete.cookies.filter(c=>!c.includes('Max-Age=0')).map(c=>c.split(';')[0]),csrf:JSON.parse(complete.body).csrf};}
  return {...service,config,now,event,register};
 }
 
@@ -41,11 +41,11 @@ test('unsigned form events, duplicate cookies and removed OAuth fail closed',asy
  assert.equal((await f.handler(f.event('/api/username?name=frost_admin'))).statusCode,400);
 });
 
-test('rate limits return an exact retry delay and allow requests at the window boundary',async()=>{
+test('general API burst protection returns retry delay without a verification cooldown',async()=>{
  const f=setup();let now=1700000000;const service=createPlatformService({store:memoryStore(),config:f.config,now:()=>now});
  const request=()=>service.handler(f.event('/api/verify',{method:'POST',body:{email:'retry@example.com'}}));
- for(let i=0;i<5;i++)assert.equal((await request()).statusCode,200);
- const limited=await request(),delay=900-now%900;assert.equal(limited.statusCode,429);assert.equal(JSON.parse(limited.body).retryAfter,delay);assert.equal(limited.headers['retry-after'],String(delay));
+ for(let i=0;i<30;i++)assert.equal((await request()).statusCode,200);
+ const limited=await request(),delay=60-now%60;assert.equal(limited.statusCode,429);assert.equal(JSON.parse(limited.body).retryAfter,delay);assert.equal(limited.headers['retry-after'],String(delay));
  now+=delay-1;assert.equal(JSON.parse((await request()).body).retryAfter,1);
  now++;assert.equal((await request()).statusCode,200);
 });
@@ -87,19 +87,15 @@ test('sheet snapshots require path-bound signing, validate source, minimize data
  assert.deepEqual(await f.accounts.bootstrap(token()),{signedIn:false});
 });
 
-test('design mutations require account CSRF; public templates require sign-in; browser keys read published only',async()=>{
- const f=setup(),session=await f.register();const {defaultDesign}=await import('../public/customize/schema.mjs');
- const write={...session,method:'POST',body:{action:'save',revision:0,design:defaultDesign()}};
- assert.equal((await f.handler(f.event('/api/design',write))).statusCode,403);
- assert.equal((await f.handler(f.event('/api/design',{...write,headers:{'x-frost-csrf':session.csrf}}))).statusCode,200);
- assert.equal((await f.handler(f.event('/api/design',{...write,body:{...write.body,revision:1,design:{invalid:true}},headers:{'x-frost-csrf':session.csrf}}))).statusCode,400);
- assert.equal((await f.handler(f.event('/api/templates',{method:'POST',body:{}}))).statusCode,401);
- const unauth=await f.handler(f.event('/api/design'));assert.equal(unauth.statusCode,401);
- const access=session.cookies.find(c=>c.startsWith('__Host-frost-account=')).split('=')[1];
- await f.control.admin('endpoint',{origin:f.config.endpoints[0],action:'operational',reason:'Verified'});await f.control.allocate(access);
- const binding=token(),handoff=await f.accounts.createHandoff(access,f.config.endpoints[0],binding),browser=await f.accounts.redeem(handoff.code,f.config.endpoints[0],binding);
- const body={access:browser.access,origin:f.config.endpoints[0]},headers=signInternal(f.config.internalSecret,'/internal/design',JSON.stringify(body),f.now());
- const read=await f.handler(f.event('/internal/design',{method:'POST',body,headers}));assert.equal(read.statusCode,200);assert.equal(JSON.parse(read.body).design.wordmarkColor,'#657979');assert.equal(JSON.parse(read.body).draft,undefined);
- await assert.rejects(f.designs.write(browser.access,{action:'save',revision:1,design:defaultDesign()}));
+test('retired editor and design APIs are unavailable even with assets present',async()=>{
+ const f=setup({'/customize':{type:'text/html',body:'old editor'}});for(const path of ['/customize','/customize/editor.bundle.mjs','/api/design','/api/templates','/api/templates/publish','/internal/design','/api/admin/templates/list']){const r=await f.handler(f.event(path));assert.equal(r.statusCode,410,path);}
 });
 
+
+test('verification and registration have no shared-IP or hourly start cooldown',async()=>{
+ const f=setup();
+ for(let i=0;i<105;i++){
+  assert.ok((await f.accounts.startVerification({email:'repeat@example.com',purpose:'entry'},'shared-ip')).siteCode);
+  assert.ok((await f.accounts.register({email:`test${i}@example.com`,username:`test_${i}`},'shared-ip')).siteCode);
+ }
+});

@@ -1,4 +1,5 @@
-import {mountPublishedDesign} from './customize/runtime.mjs';
+import {reportVisit} from './browsing-history.mjs';
+import { confirmYouTube } from './youtube-notice.mjs';
 import { createBrowserRefresh } from "./browser-refresh.mjs";
 import { mountServerHealth } from "./server-health.mjs";
 import { createWordmarkIntro } from "./wordmark-intro.mjs";
@@ -37,7 +38,7 @@ const tabs = [],
   closedTabs = [];
 let active,
   panel,
-  engineState = "Starting Frost…";
+  engineState = "Starting Grove…";
 const transport = createBrowserTransport(() => settings);
 const transfers = createDownloads({
   transport,
@@ -62,7 +63,7 @@ mountFrosty({
       if(kind==='selection')text=active.element.contentWindow.getSelection()?.toString();
       else {const clone=doc.body.cloneNode(true);clone.querySelectorAll('script,style,noscript,input,textarea,select,[hidden],[aria-hidden="true"]').forEach(node=>node.remove());text=clone.textContent;}
       return {title:active.title||'Current page',text:String(text||'').trim().slice(0,16000)};
-    }catch{throw new Error('This page does not allow Frosty to read its text. You can paste an excerpt instead.');}
+    }catch{throw new Error('This page does not allow Grove AI to read its text. You can paste an excerpt instead.');}
   },
   openLink(url){if(tabs.length>=24){status('Close a tab before opening another.');return;}const tab=makeTab(crypto.randomUUID());tabs.push(tab);activate(tab);void navigateTo(url,tab);}
 });
@@ -177,6 +178,7 @@ function addVisit(tab) {
   if (!tab.url || tab.error) return;
   const last = history[0];
   if (last?.url === tab.url && Date.now() - last.visitedAt < 3000) return;
+  void reportVisit({url:tab.url,title:tab.title});
   history.unshift({
     url: tab.url,
     title: tab.title,
@@ -238,7 +240,7 @@ function showError(tab) {
       ? "Check your internet connection, then try again."
       : tab.error.kind === "invalid"
         ? "Edit the address, or search for the text you entered."
-        : "Frost couldn't establish a connection to this address.";
+        : "Grove couldn't establish a connection to this address.";
   const detail = document.createElement("small");
   detail.textContent = tab.error.message;
   const controls = document.createElement("div");
@@ -407,6 +409,8 @@ async function navigateTo(input, tab = active, options = {}) {
     failure(tab, error, "invalid", input);
     return;
   }
+  if (!await confirmYouTube(url, tab)) return;
+  if (!tabs.includes(tab) || tab.revision !== revision) return;
   tab.error = null;
   tab.url = url;
   tab.title = new URL(url).hostname;
@@ -500,7 +504,7 @@ applySettings();
 transport
   .initialize()
   .then(() => {
-    engineState = "Frost ready";
+    engineState = "Grove ready";
     if (active.home) {
       active.message = engineState;
       status(engineState);
@@ -582,14 +586,13 @@ for (const [label, action] of [
   ["Downloads", () => openPanel("downloads")],
   ["Bookmarks", () => openPanel("bookmarks")],
   ["Settings", () => openPanel("settings")],
-  ["Customize new tab", async () => {
+  ["Support", async () => {
     try {
       const response=await fetch('/api/config',{cache:'no-store'});
-      if(!response.ok)throw Error('Account service unavailable.');
-      const config=await response.json();
-      if(!/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(config.dispenserOrigin))throw Error('Dispenser is not configured.');
+      const config=await response.json();const origin=new URL(config.dispenserOrigin);
+      if(origin.protocol!=='https:'||origin.origin!==config.dispenserOrigin)throw Error('Support is unavailable. Try again shortly.');
       if(active)saveSession(storage,tabs,active.id);
-      window.location.assign(config.dispenserOrigin+'/customize');
+      location.assign(origin.origin+'/#support');
     }catch(error){status(error.message);}
   }],
   ["Return to dispenser", async () => {
@@ -604,7 +607,7 @@ for (const [label, action] of [
   }],
   ["Admin Console", () => { if (adminOrigin) window.open("/admin", "_blank", "noopener,noreferrer"); else status("Admin console setup is still in progress."); }],
   ["Command Palette", () => openPanel("commands")],
-  ["About Frost", () => openPanel("about")],
+  ["About Grove", () => openPanel("about")],
 ]) {
   const button = document.createElement("button");
   button.type = "button";
@@ -741,7 +744,7 @@ async function siteFullscreen() {
   if (document.body.classList.contains('site-fullscreen') || document.fullscreenElement) return exitSiteFullscreen();
   if (!active?.url || active.home || active.error) return status('Open a website first.');
   document.body.classList.add('site-fullscreen');
-  // Embedded browsers can reject native fullscreen. The site still fills the app.
+                                                                                  
   if (document.fullscreenEnabled) {
     try { await $('viewport').requestFullscreen(); } catch {}
   }
@@ -768,7 +771,7 @@ setInterval(refreshAnnouncement, 60000);
 let adminOrigin = "";
 void fetch("/api/config", {cache:"no-store"}).then(response=>response.json()).then(config=>{ if(/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(config.adminOrigin)) adminOrigin=config.adminOrigin; }).catch(()=>{});
 
-// One ID per browser and origin, reused across tabs. Never includes visited URLs.
+                                                                                  
 let visitorId;
 try { visitorId=localStorage.getItem('frost.presence.v1'); } catch {}
 if(!/^[a-f0-9-]{36}$/.test(visitorId||'')) visitorId=crypto.randomUUID();
@@ -798,5 +801,3 @@ addEventListener('online',checkBrowser);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)checkBrowser();});
 addEventListener('online',refreshPresence);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void refreshPresence();});
-
-mountPublishedDesign({landing:$('landing'),onSearch:value=>void navigateTo(value),onNavigate:value=>void navigateTo(value)});

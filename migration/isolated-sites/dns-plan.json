@@ -1,0 +1,9 @@
+{
+  "zone": "garretts.space",
+  "records": [
+    {"type":"A","name":"frost-sites.garretts.space","content":"148.113.156.154","proxied":false,"ttl":300},
+    {"type":"A","name":"*.frost-sites.garretts.space","content":"148.113.156.154","proxied":false,"ttl":300}
+  ],
+  "certificateNames": ["frost-sites.garretts.space","*.frost-sites.garretts.space"],
+  "activateBrowsing": false
+}

@@ -6,8 +6,8 @@ const source=await readFile(new URL('../platform/ui/account.mjs',import.meta.url
 function ui(){
  const elements=new Map(),timers=new Map();let timer=0;
  const get=id=>{if(!elements.has(id))elements.set(id,{hidden:false,textContent:'',value:'',dataset:{},listeners:{},addEventListener(type,fn){this.listeners[type]=fn;},focus(){this.focused=true;},select(){},querySelector(){return {disabled:false};}});return elements.get(id);};
- const context=vm.createContext({document:{getElementById:get},window:{addEventListener(){}},location:{pathname:'/',search:''},URL,URLSearchParams,TextEncoder,crypto:globalThis.crypto,navigator:{clipboard:{writeText:async()=>{}}},fetch:async()=>({ok:true,status:200,json:async()=>({status:'pending'})}),setTimeout(fn){timers.set(++timer,fn);return timer;},clearTimeout(id){timers.delete(id);},console});
- vm.runInContext(source.replace(/start\(\);\s*$/,''),context);
+ const context=vm.createContext({document:{getElementById:get},window:{addEventListener(){}},location:{pathname:'/',search:''},URL,URLSearchParams,TextEncoder,crypto:globalThis.crypto,navigator:{clipboard:{writeText:async()=>{}}},fetch:async()=>({ok:true,status:200,json:async()=>({status:'pending'})}),setTimeout(fn){timers.set(++timer,fn);return timer;},clearTimeout(id){timers.delete(id);},console,setInterval(){},showAdminNotifications(){},clearAdminNotifications(){}});
+ vm.runInContext(source.replace(/^import .*;$/mg,'').replace(/^start\(\);$/mg,''),context);
  return {get,timers,run:code=>vm.runInContext(code,context),context};
 }
 test('one email entry becomes verification, then a new user gets only the username step',async()=>{
@@ -19,6 +19,15 @@ test('one email entry becomes verification, then a new user gets only the userna
  assert.equal(u.get('verification').hidden,true);assert.equal(u.get('profile').hidden,false);assert.equal(u.timers.size,0);
  await u.get('profile-back').listeners.click();assert.equal(u.get('profile').hidden,true);assert.equal(u.get('signin').hidden,false);
 });
+test('mismatched email stays actionable and clears after a successful resubmission',async()=>{
+ const u=ui();u.context.fetch=async()=>({ok:true,status:200,json:async()=>({status:'pending',errorCode:'EMAIL_MISMATCH'})});
+ await u.run('beginVerification({siteCode:"preview",formUrl:"https://docs.google.com/forms/example",expiresIn:900},"preview@example.com")');
+ assert.match(u.get('status').textContent,/does not match/);assert.equal(u.get('verification').hidden,false);
+ await u.get('check-verification').listeners.click();assert.match(u.get('status').textContent,/does not match/);
+ u.context.fetch=async()=>({ok:true,status:200,json:async()=>({status:'needs_username'})});await u.run('poll()');
+ assert.equal(u.get('status').textContent,'');assert.equal(u.get('profile').hidden,false);
+});
+
 test('late verification responses cannot replace entry; expired codes stop polling',async()=>{
  const u=ui();let resolve;u.context.fetch=()=>new Promise(r=>{resolve=r;});
  const pending=u.run('beginVerification({siteCode:"preview",formUrl:"https://docs.google.com/forms/example",expiresIn:900},"preview@example.com")');

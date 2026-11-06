@@ -26,7 +26,7 @@ origin='https://'+outputs['AdminDomain']
 subprocess.run(['aws','dynamodb','put-item','--table-name',outputs['Table'],'--item',json.dumps({'id':{'S':'config'},'origin':{'S':origin}})],check=True)
 print('FROST_ADMIN_URL='+origin)
 print('FROST_DISTRIBUTION_ID='+outputs['AdminDistributionId'])
-# The one-time enrollment link stays in a private CloudShell file.
+                                                                  
 path=pathlib.Path.home()/'.frost-admin-enrollment-url'
 path.write_text(origin+'/#setup='+pathlib.Path.home().joinpath('.frost-admin-setup').read_text().strip())
 path.chmod(0o600)

@@ -1,6 +1,6 @@
 import {effectiveUser} from './restrictions.mjs';
 import {analyticsDays} from './analytics-time.mjs';
-import {isOnline} from './online.mjs';
+import {isOnline,onlineAdmins} from './online.mjs';
 import {atomic} from './store.mjs';
 import {requireThat} from './security.mjs';
 const hour=3600,day=86400;
@@ -23,7 +23,7 @@ export function createAnalytics(accounts,{fetcher=fetch}={}){
   const latest=samples.at(-1),todaySamples=samples.filter(s=>s.at>=today&&s.online!==null);
   const boundaries=range==='week'?calendar.starts:[];if(range==='day'){for(let b=today;b<=at;b+=hour)boundaries.push(b);boundaries.push(at+1);}const series=[];
   for(let i=0;i<boundaries.length-1;i++){const b=boundaries[i],end=boundaries[i+1];if(b>at||b===end)continue;const observed=samples.filter(s=>s.at>=b&&s.at<end&&s.online!==null);series.push({at:b,online:observed.length?Math.max(...observed.map(s=>s.online)):null,registered:users.filter(u=>u.createdAt>=b&&u.createdAt<end&&u.createdAt<=at).length});}
-  return {at,range,timezone:calendar.timezone,online:latest&&at-latest.at<180?latest.online:null,lastSampleAt:latest?.at||null,todayPeak:todaySamples.length?Math.max(...todaySamples.map(s=>s.online)):null,accounts:users.length,banned:users.filter(u=>u.status==='banned').length,suspended:users.filter(u=>u.status==='suspended').length,registered:users.filter(u=>u.createdAt>=start&&u.createdAt<=at).length,openTickets:tickets.filter(t=>t.status==='open').length,series};
+  return {adminsOnline:await onlineAdmins(store,at),at,range,timezone:calendar.timezone,online:latest&&at-latest.at<180?latest.online:null,lastSampleAt:latest?.at||null,todayPeak:todaySamples.length?Math.max(...todaySamples.map(s=>s.online)):null,accounts:users.length,banned:users.filter(u=>u.status==='banned').length,suspended:users.filter(u=>u.status==='suspended').length,registered:users.filter(u=>u.createdAt>=start&&u.createdAt<=at).length,openTickets:tickets.filter(t=>t.status==='open').length,series};
  }
  async function listUsers(body){const query=String(body.query||'').toLowerCase().slice(0,254);requireThat(['all','online','active','banned','suspended'].includes(body.status||'all'),400,'Invalid status.');const users=(await all('users')).map(u=>effectiveUser(u,now())).filter(u=>(!query||[u.uid,u.username,u.email].some(v=>v?.toLowerCase().includes(query)))&&(!body.status||body.status==='all'||(body.status==='online'?isOnline(u,now()):u.status===body.status)));const offset=Number(body.offset||0);requireThat(Number.isSafeInteger(offset)&&offset>=0,400,'Invalid page.');return {total:users.length,items:users.slice(offset,offset+50).map(u=>({uid:u.uid,username:u.username,email:u.email,status:u.status,createdAt:u.createdAt,restrictionReason:u.restrictionReason,restrictionUntil:u.restrictionUntil||null,usernameChangeRequired:!!u.usernameChangeRequired,online:isOnline(u,now()),lastSeenAt:u.browserSeenAt||null})),next:offset+50<users.length?offset+50:null};}
  return {sample,dashboard,listUsers};

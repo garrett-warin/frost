@@ -1,4 +1,4 @@
-// Approximate anonymous browser activity. State is bounded and expires quickly.
+                                                                                
 export function createPresence({now=Date.now,ttl=75000,limit=10000}={}) {
  const visitors=new Map();
  return id=>{

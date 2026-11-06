@@ -1,4 +1,6 @@
-# Deployment from a clean checkout
+# Historical Fly/AWS deployment
+
+Superseded November 6, 2026: production runs on OVH. Use [current deployment instructions](OVH-DEPLOYMENT.md). Commands and privacy claims below describe an older release and must not be used as current operational guidance.
 
 October 31, 2026: GitHub now includes the account backend and newer browser features. The previous missing-code warning described an older revision. This repair does not deploy the site.
 

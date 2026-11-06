@@ -9,7 +9,7 @@ export function analyticsDays(at,timezone='UTC'){
   return Date.UTC(Number(parts.year),Number(parts.month)-1,Number(parts.day))/1000;
  };
  const today=dateKey(at),starts=[];
- // Find each local date's first instant, including shortened/extended DST days.
+                                                                                
  for(let offset=-6;offset<=1;offset++){
   const target=today+offset*day;let low=target-2*day,high=target+2*day;
   while(low<high){const mid=Math.floor((low+high)/2);if(dateKey(mid)<target)low=mid+1;else high=mid;}

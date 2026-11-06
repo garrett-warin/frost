@@ -14,7 +14,7 @@ function fixture(){
  async function register(name='snowperson',email=name+'@example.com'){
   const pending=await accounts.register({username:name,email},name),correlation=pending.siteCode;
   const verified=await accounts.verifiedEvent({eventId:token(),formId:'test-form',correlation,email});
-  const session=await accounts.completeRegistration(pending.poll,'Mozilla Windows Chrome/123');await accounts.acceptTerms(session.access,{accept:true,version:(await accounts.me(session.access)).terms.version});return {...session,user:await accounts.me(session.access)};
+  const session=await accounts.completeRegistration(pending.poll,'Mozilla Windows Chrome/123');return {...session,user:await accounts.me(session.access)};
  }
  async function verify(email,purpose='login',access){const pending=await accounts.startVerification({email,purpose},token(),access);const verified=await accounts.verifiedEvent({formId:'test-form',eventId:token(),email,correlation:pending.siteCode});return accounts.completeRegistration(pending.poll,'',access);}
  return {store,config,accounts,control,monitor,register,login:identity=>verify(identity.email),changeEmail:(access,identity)=>verify(identity.email,'email',access),advance:seconds=>time+=seconds};
@@ -30,6 +30,19 @@ test('verified email is mandatory; concurrent completion is single-use; Frost ID
  const session=results.find(r=>r.status==='fulfilled').value,user=await f.accounts.me(session.access);assert.match(user.frostId,/^fr_[0-9a-f-]{36}$/);
  const renamed=await f.accounts.rename(session.access,'new_name');assert.equal(renamed.frostId,user.frostId);assert.equal(renamed.username,'new_name');
  assert.equal(await f.accounts.available('NEW_NAME'),false);assert.equal(await f.accounts.available('snowperson'),true);
+});
+
+test('email mismatch is visible only to its poll holder and a correct resubmission recovers',async()=>{
+ const f=fixture(),p=await f.accounts.register({email:'snow@example.com',username:'snow'},'ip');
+ const event={eventId:'mismatch-test',formId:'test-form',correlation:p.siteCode,email:'other@example.com'};
+ await assert.rejects(f.accounts.verifiedEvent(event),/does not match/);
+ assert.deepEqual(await f.accounts.registrationStatus(p.poll),{status:'pending',errorCode:'EMAIL_MISMATCH'});
+ await assert.rejects(f.accounts.registrationStatus(p.siteCode));
+ await assert.rejects(f.accounts.completeRegistration(p.poll,''),/verification/);
+ await f.accounts.verifiedEvent({...event,email:'snow@example.com'});
+ assert.deepEqual(await f.accounts.registrationStatus(p.poll),{status:'verified'});
+ await assert.rejects(f.accounts.verifiedEvent({...event,eventId:'late-wrong'}),/already submitted/);
+ assert.deepEqual(await f.accounts.registrationStatus(p.poll),{status:'verified'});
 });
 
 test('registration reserves names atomically and expired registrations cannot verify',async()=>{
@@ -138,10 +151,10 @@ test('verified login recovers at the device limit and after an owner revokes all
  assert.equal((await f.accounts.devices(recovered.access)).length,1);
 });
 
-test('rejected registration attempts still consume the durable request budget',async()=>{
+test('username conflicts remain enforced without a shared registration cooldown',async()=>{
  const f=fixture();await f.accounts.register({username:'reserved_name',email:'a@example.com'},'same-ip');
  for(let i=0;i<4;i++)await assert.rejects(f.accounts.register({username:'reserved_name',email:'b@example.com'},'same-ip'),error=>error.status===409);
- await assert.rejects(f.accounts.register({username:'different_name',email:'b@example.com'},'same-ip'),error=>error.status===429);
+ assert.ok((await f.accounts.register({username:'different_name',email:'b@example.com'},'same-ip')).siteCode);
 });
 
 test('returning email verification preserves identity and rejects mismatch, replay and expired proof',async()=>{
@@ -255,7 +268,7 @@ test('rebalance paginates beyond one batch and stale workers cannot regress the 
 test('rebalance stale unblocked observation cannot delete a replacement block job',async()=>{
  const f=rebalanceFixture(0),endpointKey='endpoint:'+hash(f.origin),get=f.store.get.bind(f.store);let inject=true;
  f.store.get=async key=>{const value=await get(key);if(key===endpointKey&&inject){inject=false;
-  // Owner unblocked and reblocked after this worker's unblocked read.
+                                                                      
   f.store.rows.set(f.key,{...await get(f.key),id:'replacement-job',_v:2});f.store.rows.set(endpointKey,{...value,blocked:true,_v:2});return {...value,blocked:false};
  }return value;};
  await f.control.rebalance();assert.equal((await get(f.key)).id,'replacement-job');assert.equal((await get(endpointKey)).blocked,true);
@@ -355,4 +368,67 @@ test('deleted timed restriction expires without letting old cleanup remove a new
  await f.control.deleteAccount((await f.login(me)).access);
  await f.control.admin('clear-deleted-restriction',{uid,reason:'Clear old record'});
  pending=await entry();await assert.rejects(f.accounts.completeRegistration(pending.poll,'',undefined,{username:'third_timed'}),/restricted/);
+});
+
+test('support permits one open request atomically, owner close, and guarded admin reopen',async()=>{
+ const f=fixture(),a=await f.register('winter_a'),b=await f.register('winter_b');
+ const body={subject:'Help please',message:'Connection issue'};
+ const starts=await Promise.allSettled([f.control.support(a.access,body),f.control.support(a.access,body)]);
+ assert.equal(starts.filter(x=>x.status==='fulfilled').length,1);
+ const id=starts.find(x=>x.status==='fulfilled').value.id;
+ assert.equal((await f.control.supportState(a.access)).openTicket.id,id);
+ await assert.rejects(f.control.closeSupport(b.access,id),e=>e.status===404);
+ await f.control.closeSupport(a.access,id);assert.equal((await f.control.supportState(a.access)).openTicket,null);
+ const next=await f.control.support(a.access,body);
+ await assert.rejects(f.control.admin('ticket',{id,operation:'reopen'}),e=>e.status===409);
+ await f.control.admin('ticket',{id:next.id,operation:'close'});await f.control.admin('ticket',{id,operation:'reopen'});
+ assert.equal((await f.control.supportState(a.access)).openTicket.id,id);
+});
+test('support actions flag assistance, replace only with a different healthy link, and preserve public copies',async()=>{
+ const f=fixture(),a=await f.register('help_user');
+ for(const origin of f.config.endpoints)await f.control.admin('endpoint',{origin,action:'operational',reason:'Ready'});
+ const first=await f.control.allocate(a.access),ticket=await f.control.support(a.access,{subject:'A new link',message:'Please help'});
+ await f.control.admin('ticket',{id:ticket.id,operation:'assist'});
+ assert.equal((await f.control.admin('list',{kind:'tickets',status:'assistance'})).items[0].username,'help_user');
+ assert.equal((await f.control.ownedList(a.access,'tickets')).items[0].needsAssistance,undefined);
+ await f.control.admin('ticket',{id:ticket.id,operation:'claim'});
+ assert.equal((await f.control.admin('list',{kind:'tickets',status:'assistance'})).items.length,0);
+ const replaced=await f.control.admin('ticket',{id:ticket.id,operation:'assign'});assert.notEqual(replaced.origin,first.origin);
+ await f.control.admin('link',{origin:first.origin,action:'block',reason:'Unavailable'});
+ await assert.rejects(f.control.admin('ticket',{id:ticket.id,operation:'assign'}),e=>e.status===503);
+ assert.equal((await f.control.assignment(a.access)).origin,replaced.origin);
+ await f.control.admin('ticket',{id:ticket.id,operation:'close'});
+ assert.equal((await f.control.admin('list',{kind:'tickets',status:'open'})).items.length,0);
+ assert.equal((await f.control.admin('list',{kind:'tickets',status:'closed'})).items.length,1);
+ await assert.rejects(f.control.admin('ticket',{id:ticket.id,operation:'assign'}),e=>e.status===409);
+});
+test('support filtering finds matches beyond the first page and legacy open requests block duplicates',async()=>{
+ const f=fixture(),a=await f.register('legacy_support');
+ for(let i=0;i<55;i++){const row={id:'legacy'+i,uid:a.user.frostId,kind:'tickets',sort:String(i).padStart(3,'0'),status:i===0?'open':'closed',subject:'Legacy',message:'Help',replies:[],expires:1800000000};f.store.rows.set('ticket:'+row.id,row);f.store.rows.set('user-ticket:'+row.id,{...row,kind:'tickets:'+a.user.frostId});}
+ assert.equal((await f.control.admin('list',{kind:'tickets',status:'open'})).items[0].id,'legacy0');
+ await assert.rejects(f.control.support(a.access,{subject:'Duplicate',message:'No'}),e=>e.status===409);
+});
+
+
+
+test('two-way support chat enforces ownership, preserves messages, and anonymizes legacy admin names',async()=>{
+ const f=fixture(),a=await f.register('chat_user'),b=await f.register('other_chat');const ticket=await f.control.support(a.access,{subject:'Chat',message:'First message'});
+ await assert.rejects(f.control.replySupport(b.access,{id:ticket.id,message:'Spoof'}),e=>e.status===404);
+ await assert.rejects(f.control.supportThread(b.access,ticket.id),e=>e.status===404);
+ await f.control.replySupport(a.access,{id:ticket.id,message:'More detail',sender:'admin',actor:'Administrator'});
+ await f.control.admin('ticket',{id:ticket.id,operation:'claim'});
+ await f.control.admin('ticket',{id:ticket.id,status:'open',message:'Thanks',showUsername:true});
+ const row=await f.control.supportThread(a.access,ticket.id);assert.equal(row.replies[0].sender,'user');assert.equal(row.replies[1].actor,'Administrator');assert.equal(row.claimedBy,undefined);
+ const stored=await f.store.get('user-ticket:'+ticket.id);stored.replies[1].actor='Administrator Garrett';f.store.rows.set('user-ticket:'+ticket.id,stored);
+ assert.equal((await f.control.supportThread(a.access,ticket.id)).replies[1].actor,'Administrator');assert.equal((await f.control.ownedList(a.access,'tickets')).items[0].replies[1].actor,'Administrator');
+ await f.control.closeSupport(a.access,ticket.id);await assert.rejects(f.control.replySupport(a.access,{id:ticket.id,message:'Late'}),e=>e.status===409);
+});
+
+
+test('expired support conversations cannot be read or replied to by direct id',async()=>{
+ const f=fixture(),a=await f.register('expired_chat'),ticket=await f.control.support(a.access,{subject:'Old',message:'Old request'});f.advance(181*86400);
+ const fresh=await f.login({email:'expired_chat@example.com'});
+ await assert.rejects(f.control.supportThread(fresh.access,ticket.id),e=>e.status===404);
+ await assert.rejects(f.control.replySupport(fresh.access,{id:ticket.id,message:'Too late'}),e=>e.status===404);
+ await assert.rejects(f.control.admin('ticket',{id:ticket.id,operation:'read'}),e=>e.status===404);
 });

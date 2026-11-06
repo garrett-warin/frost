@@ -1,5 +1,7 @@
 # PRD — Frost
 
+Repository requirement (November 6): synchronize deployed Grove source to GitHub and provide OVH code assembly. Remove ordinary first-party comments; preserve legal notices, executable directives, documentation and pinned third-party code. Exclude private configuration and user data. Publishing source must not redeploy production.
+
 Status: active. Last updated: 2026-10-20.
 
 ## Active requirements
@@ -129,7 +131,7 @@ Maintenance notice: existing administrators can enable/remove a blue banner inde
 
 404 page: Frost-owned missing page URLs show a quiet branded Lost in the frost page with a home link, custom wordmark and existing tab title/favicon. Return HTTP404, including /404.html and HEAD; missing scripts/styles stay plain text, unknown API returns JSON. Never echo request paths into HTML. No changes to destination-site errors inside browsing tabs.
 
-New-tab visual editor and public template gallery follow docs/plans/customize.md. Mandatory Frost wordmark remains centered and uneditable; all security and shell UI outside the canvas. Draft-only changes until explicit Save, previous version recovery, per-account isolation, user reports and admin template removal. No browsing history collection.
+Retired 2026-11-04 by owner request: no new-tab editor or community template gallery. Always render the original wordmark, note, clock, search and shortcuts. Saved designs must not load. Editor, design and template APIs return 410; account/admin navigation contains no customization entries. Existing database records remain dormant; no account/tab/cookie deletion. Historical plan: docs/plans/customize.md.
 
 
 2026-10-31 versioned terms: updated disclosure distinguishes planned administrator history access from current local-only history. No history collection added. Build derives terms version from normalized document SHA-256; explicit authenticated CSRF-protected acceptance records version/time on account. All handoff, redemption, browse checks, refresh and ongoing connection checks require current acceptance. Account support, appeals, logout and deletion remain accessible. UI offers explicit unchecked agreement and account-options alternative. No production deployment or GitHub push for this change.
@@ -139,3 +141,58 @@ New-tab visual editor and public template gallery follow docs/plans/customize.md
 Add an audited admin account-history viewer using existing isolated staff/TOTP authorization. Collect only newly reported HTTP(S) visits after current explicit terms acceptance; bind identity to browsing credentials, enforce assignment and restrictions, strip URL credentials/query/fragment, and bound URL/title/payload/rate. Keep at most 100 visits for a 30-day visibility window; remove on account deletion. No backfill, no privileged read route on browsing origins, no promise of complete capture. Disclose admin access, retention and local-clear behavior in terms, acceptance screen and local History panel.
 
 October31 repository repair: a clean clone must contain the account source, build its own engine/UI assets in Docker, pass tests, and package only explicitly tracked source. Release verification must reject dirty checkouts or stale Docker context. Disable automatic history reporting and production collection pending separate transparent opt-in.
+
+## Verification reliability — 2026-11-04
+
+REQ-VERIFY-RETRY: Verified-email mismatches must produce an actionable polling error without authenticating the request or revealing the Google email. A correct resubmission may recover the same unexpired request. Queue before contacting Google; verify VERIFIED collection before delivery. Retain temporary delivery failures, fail the execution visibly, and log no personal data or credentials. Keep the Form in VERIFIED mode continuously.
+
+## Migration notice — 2026-11-04
+Provide a dismissible modal announcing the planned server move, with literal bounded copy, keyboard focus, per-origin acknowledgement and a remotely withdrawable JSON notice. Keep migration paused. Owner authorized an all-user browser refresh after the popup release; preserve the existing browser session behavior. No account/database migration in this change.
+
+## OVH migration — 2026-11-04
+Owner resumed migration to a single Debian 13 OVH VPS (6 vCores, 12 GB, 100 GB) while retaining CloudFront public links. Scope includes browsing, accounts, admin and storage. Preserve IDs, sessions, encryption/signing keys and Google verification. Existing Fly remains live until rehearsal and cutover checks pass; single VPS cannot provide host failover. See [migration plan](plans/ovh-migration.md).
+
+## Server history revision — 2026-11-04
+Owner removes TOS page/agreement gates. New Frost visits are sent to the account service and stamped with authenticated username, site and time. Show the approved notice only in the user-facing History panel. No local-history backfill. Preserve bounded retention, signed account attribution, admin access auditing and bans. See plans/server-history.md.
+
+## Replacement dispenser (2026-11-04)
+Use a new CloudFront distribution for the account dispenser. Preserve accounts, assignments, bans, TOTP isolation and the existing Google Form callback. Retain the old origin as a strict compatibility alias; cookies remain host-only. Do not merge sessions across origins.
+
+## Support workspace revision (2026-11-05)
+Separate Support and Audit log. Open/closed/unclaimed/help filters, claim/unclaim, quick different healthy-link assignment, close/reopen, and help escalation. One open request per account including appeals; users close and reply to their own requests. Both sides use a polling chat panel. Administrator replies are always anonymous; audit records authenticated actors. Main browsing UI exposes only an admin-only unclaimed boolean notification. Preserve existing requests and hidden internal claim metadata.
+
+
+## Main-site support and administrator outreach — 2026-11-05
+
+Main Frost Support entry opens the existing isolated account support chat. Personal unread-message notification reveals no message contents on browsing origins. Administrators can initiate a conversation, automatically claimed by the initiator, while preserving the single-open-ticket rule and anonymous public labels. User replies notify the claimed account admin; viewing messages clears only the matching notification revision.
+
+
+## Shared service notices — 2026-11-05
+
+Service notices appear on both the main browser and dispenser, including signed-out entry. Administrators choose Maintenance or Service disruption, with start/end times and reason. Existing notices default to maintenance; disruption uses teal, maintenance blue, automatic outage remains orange.
+
+Username rules: public rules page with no real-name requirement, linked from username creation, mandatory rename, settings and both admin surfaces. No automated moderation behavior change.
+
+- Weekly link replacement: discreet Blocked action in dispenser; warning before confirmation; one successful replacement per account per rolling seven days, enforced atomically. No global block, no automatic report rotation, no cooldown on failure.
+
+- Grove rebrand: use handmade Grove leaf wordmark, forest-green browser/account/admin palette, Grove AI naming, and Grove in all product-authored user-facing messages. Preserve legacy cookie/storage/API/environment identifiers, account IDs and existing deployment URLs for compatibility. Historical audit/support content remains unmodified. New assistant navigation uses #ai; #frosty remains an alias.
+
+Admin overview shows named administrator account presence. Admin reset username uses grove_user_<full existing uid>, confirmation and required reason, audit identity and notification; ordinary users cannot choose reserved generated names.
+
+
+Approved Grove TOS publication: public static terms, no privacy section; Browsing prohibits only poki.com/crazygames.com. Link from account restrictions/footer and both admin consoles. No consent gate requested.
+
+
+## AI support — 2026-11-06
+New ordinary support requests use clearly labeled Grove AI replies grounded in the published terms. Request a human and natural-language human requests hand off immediately; appeals/restricted users always human with a minimum-two-sentence instruction (why banned and whether it will happen again). This is guidance, not a submission-blocking sentence validator. Human staff claim to take over and may return owned ordinary tickets to AI. Existing human tickets stay human. AI has no moderation/assignment tools. Private handoff summary is AI-generated with a deterministic conversation-excerpt fallback. Bounded Groq free provider, durable jobs, leases/revisions and rate limits prevent duplicate/stale answers. Account UI and admin console preserve drafts and poll mode transitions.
+
+Appeal advisory: staff-only accept/deny/review_deeper recommendation plus rationale with summary timestamp. Ground in terms/conversation, default deeper review on missing evidence/failure; no automated decision or restriction mutation.
+
+
+Head admin role: owner alone appoints/demotes heads; heads add/remove regular admins and ban regular admins. Owner and peer heads protected; other peer-admin actions remain owner-only. Head IDs must be a subset of admin IDs. Identity and target checked transactionally for roster and account/assignment mutations. Account navigation and presence show head role. No automatic real role grants.
+
+
+## Administrator notifications — 2026-11-06
+Live on OVH. Account rows offer Send notification (500 characters). Delivery is account-scoped on the browsing shell and dispenser, with a dismissible green slide-down message, silent animated SVG bell, reduced-motion support, and retry on failed dismissal. Offline notes remain queued for up to 30 days. Dismissal removes popup delivery and marks the Activity notice read. Admin identity is audited, user-facing sender is Administrator. Sending limits: 5 per recipient per minute, 30 per sender per hour. Staff session is revalidated within the mutation transaction. Browser dismissal uses only the limited browse signing key. Existing open pages need one normal reload to load the new client.
+Validation: 208/208 tests passed; browser preview verified appearance, plain-text rendering, retry and queue progression. Accounts/admin deployed smoke tests passed; all 19 public routes passed; canonical dispenser, browser CSS and both admin JS assets matched source. No notifications sent to real users during testing. Rollback: /opt/frost/releases/before-notifications-theme-20261106/source.tgz.
+Changed files: platform/accounts.mjs, control.mjs, staff.mjs, owner.mjs, http.mjs, internal.mjs, ui/account.mjs; admin/admin.js, index.html, service.mjs, assets.mjs; account-access.mjs; server.mjs; public/device-access.mjs, admin-notifications.mjs, admin-notifications.css; scripts/build-platform.mjs; test/admin-notifications.test.mjs, staff.test.mjs, account-ui.test.mjs, account-client.test.mjs.

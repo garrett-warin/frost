@@ -11,8 +11,9 @@ import { createDeviceAccess } from "./device-access.mjs";
 import { resolvePublic } from "./relay-policy.mjs";
 
 const root = fileURLToPath(new URL("./public/", import.meta.url));
-// Fixed deployment targets, never a caller-provided URL or machine ID.
+                                                                       
 export function createServerHealth({origin,machineId,fetchHealth=fetch,now=Date.now}) {
+  if(machineId==='ovh-bhs-1') return async()=>({checkedAt:now(),topology:'single',servers:[{name:'Canada - Beauharnois',status:'healthy'}]});
   let cached,pending;
   const targets=[['683e3d9ae17238','Ashburn 1'],['839496c774d638','Ashburn 2']];
   return async()=>{
@@ -25,7 +26,7 @@ export function createServerHealth({origin,machineId,fetchHealth=fetch,now=Date.
         try{
           const response=await fetchHealth(new URL('/health',origin),{headers:{'Fly-Force-Instance-Id':id},redirect:'error',signal:AbortSignal.timeout(3000)});
           const data=await response.json();
-          // Fly can fall back to another instance: that does not prove this one healthy.
+                                                                                         
           if(data.machine!==id)return {name,status:'unknown'};
           return {name,status:response.ok&&data.ok===true?'healthy':'unavailable',latencyMs:Math.max(0,now()-started)};
         }catch{return {name,status:'unreachable'};}
@@ -45,7 +46,7 @@ const mime = {
   ".png": "image/png",
   ".json": "application/json",
 };
-export function createFrostServer({ accountFetch = fetch, dispenserOrigin = process.env.FROST_DISPENSER_ORIGIN || "", accountSecret = process.env.FROST_ACCOUNT_SECRET || "", accountCheckMs = 15000, deviceStatusFetch = fetch, publicOrigin = process.env.PUBLIC_ORIGIN, edgeOrigin = process.env.FROST_EDGE_ORIGIN || "", edgeOrigins = process.env.FROST_EDGE_ORIGINS || "", machineId = process.env.FLY_MACHINE_ID || "local", presenceMachine = process.env.FROST_PRESENCE_MACHINE || "", announcement = process.env.FROST_ANNOUNCEMENT || "", adminOrigin = process.env.FROST_ADMIN_ORIGIN || "" } = {}) {
+export function createFrostServer({ accountFetch = fetch, dispenserOrigin = process.env.FROST_DISPENSER_ORIGIN || "", accountSecret = process.env.FROST_ACCOUNT_SECRET || "", accountCheckMs = 15000, deviceStatusFetch = fetch, publicOrigin = process.env.PUBLIC_ORIGIN, edgeOrigin = process.env.FROST_EDGE_ORIGIN || "", edgeOrigins = process.env.FROST_EDGE_ORIGINS || "", machineId = process.env.FROST_SERVER_ID || process.env.FLY_MACHINE_ID || "local", presenceMachine = process.env.FROST_PRESENCE_MACHINE || "", announcement = process.env.FROST_ANNOUNCEMENT || "", adminOrigin = process.env.FROST_ADMIN_ORIGIN || "" } = {}) {
   if (adminOrigin && !/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(adminOrigin)) throw new Error("Invalid admin origin.");
   const allowedEdges = [...new Set([edgeOrigin, ...edgeOrigins.split(",")].map(value => value.trim()).filter(Boolean))];
   if (allowedEdges.some(origin => !publicOrigin || !/^https:\/\/d[a-z0-9]+\.cloudfront\.net$/.test(origin))) throw new Error("Invalid edge origin.");
@@ -89,7 +90,7 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
   const presence = createPresence();
   const assistant = createAssistant();
   const deviceAccess = createDeviceAccess({adminOrigin,secure:!!publicOrigin,fetchStatus:deviceStatusFetch});
-  const serverLabel = machineId === "683e3d9ae17238" ? "Ashburn 1" : machineId === "839496c774d638" ? "Ashburn 2" : machineId === "local" ? "Local" : machineId;
+  const serverLabel = machineId === "ovh-bhs-1" ? "Canada - Beauharnois" : machineId === "683e3d9ae17238" ? "Ashburn 1" : machineId === "839496c774d638" ? "Ashburn 2" : machineId === "local" ? "Local" : machineId;
   logging.set_level(logging.NONE);
   Object.assign(wisp.options, {
     dns_method: resolvePublic,
@@ -105,6 +106,8 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
       res.writeHead(403).end("Unrecognized host.");
       return;
     }
+    let featurePath;try{featurePath=decodeURIComponent(new URL(req.url,'http://localhost').pathname);}catch{res.writeHead(400).end();return;}
+    if(/^\/(?:customize(?:\/|$)|api\/account\/design$)/.test(featurePath)){res.writeHead(410,{'Cache-Control':'no-store'}).end('New-tab customization has been removed.');return;}
     let accountGrant,requestOrigin;
     if(accountAccess){
       try{
@@ -130,14 +133,14 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
       const pathname = decodeURIComponent(
         new URL(req.url, "http://localhost").pathname,
       );
-      // Reject Windows separators on every platform before filesystem resolution.
+                                                                                  
       if (pathname.includes('\\')) { res.writeHead(403).end(); return; }
       if (pathname === '/admin' || pathname === '/admin/') {
         if (!adminOrigin) {
           res.writeHead(503, {'Content-Type':'text/plain; charset=utf-8','Cache-Control':'no-store'}).end(req.method === 'HEAD' ? undefined : 'Admin console is not configured.');
           return;
         }
-        // Do not relay credentials, query parameters or fragments to the console.
+                                                                                  
         res.writeHead(303, {'Location':adminOrigin+'/#','Cache-Control':'no-store','Referrer-Policy':'no-referrer','Cross-Origin-Opener-Policy':'same-origin'}).end();
         return;
       }
@@ -145,7 +148,7 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
         const id=deviceAccess.read(req) || deviceAccess.issue(res);
         try {
           const banned=await deviceAccess.banned(id);
-          res.writeHead(banned?403:200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,banned,...(!banned&&accountGrant?.refresh?{refresh:accountGrant.refresh}:{}),...(!banned&&accountGrant&&typeof accountGrant.username==='string'?{account:{username:accountGrant.username,frostId:accountGrant.uid}}:{})}));
+          res.writeHead(banned?403:200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,banned,...(!banned&&accountGrant?{adminNotifications:Array.isArray(accountGrant.adminNotifications)?accountGrant.adminNotifications:[],supportUnread:accountGrant.supportUnread===true,supportReply:accountGrant.supportReply===true}:{}),...(!banned&&typeof accountGrant?.supportUnclaimed==='boolean'?{supportUnclaimed:accountGrant.supportUnclaimed}:{}),...(!banned&&accountGrant?.refresh?{refresh:accountGrant.refresh}:{}),...(!banned&&accountGrant&&typeof accountGrant.username==='string'?{account:{username:accountGrant.username,frostId:accountGrant.uid}}:{})}));
         } catch {res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({device:id,error:'Device access check unavailable. Try again shortly.'}));}
         return;
       }
@@ -187,7 +190,7 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
       if (pathname === "/health") {
         res
           .writeHead(200, { "Content-Type": "application/json", "Cache-Control": "no-store" })
-          .end(req.method==='HEAD'?undefined:JSON.stringify({ok:true,machine:machineId}));
+          .end(req.method==='HEAD'?undefined:JSON.stringify({ok:true,service:"frost",machine:machineId}));
         return;
       }
       const path = resolve(
@@ -220,7 +223,7 @@ export function createFrostServer({ accountFetch = fetch, dispenserOrigin = proc
     maxPayload: 1024 * 1024,
   });
   app.on("upgrade", async (req, socket, head) => {
-    // An upgraded socket has no HTTP error owner while authorization awaits.
+                                                                             
     const onSocketError=()=>socket.destroy();
     socket.on('error',onSocketError);
     const expected = configuredOrigin || `http://localhost:${app.address().port}`;
@@ -294,7 +297,7 @@ if (
     throw new Error("Production requires PUBLIC_ORIGIN.");
   const host = process.env.HOST || "127.0.0.1";
   const app = createFrostServer().listen(port, host, () =>
-    console.log(`Frost listening on ${host}:${port}`),
+    console.log(`Grove listening on ${host}:${port}`),
   );
   const shutdown = () => {
     app.close(() => process.exit(0));

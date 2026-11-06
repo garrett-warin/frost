@@ -17,7 +17,7 @@ async function reset() {
                 () =>
                   reject(
                     new Error(
-                      "Another Frost window still has website data open. Close other Frost windows, then try again.",
+                      "Another Grove window still has website data open. Close other Grove windows, then try again.",
                     ),
                   ),
                 5000,
@@ -32,7 +32,7 @@ async function reset() {
               };
               request.onblocked = () => {
                 status.textContent =
-                  "Close other Frost windows so their website storage can be cleared.";
+                  "Close other Grove windows so their website storage can be cleared.";
               };
             }),
         ),
@@ -52,5 +52,5 @@ if (sessionStorage.getItem('frost.reset-request') === 'confirmed') {
   sessionStorage.removeItem('frost.reset-request');
   void reset();
 } else {
-  status.textContent = 'Open Settings in Frost to clear browsing data.';
+  status.textContent = 'Open Settings in Grove to clear browsing data.';
 }

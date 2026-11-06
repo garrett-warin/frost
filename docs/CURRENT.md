@@ -1,303 +1,882 @@
+## GitHub reconciliation — 2026-11-06
+
+Current OVH source published with ordinary first-party comments removed. Licenses, directives and pinned engine retained. Use npm run build:ovh and docs/OVH-DEPLOYMENT.md; old Fly/Lambda instructions are historical.208tests passed; independent executable/asset comparison passed. No live redeployment. See worklog/2026-11-06-live-repo-sync.md.
+
+## Head admins released — 2026-11-06
+
+Owner can promote/demote head admins from account admin roster. Heads add/remove regular admins and ban regular admins; owner and peer heads protected, other peer-admin actions remain owner-only. Stored head IDs are filtered against preexisting admin IDs to avoid stale-role resurrection. Role/account/assignment mutations recheck relevant actor/target inside transaction. Account navigation and admin presence recognize head-admin. No real roles changed during testing.
+
+202 tests passed; independent review findings fixed and18staff tests rerun. Synthetic local browser add/promote flow verified. Both live service smoke and admin/account asset checks passed. Backup /opt/frost/releases/before-head-admin-theme-20261106/source.tgz. Restore both bundles and restart accounts/admin to roll back; older code treats heads as regular admins while retaining metadata. No schema migration.
+
+Changed platform/staff.mjs, platform/control.mjs, platform/online.mjs, platform/ui/account.mjs, admin/admin.js, generated admin/assets.mjs, test/staff.test.mjs and docs PRD/CURRENT/ACCEPTANCE.
+
+## Appeal advice — 2026-11-06
+
+Appeal summaries now include private advisory accept/deny/review_deeper plus rationale, grounded in published terms and unverified conversation. Never changes ban/account/ticket decisions. Unknown/provider failure defaults review_deeper, labeled Review guidance; generated recommendations show snapshot time and human-final-decision label. User replies reset/requeue advice. Existing appeals get advice on next user reply; no retrospective batch or automatic decisions.
+
+198 tests passed, independent review no blockers; three enums, user projection isolation, unchanged ban, and failure fallback covered. Real Groq synthetic schema check passed; actual local UI inspected. Both live service smoke and admin asset matches passed. Changed platform/support-ai-provider.mjs, platform/support-automation.mjs, admin/admin.js, generated admin/assets.mjs, test/support-ai-provider.test.mjs, test/support-automation.test.mjs and release docs. Backup /opt/frost/releases/before-appeal-advice-theme-20261106/source.tgz; restore both bundles and restart accounts/admin to roll back. No existing user tickets changed by testing.
+
+## AI support released — 2026-11-06
+
+New ordinary tickets start with clearly labeled Grove AI, grounded in the published terms. Human request button/text, AI uncertainty/errors and appeals hand off; appeals receive the minimum-two-sentence instruction and cannot be returned to AI. Staff claim to take over, or return owned ordinary tickets to AI. Existing human tickets untouched. Private summary is AI-generated with labeled excerpt fallback. No account mutation tools. Durable leased/revisioned jobs reject stale answers. Existing Groq key installed server-side in accounts.env, never printed or stored in repo; account/admin services recreated. Backup /opt/frost/releases/before-support-ai-20261106/source.tgz is root-only and includes prior env. See plans/ai-support.md for rollback.
+
+196 tests passed, independent review no blockers (two hardening recommendations fixed). Actual local ticket API/browser human handoff and admin claim verified; UI fixture also checked desktop/390px and draft preservation. Real Groq synthetic reply/summary passed. Deployed timer processed synthetic reply/summary; all synthetic records removed afterward. Both service smoke tests and all19public routes passed; account and both admin scripts byte-match. Real visitors' tickets not used for testing. Provider quotas can cause human fallback; no guarantee every wording of an appeal is detected semantically, so explicit appeal selection/restriction status and human button remain authoritative.
+
+## Grove terms published — 2026-11-06
+
+Owner approved draft without privacy section. Public /terms.html on dispenser and all 15 mirrors; dispenser also supports /terms. Restriction panel, account footer and both admin navigation surfaces link to terms. No acceptance gate or domain-blocking behavior added. Effective date November 6, 2026. Draft retained separately for provenance.
+
+183 tests passed; independent review found no blockers and checked GET/HEAD browser route. Both production service smoke tests, all19 public health/page routes and byte-identical terms on16 origins passed. Live terms rendered in browser. Banned-account link verified in markup/test rather than banning a real user. Backup: /opt/frost/releases/before-grove-terms-theme-20261106/source.tgz. Rollback restores app/accounts.mjs, app/admin.mjs, browser/server.mjs from backup and restarts accounts/admin/browser; remove only new browser/public/terms.html and terms.css to fully revert. No database changes.
+
+## Grove cursor — 2026-11-06
+
+Small native SVG arrow cursor (20x24 canvas), wordmark green #355441 with light edge. Browser/account/admin/404 CSS updated; text fields preserve I-beam and disabled controls preserve unavailable cursor. Embedded visited sites retain their own styles. Builds and live styles passed; browser computed styles verified page/button custom cursor and text field text cursor. No behavioral suite for CSS-only change. Backup /opt/frost/releases/before-grove-cursor-theme-20261106/source.tgz.
+
+## Plant-like wordmark intro — 2026-11-06
+
+New-tab wordmark sprouts upward from baseline, stretches subtly and sways to rest over 2100ms. Only wordmark-intro.mjs and its existing duration assertion changed. Once-per-tab, disabled-animation and reduced-motion test passed. Browser new-tab settled layout inspected; browser animation-timing introspection unsupported. Live module byte match passed. No server restart. Backup /opt/frost/releases/before-grove-growth-20261106/wordmark-intro.mjs.
+
+## Admin presence and username reset — 2026-11-05
+
+Both admin surfaces now show recently active named admins (75-second window), username/role and console or browsing activity. Shared TOTP sessions are not personally identifiable and excluded; browsing logout may remain visible for the remaining recent-activity window. Staff requests record throttled presence after auth/CSRF; revoked console families, removed roles, bans and forced-rename accounts are excluded. 181 tests and local authenticated UI fixture passed; account/admin live smoke passed. Backup before-admin-online-theme-20261105/source.tgz under /opt/frost/releases.
+
+Reset username action requires active target, administrator authorization and reason; reserves grove_user_<full uid> atomically, protects owner/peer admins, clears forced-rename flag, prevents target reusing prior name, and writes actor-attributed audit and user notification. Sessions, IDs and saved data preserved. Full-ID reset verified using local fixture; no live user changed. 183 tests passed, independent review found no blockers, live assets and account/admin smoke passed. Backup /opt/frost/releases/before-username-reset-theme-20261105/source.tgz. Restore bundles/restart accounts/admin to roll back code; applied username changes are not automatically undone.
+
+## Stronger green palette — 2026-11-05
+
+Owner requested visibly greener theme. Background #d6e7cb, chrome #bfd8ae/#b4d09f, surfaces #e6f1dc, announcement #a5c78e. Four CSS source files plus generated admin assets updated. Builds and live browser/account/admin stylesheet checks passed; local screenshot inspected. Color-only change: no behavioral tests rerun. Guarded deployment backup /opt/frost/releases/before-greener-theme-20261105/source.tgz.
+
+## Sage theme polish — 2026-11-05
+
+Live browser, account, admin and 404 backgrounds shifted toward soft sage (#eaf0e3), with pale green surfaces and green scrollbars. Developer announcement now leaf-green #c9ddbe with #284b30 text and #91b381 border. Only CSS changed, plus generated admin/assets.mjs. Local browser inspected with synthetic announcement (not published). Builds, account/admin smoke and live styles verified. Full behavioral suite not rerun for color-only edit. Backup /opt/frost/releases/before-sage-theme-20261105/source.tgz; restore and restart account/admin to roll back. Browser runtime was not restarted.
+
+## Grove rebrand — 2026-11-05
+
+Live site branding is Grove with forest-green accents and new vector wordmark across browser/account/admin. Assistant displays Grove AI and opens #ai; legacy #frosty still works. Runtime identifiers, auth cookies, storage, account IDs, CloudFront/domain names and existing Google Form matching label remain legacy-compatible. Historical records and user-authored messages are not rewritten. No GitHub repository rename or user-email rewrite performed.
+
+179 regression tests passed plus final six route/HTTP checks. Independent review completed; missed assistant author label corrected. Desktop new-tab/AI/account and live 390px dispenser inspected. Account/admin private-bridge smoke checks passed; 19 public routes and all 15 mirror wordmark hashes passed. Release backed up at /opt/frost/releases/before-grove-rebrand-20261105/source.tgz. Rollback: restore archive under /opt/frost/production and restart accounts/admin/browser. No schema/data migration. See worklog/2026-11-05-grove-rebrand.md.
+
+## Weekly self-service link replacement — 2026-11-05
+
+
+
+Live dispenser has a small Blocked button beside assigned link actions. Confirmation warns that popular game sites can get Frost blocked; account and saved data remain. Atomic account-scoped seven-day cooldown consumes allowance only on successful different operational/capacity-aware assignment. Shared endpoints are not marked blocked. No advertising elsewhere. Backup: /opt/frost/releases/before-weekly-link-20261105/accounts.mjs. Restore that bundle and restart accounts to roll back; additive user cooldown field can remain. See worklog/2026-11-05-weekly-link.md.
+
+
+
+## Username rules â€” 2026-11-05
+
+
+
+Live /username-rules page matches existing account styling. Covers spam/advertising, impersonation, harassment/hate/threats, explicit content, private information and existing3â€“24character format. Nicknames/made-up names welcome; no real-name or identity requirement. Rules remain administrator-reviewed; no new automatic content filter added. Links open separately from creation, forced rename and settings forms; both account and TOTP admin navigation link to the canonical rules page.
+
+
+
+Changed platform/ui/username-rules.html and .css, platform/ui/index.html, scripts/build-platform.mjs, admin/index.html, admin/admin.css and generated admin/assets.mjs.176tests passed. Compared adapted bundles against live before deployment: only asset ranges differed. Guarded deployment backed up both bundles at /opt/frost/releases/before-username-rules-20261105; restarted account/admin only. Live markup checks confirmed creation/forced-rename links and both admin links; both service smoke tests passed. Desktop and390pxmobile browser inspected; no horizontal overflow. Browser forced-rename and creation states were checked through served markup, not by changing a real account's status. Rollback restore the two backed-up bundles and restart account/admin; no data migration.
+
+
+
+## Old dispenser redirects completed â€” 2026-11-05
+
+
+
+Both old dispenser hosts redirect all GET/HEAD page paths, including /admin and /index.html, to https://d2bvqh2y4lapn8.cloudfront.net preserving path/query. /api, /forms and /internal remain for compatibility callbacks.18redirect/API checks plus19public routes passed; browser old/admin reached new sign-in. See fresh-link worklog.
+
+
+
+## Fresh link rotation â€” 2026-11-05
+
+
+
+Live canonical dispenser https://d2bvqh2y4lapn8.cloudfront.net with15fresh browser links. All195assignments moved; bans/security data retained. Old15browser distributions disabled; all15confirmed Deployed/Enabled=false. Old dispenser entry pages redirect; verification callback APIs retained. New dispenser requires its own sign-in cookie.19public checks plus synthetic authenticated opening/replay/wrong-mirror and account/admin smoke passed. See worklog/2026-11-05-fresh-links.md and FROST-LINKS-2026-11-05.md. No changes to ongoing site-storage isolation implementation.
+
+
+
+## Isolated website-storage domain preparation â€” 2026-11-05
+
+
+
+Owner approved Cloudflare token for DNS Edit/Zone Read on garretts.space only; created and installed root-only on OVH, verified active. Created frost-sites and *.frost-sites DNS-only records to OVH; base/wildcard public resolution verified. Debian Certbot obtained certificate for both, expires2027-02-03. No gateway/application cutover. All18existing public route checks and certificate renewal dry-run passed; timer enabled/active. Full account site-data sync and isolated runtime are NOT implemented. See plans/account-site-storage.md for boundaries, verification and rollback.
+
+
+
+## Shared service notices â€” 2026-11-05
+
+
+
+Live: dispenser renders shared maintenance banner above account/sign-in UI, reading a public no-store endpoint that returns only notice fields via fixed private bridge route, cached/coalesced15seconds. Existing privileged write paths unchanged. Admin Announcements now offers Service notice type Maintenance or Service disruption; starts/ends/reason retained. Legacy notices default to maintenance. Main and dispenser use shared local-time/expiry renderer; blue maintenance, teal disruption, orange automated outage remains separate.
+
+
+
+176 full tests passed; independent19focused tests passed/no blocker. Browser synthetic fixture verified admin selector/save and automatic dispenser change to service-disruption label/color. Live both-service smoke, all18public routes, anonymous notice endpoint/module on both dispenser hosts, and both admin selector assets passed. No new notice published to production. Existing pages need reload for new UI. Screenshot .project-memory/service-notice-release/dispenser-preview.png.
+
+
+
+Changed admin/maintenance.mjs, admin/admin.js, admin/index.html, generated admin/assets.mjs; public/maintenance-banner.mjs and style.css; platform/http.mjs, platform/ui/index.html and account.css; scripts/build-platform.mjs; test/admin.test.mjs and maintenance.test.mjs; docs/PRD.md, ACCEPTANCE.md and this record. Rollback /opt/frost/releases/before-service-notice-20261105. Browser engine/server untouched; old saved notice remains compatible. No GitHub push.
+
+
+
+## Main-site support and administrator outreach â€” 2026-11-05
+
+
+
+Live on OVH. Main menu Support opens the existing isolated account support page; main-site personal notification links to that page when messages arrive. Admin notification includes replies to claimed tickets as well as unclaimed requests, and opens All requests. Account list Start support ticket opens a subject/message dialog, creates an automatically claimed conversation, and preserves the one-open-ticket guard. Initial and later admin messages remain publicly anonymous. User replies notify the assigned admin; per-ticket unread markers, exact-revision user read receipts and visible-tab admin receipts preserve multiple pending conversations and prevent stale reads clearing newer messages. No message content crosses into browsing-origin device checks. Existing tabs require reload; no forced refresh.
+
+
+
+Independent review: 22 focused tests passed plus synthetic multi-ticket/receipt/isolation checks; final review no blocker. Browser synthetic fixture verified admin start, automatic claim, anonymous initial message and replies both directions; separate fixture verified main notification links. No real users were contacted or tickets modified. Live account/admin smoke tests, updated assets on both account hosts and TOTP admin, and all18public route checks passed.
+
+
+
+Deployment initially replaced runtime-only OVH health adaptations: detected incorrect machine identity, restored single-server topology/server ID/label/service fields and promoted them into repository source. Added OVH health regression; corrected old test expectation to retain live health response contract. Final full suite: 174 tests passed, zero failures.
+
+
+
+Changed: admin/admin.js, admin/index.html, generated admin/assets.mjs, admin/service.mjs; platform/accounts.mjs, control.mjs, http.mjs, owner.mjs, staff.mjs, ui/account.mjs; public/app.mjs, device-access.mjs, style.css; server.mjs; test/staff.test.mjs, account-enforcement.test.mjs, server-health.test.mjs; docs/PRD.md, ACCEPTANCE.md and this record. Rollback /opt/frost/releases/before-outreach-20261105; restore artifacts/restart services, retain data. Evidence .project-memory/outreach-release/conversation.png. No GitHub push.
+
+
+
+## YouTube notice and required ticket claims â€” 2026-11-05
+
+
+
+Live on OVH: Frost-mediated YouTube navigation displays a sign-in notice before loading, once per Frost tab per page session, with Cancel/Continue. Covers youtube.com/subdomains/youtu.be; does not guarantee interception of website-internal redirects. Does not fix YouTube playback. Direct OVH diagnostics returned LOGIN_REQUIRED for three public videos.
+
+
+
+Admin replies now require an open ticket claimed by the authenticated replying administrator, transactionally enforced (including owner/TOTP paths). Users can still reply to their own requests. Composer disabled until claimed; unclaim/help/reopen removes reply eligibility. UI busy handler preserves claim-required disabled state. Anonymous public replies and accountable audit entries retained.
+
+
+
+171 regression tests passed; 45 focused tests cover unclaimed/wrong-admin/closed rejection and claimant success. Nine YouTube hostname checks passed; JS syntax checks passed. Browser synthetic preview verified notice Cancel/Continue/repeat, ticket claim/send/unclaim. Both live service smoke checks and all18public routes passed; updated assets verified on main and isolated admin hosts. No production tickets modified. Browser checks used synthetic fixtures, not live conversations.
+
+
+
+Changed public/app.mjs, public/youtube-notice.mjs, public/style.css, admin/admin.js, generated admin/assets.mjs, platform/control.mjs, test/accounts.test.mjs, test/staff.test.mjs and this record. Rollback: /opt/frost/releases/before-notice-claim-20261105. Engine untouched; existing open clients need reload. Evidence .project-memory/notice-claim-release/. No GitHub push.
+
+
+
+## Support workspace and anonymous chat - 2026-11-05
+
+
+
+Live on OVH: separate Support/Audit tabs; open/closed/unclaimed/help filters; claim/unclaim, quick different healthy-link assignment, close/reopen and assistance. One open request per account enforced across concurrent starts/reopen; legacy duplicates retained but block new requests. Users close/reply to their own tickets. Both sides poll active chat every5seconds and preserve drafts. Admin replies always display Administrator, including legacy named replies; audit records authenticated actors (shared TOTP owner labeled honestly).
+
+
+
+Main-site admin-only notification carries a minimal boolean through authenticated device checks, cached30seconds; no ticket content or admin credentials. Notification opens Unclaimed queue. Existing pages need one reload; no forced refresh issued.
+
+
+
+171full tests passed; independent64focused tests passed/no remaining blockers. Browser synthetic service verified claims, filters, quick assignment, close/reopen/help, two-way polling and anonymous labels; desktop/390px layouts inspected. Live both-service smoke/all18public routes passed. Updated assets verified on both dispenser hosts/TOTP admin. Live owner Support panel loaded7requests/chat with no error; main-site owner notification visibly verified. No production customer requests modified. Evidence: .project-memory/support-release/chat-admin.png and chat-user.png.
+
+
+
+Rollback: /opt/frost/releases/before-support-20261105 preserves prior account/admin bundles and modified browser files. Restore artifacts/restart services, never revert user database. Runtime hashes checked before replacement; migrated engine preserved with narrow server/device/style overlay. Existing duplicate open requests not auto-closed. No GitHub push performed.
+
+
+
+## Verification cooldown removed - 2026-11-05
+
+
+
+Owner requested removal of verification cooldowns. Removed per-IP 5/15-minute and global100/hour start budgets from registration and verification. General HTTP burst limits (30/IP/path/minute and500/path/minute), proof expiration, Form verification, CSRF and username conflict checks remain. No Apps Script retry schedule change. Deployed only the rebuilt OVH account bundle, with checksum match and rollback at /opt/frost/releases/before-no-cooldown-20261105/accounts.mjs.
+
+
+
+161 tests passed, including105 consecutive service-level verification/registration starts and HTTP burst protection. Account runtime smoke and all18 public routes passed. No fresh live Google Form submission performed. Changed platform/accounts.mjs, test/accounts.test.mjs, test/platform-http.test.mjs and this record.
+
+
+
+## Replacement dispenser â€” 2026-11-04
+
+
+
+Live default: https://d3mwcpxtmhbydi.cloudfront.net/ (CloudFront EQH6FTYCK3TNP, Deployed/enabled). Old d3mbml114oiqni.cloudfront.net retained as a strict account alias for existing sessions and the Google Form callback. OVH deployment-config canonical origin and browser FROST_DISPENSER_ORIGIN now point to the new host. Accounts/Frost IDs and all user records preserved; only deployment-config changed in PostgreSQL. Sessions/CSRF remain origin-bound, so the new host requires fresh verification. Old signed-in account page was verified; Open Frost follows the new /open route and asks for verification there. Fresh Google Form verification on the new host was not performed.
+
+
+
+160 automated tests passed. Account runtime static/origin/private-bridge smoke passed, both protected HTTPS account aliases passed, all18 public routes passed after activation, and live browser /api/config returns the new origin. Browser verified new sign-in UI and surviving old account login. Screenshot: .project-memory/dispenser-release/new-dispenser.png. Independent review found no isolation/concurrency blocker. An initial invalid Caddy matcher briefly interrupted gateway access; restored old config, verified original routes, then validated corrected config in an isolated container before application.
+
+
+
+Backup: /opt/frost/releases/before-dispenser-20261104. Do not disable old distribution while the Google Form callback and old sessions use it. See plans/dispenser-replacement.md. No GitHub push performed for this change.
+
+
+
+## Server browsing history â€” 2026-11-04
+
+
+
+Deployed on OVH: new browser visits report to the signed account service. Stored visits include authenticated username, hostname, sanitized URL/title and server timestamp. Latest100 entries per account,30-day retention, admin role/CSRF checks and audited reads; no local-history backfill. Client reporting is best-effort, not tamper-proof traffic evidence. User History panel contains exactly the approved notice and labels its action Clear local history.
+
+
+
+Owner explicitly requested removal of TOS page/agreement requirements. Links/gates removed; old terms routes return410. Existing sessions, bans and assignment checks preserved. Account/admin bundles are now built from tested current repository source through migration/build-source-update.py; browser engine remains the pinned migrated runtime with narrow file updates. Rollback files: /opt/frost/releases/before-server-history-20261104; encrypted database backup taken before release.
+
+
+
+158tests passed, independent review passed after fixing a UI syntax regression, compiled PostgreSQL rehearsal passed new history identity/isolation and existing browser/ban flows. Both service smoke checks and all17public routes passed. Browser verified exact user notice and owner-account test visits in admin history with username/site/time. No other user's history was opened. Existing loaded clients begin reporting after a reload; no forced global refresh issued.
+
+
+
+## OVH cutover â€” 2026-11-04
+
+
+
+Live browsing, accounts, admin and PostgreSQL storage now run on vps-273aa89f.vps.ovh.ca (148.113.156.154), one Debian13 VPS in Beauharnois. All15 active browser CloudFront distributions plus the existing dispenser/admin distributions reached Deployed with authenticated HTTPS OVH origins. Old account/admin Lambdas remain reserved-concurrency0; old Fly resources retained for recovery, not automatic failover. Do not deploy this checkout using Fly commands to update OVH. See migration/README.md and docs/plans/ovh-migration.md.
+
+
+
+Final9827account-state records and6admin-state records imported and verified field-by-field with original signing/encryption/TOTP material. Existing owner dispenser session and Open Frost handoff verified in browser; example website loaded and Frosty/Groq answered. All17public routes passed live checks; TOTP login page remains protected. Rehearsal covered synthetic registration, isolation, cookie/tab storage, WebSocket and ban disconnection. Fresh manual Google Form submission and post-cutover owner TOTP unlock were not performed.
+
+
+
+Daily encrypted local backups enabled; final database/config snapshots copied privately to owner's PC. Permanent automatic off-server backup destination remains outstanding. Production gate open and scheduled jobs enabled. Migration popup disabled; announcement updated. One VPS has no host failover. Rollback after this point requires reconciling new OVH writes; never re-enable stale AWS writers blindly.
+
+
+
 ## Corrected inline note placement, 2026-10-29
+
+
 
 Supersedes the preceding note placement: the owner intended wordmark, note, clock, search, not a note beneath the entire template. Runtime now places the note inside the design below the fixed wordmark, making room for wrapped text by shifting lower controls and extending/scaling the frame. Stored designs are unchanged. Changed public/customize/runtime.mjs and render.css. Seven customization tests and syntax check pass. Browser fixtures at desktop and 390px container width confirm note below wordmark and above clock with no overflow. Deployed deployment-01M654X1EYZ404QR06E503P4WZ; both Fly machines healthy. Screenshot: .project-memory/inline-note-release/preview.png.
 
+
+
 ## Template note placement, 2026-10-29
+
+
 
 Moved the published new-tab note from above the template into a vertically centered template-and-note group, with the note centered beneath the design. Default-layout restoration and cleanup preserve the original note position. Changed public/customize/runtime.mjs and render.css. Seven customization tests and runtime syntax check pass. Local 1280x720 browser fixture confirms note below template, horizontally centered, and no page overflow; screenshot in .project-memory/note-layout-release/preview.png. Rollout image deployment-01M654QME60K8N4GWYTW2331YE; rollback deployment-01M653YGEPKADVHGFRB5ZK6V7V.
 
+
+
 ## New-tab layout and browsing address replacement, 2026-10-29
+
+
 
 Deployed layout image deployment-01M653YGEPKADVHGFRB5ZK6V7V to both Fly machines; both health checks pass. Published templates now scale to available width and height, stay centered, extend their background color across the host, and account for notice/footer resizing. Removed the fixed 640px host minimum and corrected search placeholder inheritance. Editor geometry and stored templates are unchanged. Verified synthetic layouts at1280x720 and390x844 with no extra page overflow. All143 automated tests pass; live renderer assets match source on all15 new origins.
 
+
+
 Replaced the16 prior CloudFront browsing distributions with15 new distributions in frost-admin. Retirement reached UPDATE_COMPLETE; the account dispenser and admin distributions remain enabled. The direct Fly origin is retired from account assignment but remains the service backend. Dispenser deployment-config now contains only the15 new origins. Prior17 pool entries are blocked/retired with bounded reassignment jobs and one audit event; no account or saved-state data was deleted. All15 passed live synthetic scoped-account HTTP200 and authenticated WebSocket101 checks. Temporary synthetic rows expire after15minutes. Users obtain replacement links through the unchanged dispenser. See FROST-LINKS-2026-10-29.md.
+
+
 
 Rollback: original CloudFormation template and conditional pool-row backup are in CloudShell ~/frost-rotation-20261029/. Previous production Fly image: deployment-01M628TNDGD95FHPM0RCQVA7CB. Restore routing/pool state together if rolling back; never overwrite user records. Local evidence: .project-memory/template-layout-release/. No production user was signed into or moderated. No independent agent review was performed for this release.
 
+
+
 # Current state
 
-## Wordmark intro polish — 2026-10-27
+
+
+## Wordmark intro polish â€” 2026-10-27
+
+
 
 Replaced plain480ms fade/slide with760ms upward reveal, tiny tilt/overshoot and settle, only on the wordmark. Preserves one-shot-per-tab, reduced-motion and animations-off behavior; no other page movement. Focused wordmark regression passed. Runtime file public/wordmark-intro.mjs and its test changed. Fly rollout deployment-01M5ZVQK13RH0YK3H36M9RHAZN; rollback deployment-01M5ZVK9KXCJZY9409VPSWT92Q.
 
 
-## Forced username changes — 2026-10-27
+
+
+
+## Forced username changes â€” 2026-10-27
+
+
 
 Deployed both Lambda bundles and Fly deployment-01M5ZVK9KXCJZY9409VPSWT92Q. Admin Accounts has Force username change with reason category and explanation; existing staff owner/peer protections remain. Flag blocks scoped browsing, handoff, redemption and ongoing checks; account session remains valid for mandatory rename. Unique atomic rename clears flag, old flagged names cannot be reused on the account, and deletion cannot bypass an outstanding flag. Banned/suspended accounts retain appeals UI. Audit includes category/explanation. Full118tests passed; independent46focused checks and review resolved stale rename response. Synthetic mandatory form and reason-picker browser previews verified; no real visitor moderated. Live account/admin assets match; both Fly machines healthy. Backups in CloudShell ~/frost-force-rename-20261027/*-before.zip; Fly rollback deployment-01M5ZV4H0554C8EK3MYGMBPZ0C. Evidence .project-memory/force-rename-release/verification.json.
 
 
-## Online account viewer and local-time analytics — 2026-10-27
+
+
+
+## Online account viewer and local-time analytics â€” 2026-10-27
+
+
 
 Deployed both account/admin Lambda bundles with Online now account filter, last-check timestamps, 75-second estimate, 30-second transactional write throttle and epoch/restriction invalidation. Viewer IANA timezone is forwarded through both admin paths and determines local calendar day/week boundaries, daily peaks and registrations. UTC is storage only. New-tab local clock deployed to Fly; both Machines healthy. All116tests passed including DST/fractional offsets and staff forwarding. Independent reviewer resolved missing staff timezone forwarding and in-transaction throttle. Live account-admin showed online results, local timestamps, and day chart beginning local midnight. No browsing URLs collected. Backups: CloudShell ~/frost-online-timezone-20261027/*-before.zip; Fly rollback deployment-01M5ZGA8PE3MNY306PXDPZMR1J. Evidence .project-memory/online-release/verification.json.
 
 
-## Announcement hammer release — 2026-10-27
+
+
+
+## Announcement hammer release â€” 2026-10-27
+
+
 
 Replaced the custom announcement hammer with Lucide 0.474.0's hammer SVG and public/lucide-LICENSE.txt attribution. Narrow image overlay uses production deployment-01M5YHVYRPS4T55Y5RWWZQ7NTA as base; packaged source updated to match. Artifact comparison confirms only the SVG changes in production HTML. Initial extraction included a CLI status prefix; removed and redeployed corrected image deployment-01M5ZGA8PE3MNY306PXDPZMR1J. Rollback is the base image above. Structure checks passed; no full suite rerun for an icon-only edit. Corrected rollout completed; both machines passed health checks. Live HTML on machine 839496c774d638 exactly matched the corrected artifact. Rendered browser inspection was not performed.
 
 
-## Analytics tooltips deployed — 2026-10-27
+
+
+
+## Analytics tooltips deployed â€” 2026-10-27
+
+
 
 Both admin deployments now show a themed tooltip with the exact count and UTC timestamp for the nearest chart point. Missing samples remain missing. Keyboard arrows select samples; Escape dismisses the tooltip. Changed admin/admin.js, admin/admin.css and regenerated admin/assets.mjs. JavaScript syntax check and both Lambda builds passed. Live assets matched local bytes on both admin hosts; live pointer hover, keyboard navigation and Escape were verified. Full test suite was not rerun for this UI-only edit. Screenshot: .project-memory/chart-tooltip-20261027/hover.png. Previous Lambda bundles saved in CloudShell ~/frost-chart-tooltip-20261027/; no IAM or backend configuration changes.
 
 
-## Account admin deployed — 2026-10-27
+
+
+
+## Account admin deployed â€” 2026-10-27
+
+
 
 Owner approved account-session administration, owner bootstrap and the exact existing-admin Lambda invocation grant at action time. Both Lambda bundles and account CloudFormation update succeeded. Exact active Frost ID fr_a1359b81-1fde-48e7-be73-1cac9a58f425 was provisioned as the sole owner; no other admin was granted. Live existing dispenser session showed Admin and opened /admin without TOTP. Dashboard, announcement read bridge and owner membership list loaded; username1garrett displayed owner. Anonymous POST denied401.112 full-suite tests and documentation/link audits passed. No independent review performed in this side conversation; no real member was granted/removed or banned in verification. Existing TOTP console remains recovery.
 
+
+
 Backups: CloudShell ~/frost-account-admin-20261027/{admin-before.zip,accounts-before.zip,template-before.json,parameters-before.json}. CloudFormation tracks AdminFunctionArn and the exact-resource invoke policy. Owner role lives in staff-roster in the existing account table. Evidence: .project-memory/account-admin-20261027/owner-dashboard.png. Details: [release record](worklog/2026-10-27-account-admin.md). Supersedes the local-only section below.
 
-## Account-based admin prepared — 2026-10-27
+
+
+## Account-based admin prepared â€” 2026-10-27
+
+
 
 Owner requested dispenser /admin using existing verified account sessions and owner-only admin grant/removal. Local implementation and focused23-test verification complete; not deployed, owner role not provisioned, new IAM bridge not granted. Plan: [account admin](plans/account-admin.md). Existing TOTP recovery remains available; no public browsing-origin privilege added.
 
-## Private response-sheet sync connected — 2026-10-27
+
+
+## Private response-sheet sync connected â€” 2026-10-27
+
+
 
 Owner approved the read-only Sheets scope and five-minute sync at action time, and completed Google authorization. Enabled Sheets API on the existing Frost Verification project; saved the prepared appsscript.json scope in the existing private script. First run before API enablement returned403; after enablement, installFrostResponseSheetSync logged a successful100-row import and completion. Trigger UI confirms syncFrostResponseSheet / Time-driven / Minutes timer / Every5minutes. Existing form verification and retry triggers remain present. No Google script code changes beyond the prepared manifest scope; no new source logic or tests. Previously deployed108-test suite passed. Evidence: .project-memory/all-updates-20261027/sheet-sync-success.png and sheet-sync-schedule.png. Backend owner read independently returned200, connected:true, stale:false,100rows. Public GET was405 and unauthenticated POST403: access denied, although an initial check incorrectly expected401. No private response rows were printed. This supersedes pending/disconnected statements below.
 
-## Username display deployment — 2026-10-27
+
+
+## Username display deployment â€” 2026-10-27
+
+
 
 Side release already deployed health checks, account/admin updates and backend username support. This follow-up overlays public/index.html and public/device-access.mjs on that exact image, preserving all updates. Image deployment-01M5YHVYRPS4T55Y5RWWZQ7NTA. Full suite108passed. Account/admin/device-client/server-health live bytes match local. AWS account Lambda Active/Successful with username support. Google Sheet sync still needs its separate Google access setup. Rollback: deployment-01M5YH97FBT02E8QXCM7RP8C64.
 
 
-## Updates deployed — 2026-10-27
+
+
+
+## Updates deployed â€” 2026-10-27
+
+
 
 Owner requested all pending updates, including the previously deferred response-sheet integration. Deployed the current account/admin Lambda bundles, including saved-session restoration and sheet snapshot support. Deployed menu server-health changes via a narrow Fly overlay on the existing gated release: `deployment-01M5YH97FBT02E8QXCM7RP8C64`. Both 1 GiB iad Machines passed deployment checks. Live HTTP byte comparisons matched account.mjs, admin.js and server-health.mjs; forced health requests identified each Machine and aggregate health reported both healthy. Full test suite:108 passed. No new independent review was performed in this side conversation; prior sheet review is recorded below. Browser visual acceptance and live restored-login interaction were not repeated.
 
+
+
 Google sheet sync remains disconnected pending the requested action-time read-only access confirmation; no scope, trigger or Google permission changed during this release. Local prepared manifest still contains the future scope. Previous Lambda bundles are backed up in CloudShell `~/frost-all-20261027/*-before.zip`; Fly rollback is gated image `deployment-01M5VYZ2JZBF00924AABEY7CXB`. No IAM/config/key changes. Evidence: `.project-memory/all-updates-20261027/verification.json`. This supersedes the not-deployed statements for session restoration/server health below, but does not mark sheet synchronization complete.
 
-## Local menu server health — 2026-10-27
+
+
+## Local menu server health â€” 2026-10-27
+
+
 
 The three-dot menu includes compact Ashburn 1/2 HTTP health results and a check timestamp. `/api/server-health` probes the fixed deployment machines through the configured origin, validates the responding machine identity, and caches/coalesces checks for 15 seconds. Timeouts and Fly fallback responses are not reported as healthy; local development shows Unknown. Sixteen server-health, deployment and account-enforcement tests passed; frontend syntax checks passed. Browser preview timed out, so visual inspection remains pending. Not deployed. Files: server.mjs, public/server-health.mjs, public/app.mjs, public/style.css and test/server-health.test.mjs.
 
-## Local session restoration fix — 2026-10-27
+
+
+## Local session restoration fix â€” 2026-10-27
+
+
 
 Saved dispenser sessions now restore despite `?verify=1`; startup no longer rotates credentials unconditionally. Renewal is coordinated within/across supported tabs, rechecks shared cookies, and briefly retries rotation conflicts. 46 focused tests passed, including ban/revocation enforcement. Not deployed or live-browser verified. See [session restoration record](worklog/2026-10-27-session-restore.md). Keep the deferred response-sheet integration out of any focused deployment.
 
+
+
 Last updated: 2026-10-26.
 
-## Response-sheet integration prepared, paused by owner — 2026-10-26
+
+
+## Response-sheet integration prepared, paused by owner â€” 2026-10-26
+
+
 
 User asked to show the private Frost Account Verification (Responses) sheet inside TOTP admin, then explicitly deferred deployment. Local implementation and deployment archive are prepared;101 tests pass. Read-only sheet snapshot UI, path-bound signed import, latest100 rows, masked code suffix, stale/replay handling and owner-only reads are implemented. Independent review found the SpreadsheetApp scope mismatch; implementation was changed to Sheets REST with readonly scope. Exact target sheet and headers were verified in browser. New ResponseSheet.gs was added to the existing private Apps Script project, but was not run and no sync trigger was installed. The added readonly scope was removed from the live manifest before pausing; local prepared manifest still includes it for a later authorized rollout. Sheets API enabling, Google reauthorization, AWS deployment and live sync have NOT occurred. AWS needs sign-in. User approved the private read-only integration before deferring, but obtain any action-time confirmations required at resumption. Archive: .project-memory/frost-sheet-deploy.zip. Do not claim connected.
 
 
-## Admin browser refresh — 2026-10-26
 
-Deployed one-account and all-users refresh controls under Accounts in the isolated TOTP console. Confirmation requires a reason; global scope must be explicit. Atomic revision increments, per-target 30-second cooldown and audit reuse the existing account store. Authenticated /api/device polling carries only the caller’s account revision plus the global revision. The browser establishes an initial baseline, saves local tabs and reloads once on a newer signal; no session revocation or reload loop. Older already-open pages need one manual refresh to acquire the listener. Sleeping pages/native unsaved-change prompts may delay reload; unsaved website state is not preserved.
+
+
+## Admin browser refresh â€” 2026-10-26
+
+
+
+Deployed one-account and all-users refresh controls under Accounts in the isolated TOTP console. Confirmation requires a reason; global scope must be explicit. Atomic revision increments, per-target 30-second cooldown and audit reuse the existing account store. Authenticated /api/device polling carries only the callerâ€™s account revision plus the global revision. The browser establishes an initial baseline, saves local tabs and reloads once on a newer signal; no session revocation or reload loop. Older already-open pages need one manual refresh to acquire the listener. Sleeping pages/native unsaved-change prompts may delay reload; unsaved website state is not preserved.
+
+
 
 100 automated tests passed. Independent review found no blockers (12 focused tests independently passed). Synthetic browser preview exercised both individual and all-users commands: exactly three total page loads (initial + two commands), two original tab IDs and active selection retained, then stable. Live synthetic-account command delivered revision 1 on both Fly Machines. No real visitor or global production refresh was triggered. All17 mirror origins serve the module; live unauthenticated owner action returns401. Live TOTP clickthrough was not repeated; UI interactions were tested against synthetic localhost services.
+
+
 
 Fly image deployment-01M5VYZ2JZBF00924AABEY7CXB passed both Machine health checks. Existing AWS account/admin Lambdas updated without IAM/config changes. Rollback: restore their previous bundles from ~/frost-browser-refresh-20261026/*-before.zip and gated Fly image deployment-01M5VX9K614N97374YC0S29W9F. Revision rows can remain; older code ignores them. Evidence: .project-memory/browser-refresh-release/verification.json and browser-refresh-confirmation.png. Owner acceptance: refresh the console, unlock, choose Accounts, then Refresh browser on an account or Refresh all browsers; review scope and reason before confirming.
 
 
+
+
+
 Favicon update: admin and account HTML now embed the exact existing public/favicon.png P image; both asset builds and live byte-comparison checks passed. Only HTML assets were patched in the deployed Lambda bundles. Evidence: `.project-memory/favicon-verification.json`.
+
+
 
 Browser tab identity: admin and dispenser now use `Home | Schoology`, matching the existing main browser title. Title-only patches deployed to both existing Lambda bundles with backups; no Fly runtime change needed. Both asset builds passed. Live admin and authenticated main DOM titles verified. HTTP sweep passed 10/19 entry points; nine requests hit dispenser rate limiting (429), so those checks are inconclusive. Evidence: `.project-memory/site-title-verification.json`. 
 
-## Account ban enforcement release — 2026-10-26
+
+
+## Account ban enforcement release â€” 2026-10-26
+
+
 
 Account bans now enforce actual browsing on Fly and all16 CloudFront browser origins. Mandatory scoped grants protect relay upgrades, Frosty and browser entry. Active relay/AI streams recheck current user/family/epoch/assignment every15 seconds and terminate on restriction or service failure. Normal browser polling redirects banned/suspended accounts to dispenser appeals; expired/revoked credentials require verification. Existing device bans remain enforced. Isolated dispenser sign-in and callback succeeded in the browser; authenticated Example Domain browsing succeeded.
 
+
+
 Live synthetic test targeted both Ashburn Machines: authorized WebSocket101 before ban, terminated after19.89/20.17seconds, then status403 with appeals destination and new WebSocket403. All17 origins reject anonymous relay and AI with401 and redirect anonymous homepage requests to the dispenser. Privileged account session/vault/preferences endpoints remain404 on browsing origins. No real account was banned. Synthetic test rows expire automatically and are excluded from user counts. Both Machine health checks passed; image deployment-01M5VX9K614N97374YC0S29W9F. AWS account/admin stacks UPDATE_COMPLETE. User approved the limited AWS-to-Fly signing key; the master storage key was not copied. Transfer used ephemeral RSA encryption; temporary private transfer material was removed.
+
+
 
 Independent review resolved reassignment-code serialization and device-cookie refresh overwrites. Final full suite97pass, including the client redirect regression. The earlier paragraphs saying browsing enforcement is unfinished are historical. Remaining work is account tab/cookie synchronization and stronger content isolation, not ban enforcement.
 
+
+
 Release recovery: AWS previous parameters/templates at ~/frost-ban-enforcement-20261026/{accounts,admin}; previous Fly image deployment-01M5VWBPEJKDVM08BW7MXHVQW5 is ungated and MUST NOT be used as a security rollback without explicitly accepting anonymous access. Preserve current gate and fail closed/repair forward if account service fails. No data/key reset is needed.
 
-## Mirror management release — 2026-10-26
+
+
+## Mirror management release â€” 2026-10-26
+
+
 
 Ten additional browser CloudFront distributions deployed (BrowserDistribution6..15), preserving prior URLs and TOTP enrollment. All ten homepage/health200 and relay101; real browsing on new6 succeeded. Account pool contains17 verified browser origins. Owner Links manages block/unblock with reasons; Accounts supports manual assignment. Assignments are transactional and count-balanced; blocked assignments move in bounded jobs or on next account assignment check. All86 tests pass, including pagination and unblock/reblock/stale-worker races. Independent review resolved findings. New owner routes return401 without authentication. Live account automatically received an operational link. Account backend/admin stacks updated; Fly image deployment-01M5VWBPEJKDVM08BW7MXHVQW5 passed both Machine health checks. Wordmark-only480ms intro also deployed in an overlay; reduced-motion/animation-off guards unit-tested.
 
+
+
 Rollback: previous Fly image deployment-01M5VV1D9172SEKT23HX4Q0TJ1; CloudShell ~/frost-mirrors-20261026/{admin,accounts} contains rollback parameters, admin template and prior deployment configuration. Reverting mirrored origins must preserve currently assigned addresses or reassign them first. Main-browser account enforcement/cookie isolation remains unfinished; Open Frost currently opens its freshly retrieved assigned origin directly.
 
-## Latest release — unified account entry and owner dashboard
+
+
+## Latest release â€” unified account entry and owner dashboard
+
+
 
 The dispenser now has one email/Continue entry. Verified returning users retain their account; new users choose a username after verification. Stale pre-account proofs and repeated rejected username guesses are bounded. The account-null-assignment crash was fixed after a live owner report: successful null JSON no longer attempts csrf access, and authenticated startup failures do not expose the sign-in panel. Live browser confirmed signed-in account visible, entry hidden and no link assigned yet.
 
+
+
 Expanded isolated TOTP admin is deployed at the existing d2ftxdtd3x015d.cloudfront.net: UTC day/week aggregate online charts and observed peak, account/banned/registration/support counts, searchable accounts, reasoned ban/restore/suspend/session revoke, announcements with preview, support replies and audit. IAM bridge grants the existing admin role only invocation of the existing account Lambda. Public owner routes return401. Historical browser samples begin at deployment; no earlier peak is invented; registration history excludes deleted accounts. Owner unlocked the preserved TOTP enrollment. Live dashboard returned real aggregate samples, week queries succeeded and authenticated account listing showed one account. No production accounts were changed during verification. Both AWS stacks report UPDATE_COMPLETE.
+
+
 
 All82 Node tests pass. Independent review findings were resolved. Synthetic desktop/mobile tests cover moderation, announcements, support and lock cleanup. Cream/teal scrollbars shipped on main and dispenser; admin bundle includes them. Main Fly CSS-only overlay image deployment-01M5VV1D9172SEKT23HX4Q0TJ1 passed both Machine health checks; previous image remains rollback. Account/main health200 and exact changed assets verified. See2026-10-26 worklog for rollback packages and live observations.
 
+
+
 ## Active work: account platform, not released
+
+
 
 The owner approved both account/dispenser/device-trust specifications, `/admin` entry points redirecting to the existing isolated TOTP console, account-saved current tabs and website cookies, persistent device sign-in and ban-to-appeal routing. The isolated account infrastructure is deployed, but **registration is enabled for end-to-end verification and the account platform is not connected to the live browser**. Google Form and owner Apps Script are configured with verified-email collection confirmed through the Forms API. Account CloudFront d3mbml114oiqni.cloudfront.net is live; health/bootstrap/username returned 200 and direct Lambda origin returned 403. Script Form ID, origin and owner-entered webhook secret are saved. Two triggers are installed, signed Google-to-Frost probe passed, and Form is published. Real user end-to-end verification is pending.
 
+
+
 Implemented in source: transactional account backend, verified-registration workflow, verified-email returning-login flow, rotating persistent device grants, one-time destination/browser-bound handoffs, account/device restrictions, encrypted versioned tab/cookie vault, assignments/reports/support, owner control operations, outage worker, HTTP/CSRF/signed internal API, main-site access adapter, dispenser UI and Google Apps Script/setup templates. `/admin` redirect and menu changes are also local only. The main-site access adapter is deliberately not wired into `server.mjs` until content isolation is complete.
+
+
 
 Verification checkpoint: full Node suite passed 68 tests (2026-10-25); account build and git diff --check passed. Account Lambda bundle built successfully with `node scripts/build-platform.mjs` after esbuild needed the existing sandbox escalation. Independent security review identified deletion/email-change ban bypasses, device-cap recovery lockout, public-route rate limits, viewer-IP forwarding and Form queue locking; fixes were added and the reviewer confirmed those specific findings resolved (20 targeted tests passed). The main-site adapter also imports successfully with AWS SDK imports blocked. New UI is not yet browser-verified. AWS frost-accounts deployment and database initialization succeeded with registration enabled after the signed webhook check. Existing Fly/main/admin resources remain untouched. No Git push occurred. See the 2026-10-25 worklog for deployment attempts and the blocked private-key download.
 
+
+
 Next: finish trusted-shell/browsing-runtime separation, connect account synchronization and ban redirects to actual browsing/relay routes, wire owner controls into isolated TOTP admin UI, provision account infrastructure, configure Google with the owner, complete end-to-end/abuse/recovery tests and review, then deploy and observe. Do not enable mandatory sign-in or cookie sync before those checks. See [plan](plans/account-platform.md), [owner setup](ACCOUNT-SETUP.md) and [security decision](decisions/005-account-platform.md).
+
+
 
 Current live rollback: `registry.fly.io/frost-browsing:deployment-01M5NXT0CTA1SYP74QTFTJ9SRZ`, both existing always-on 1 GiB `iad` Machines. Existing admin distribution and TOTP records must remain unchanged.
 
+
+
 ## Historical checkpoints
+
+
 
 The entries below describe prior stages; the active work and release boundary above take precedence.
 
+
+
 Frost now has a modular local browser shell, independent tab state, address suggestions, bookmarks/history, settings, command palette, direct-URL downloads, loading/error recovery, and an isolated transport layer. The latest user direction replaces the polished wordmark/theme with an informal handmade winter look: slightly uneven legible lettering with tiny icicle tails, cold charcoal/navy, flat squared controls, monospace utility text, and horizontal quick links. Centered functional search remains; corner cracks, gradients, ambient glow, and marketing footer stay absent. The handmade theme has been inspected in dark and Light desktop views and a narrow mobile view; exact evidence and limits follow. The standalone f was removed from the toolbar and empty tabs; the favicon/fallback icon is a neutral globe. This supersedes the earlier supplied wordmark; no Bonfire, Kin, or Proxy labels remain in the ordinary browser UI. Legal/source attribution is retained.
+
+
 
 Search remains DuckDuckGo, Bing, and Brave only. Preferences, bookmarks, and history persist locally. Open/closed tabs and download records are session-only. The server binds loopback and validates Host, relay Origin, and public destination addresses.
 
+
+
 ## Verified checkpoints
 
+
+
 - All seven Node regression tests passed after the handmade-theme changes; `node --check public/app.mjs` passed.
+
 - Engine JavaScript asset build succeeded; provenance manifest records the upstream commit and asset hashes.
-- Browser at 1920×1080 loaded example.com through the network-enabled local relay.
+
+- Browser at 1920Ã—1080 loaded example.com through the network-enabled local relay.
+
 - Browser checks exercised tab creation/switching, bookmark selection, settings/search controls, Light theme, and the bookmarks bar.
+
 - Both wordmark SVG variants parsed and rendered at 300px.
-- An isolated browser preview was inspected at 1280×720 in dark and Light themes, including settings/theme toggles. The dark capture is .project-memory/evidence/frost-indie.png.
-- At 390×844, the mobile screenshot showed two-column shortcuts and no horizontal overflow; DOM scrollWidth was 390px.
+
+- An isolated browser preview was inspected at 1280Ã—720 in dark and Light themes, including settings/theme toggles. The dark capture is .project-memory/evidence/frost-indie.png.
+
+- At 390Ã—844, the mobile screenshot showed two-column shortcuts and no horizontal overflow; DOM scrollWidth was 390px.
+
 - Independent review found Light-theme primary/danger contrast and About-wordmark filtering issues. Theme tokens and the Light About-wordmark filter were corrected and checked in the browser: on-accent was #fff, danger was #a6323c, panel font was correct, and the About wordmark was visibly darkened. The preview was returned to Dark and its screenshot refreshed.
+
 - Required project documents, local Markdown links, and ignored evidence boundary passed the documentation audit.
 
-Earlier local checks rebuilt the engine successfully. The prior 1920×1080 browser checkpoint established the navigation/tab/bookmark evidence above; the newer handmade-theme inspection used the sizes listed above. A stale navigation timeout during connection changes was also cleared. This checkpoint does not claim every acceptance criterion passed: GitHub stalled a prior smoke-test tab and a user tab browsing Brave timed out; the separate preview succeeded and unblocked theme validation. Remote adapter behavior is untested because no endpoint was supplied, and direct-URL downloads have not had an end-to-end browser check. Download handling cannot inspect host-browser downloads or reveal filesystem locations. The host browser may intercept keyboard shortcuts.
+
+
+Earlier local checks rebuilt the engine successfully. The prior 1920Ã—1080 browser checkpoint established the navigation/tab/bookmark evidence above; the newer handmade-theme inspection used the sizes listed above. A stale navigation timeout during connection changes was also cleared. This checkpoint does not claim every acceptance criterion passed: GitHub stalled a prior smoke-test tab and a user tab browsing Brave timed out; the separate preview succeeded and unblocked theme validation. Remote adapter behavior is untested because no endpoint was supplied, and direct-URL downloads have not had an end-to-end browser check. Download handling cannot inspect host-browser downloads or reveal filesystem locations. The host browser may intercept keyboard shortcuts.
+
+
 
 Release target: local http://localhost:3100 only; no public deployment or repository push. `npm run package:source` creates the corresponding-source archive at `public/source.zip`; rerun it after final edits. Rollback is stopping Frost. The prior Bonfire folder remains independent, and no database migration or external resource change is required.
 
+
+
 ## Engine and hosting update, 2026-10-20
+
+
 
 The active source is upstream/ (garrett-warin/engine, pinned in engine-source.json). scripts/build.mjs copies its matching committed bundle; public/transport.mjs uses HttpEngineClient and sw.js uses controller.worker.js. server.mjs now supports an explicit HTTPS public origin and /health; Dockerfile and .dockerignore package only runtime files. fly.toml specifies the two always-on 1 GB iad Machines. Nine Node tests pass and Fly configuration validates. Local browser smoke test loaded Example Domain with the new engine. Deployment verification is pending. This supersedes the earlier local-only release scope. Prior source archive retained locally under .project-memory/releases for rollback.
 
+
+
 ## Hosted release verified
+
+
 
 2026-10-20: https://frost-browsing.fly.dev is live on image registry.fly.io/frost-browsing:deployment-01M5DVJ568C9YJ2P97R9GERM8C. Exactly two Machines (683e3d9ae17238, 839496c774d638) inspected as started in iad, shared-cpu-1x, memory_mb=1024. Both report autostop=false, minimum running=2, restart always, concurrency connections soft=50/hard=100. Both HTTP health checks pass. Public health returns 200; HTTPS browsing rendered Example Domain using the new engine. Hosted transport contains the reviewed initialization fix.
 
+
+
 Independent review found a download-before-navigation initialization issue; fixed by one shared awaited transport initialization. Ten application tests and the upstream WASM/glue test pass (the latter rerun from its required upstream working directory). Review and release checks do not establish maximum throughput or universal website compatibility. The packaged source represents the deployment source; this post-release observation is local documentation.
+
+
 
 ## Light UI, persistence, fullscreen and announcements
 
+
+
 Light-only settings replace dark/system choices. Tabs and active selection now persist alongside history. Announcement publishing uses an authenticated owner Fly CLI command; public API is read-only. Banner uses a custom SVG claw hammer, not emoji. No live announcement text was supplied, so production banner remains hidden until publishing.
+
+
 
 Fourteen tests pass, including unauthorized announcement mutation rejection, corrupt session recovery and long back/forward history restoration. Browser verified a fresh page restores two tabs with active selection. Native fullscreen was blocked in browser automation; added site-fill fallback with an exit button/Escape, preserving the user's requested site fullscreen within the app. Home/error states clear fullscreen. Deployment pending.
 
+
+
 Rollback image before this change: registry.fly.io/frost-browsing:deployment-01M5DVJ568C9YJ2P97R9GERM8C. No backend database migration; new frost.tabs.v1 key is ignored by the previous release. Announcements use app-level environment settings on both Machines; clearing with the owner command removes the banner.
+
+
 
 ## Isolated TOTP admin console (supersedes CLI-only publishing)
 
+
+
 User requested a console in the three-dot menu, TOTP login, access from other devices, and a new CloudFront distribution. Implemented admin/ with an isolated HTTPS origin, IAM/OAC-protected Lambda, and shared encrypted DynamoDB state. Enrollment is gated by a private random setup link and confirmed TOTP; no public enrollment, no frontend secret, no proxy-origin admin authentication. Attempts and replay protection are atomic. Sessions are 15-minute opaque random tokens held in memory. Both Fly Machines read the same public announcement and retain their existing always-on configuration.
+
+
 
 Independent review corrected deployment-region consistency and offline logout locking. Sixteen tests pass including enrollment rejection, invalid codes, reused codes, sessions, expiry, logout, unauthorized publication, origin rejection, limits, tab restoration and long-history positions. Browser verified site-fill fullscreen entry and exit. AWS template validates; CloudFront rollout and owner enrollment remain pending.
 
 
+
+
+
 ## CloudFront main-site correction
+
 The existing d29bikvk0kgibf.cloudfront.net address must serve Frost from Fly, including the WebSocket relay. Move the isolated admin frontend to a second distribution while preserving its DynamoDB table and enrolled authenticator. Keep HTTPS origin connections and caching disabled. Only the configured Fly Host and exact browser origins are accepted. Verify the main homepage, real browsing, unauthorized admin rejection, and both Fly health checks. Rollback uses the previous template and Fly image; enrollment state remains retained. Deployment in progress.
 
 
+
+
+
 ## CloudFront routing release, 2026-10-20
+
 Main site: https://d29bikvk0kgibf.cloudfront.net (E2KKFB4JYC2B14), backed by the existing two Fly machines. Admin: https://d2ftxdtd3x015d.cloudfront.net (E1MZU59EXXQJYS). CloudFormation frost-admin reports UPDATE_COMPLETE; DynamoDB and Lambda identities unchanged. Owner confirmed Console unlocked before migration; enrolled=true independently verified. Same authenticator remains valid, but the new admin origin requires a fresh login. Admin menu opens the new address. No live announcement published.
+
+
 
 Sixteen tests pass, including exact allowed CloudFront relay origin and rejection of other origins. Browser loaded Example Domain through main CloudFront. Admin public announcement GET200, unauthenticated publish401, direct Lambda403. Both Fly health checks passed after routing rollout. No universal site compatibility or load-performance claim.
 
+
+
 Changed server.mjs, fly.toml, scripts/admin-template.mjs, admin/stack.json, admin/deploy.sh, test/deployment.test.mjs and project docs. Additional user-requested tab identity changes: public/index.html and public/app.mjs use fixed Home | Schoology title, public/favicon.png is the supplied P image, server.mjs serves PNG MIME. Source archive regenerated. Final favicon release image: registry.fly.io/frost-browsing:deployment-01M5DY30JDY9WA4FDPC7AP49AM. Prior working routing image: registry.fly.io/frost-browsing:deployment-01M5DXY1M3QMY7CE7QTNHCA6TQ. Roll back app changes with prior image while retaining current CloudFront/admin environment; pre-routing rollback additionally requires restoring prior stack template and config.origin.
+
+
 
 Final live identity check: Home | Schoology remained exact after a proxied page loaded and after returning Home. Favicon GET200 image/png; SHA256 matches supplied PNG exactly (24,946 bytes). Latest Fly rollout completed with both machines healthy. Temporary setup files removed after enrolled=true verification. Main and relocated admin tabs retained as deliverables. Evidence: .project-memory/evidence/frost-cloudfront-home.png and frost-cloudfront-browsing.png.
 
+
+
 User requested five additional main-site CloudFront distributions, sharing the existing Fly machines and isolated admin console. Clone the established main-site behavior; explicitly allow each assigned HTTPS origin for the relay. Existing addresses remain supported. Verify five homepage/health/relay endpoints. Rollback removes only the five new template resources and restores previous server image/environment. Deployment pending.
+
+
 
 Online status: estimate active browsers with an anonymous per-origin ID, heartbeat20s/expiry75s. Deduplicate tabs per origin. A bounded in-memory collector on existing machine683e3d9ae17238 combines both machines; no browsing history collected. Restart rebuilds count, outages display unavailable rather than zero. Show machine answering latest status request (load-balancing may change it). Other origins/browsers count separately.
 
+
+
 Five additional CloudFront addresses now return homepage200, health200, and WebSocket relay101. Presence verified with identical visitor ID on both Fly machines: both returned online1, with distinct correct server labels.18 tests passed; independent review corrected Dockerignore to include presence.mjs. Release image registry.fly.io/frost-browsing:deployment-01M5E02FZZCX9CHPHXE1SF1VGF rolled out healthy on both machines. Rollback image registry.fly.io/frost-browsing:deployment-01M5DY30JDY9WA4FDPC7AP49AM; remove extra origins if rolling back code, since old server accepts only the original address. Additional distribution deployment propagation still being checked.
+
+
 
 Final verification: all five additional distributions report Deployed. Each returned homepage200, health200, relay101. Real Example Domain browsing succeeded on additional1; live footer showed2online and Server: Ashburn1. Shared-counter checks returned1online from each machine with the same visitor ID. All18 tests passed. Evidence: .project-memory/evidence/frost-online-server.png. Files changed: presence.mjs, server.mjs, public/app.mjs, public/index.html, public/style.css, fly.toml, Dockerfile, .dockerignore, scripts/admin-template.mjs, admin/stack.json, test/deployment.test.mjs, test/presence.test.mjs, public/source.zip, and docs. Main/admin origins and enrollment retained.
 
+
+
 Link containment: normal links remain in the current Frost tab; target-blank/named links, modified/middle clicks and HTTP(S) window.open requests route through internal tabs. Top/parent links remain contained. Form submissions stay in their frame to preserve POST data. Downloads keep download behavior. Admin remains intentionally separate. Native context-menu commands are controlled by the host browser; blank-popup WindowProxy/OAuth flows are not fully emulated.
+
+
 
 2026-10-21 release verified: both Fly machines healthy on deployment-01M5GMHJMFJ525PJX6KXYF28TT. Main CloudFront health and routing module HTTP200. Live Ctrl-click opened an internal background tab; local middle-click and ordinary navigation verified. All21 automated tests pass; independent review clear. Evidence: .project-memory/evidence/frost-internal-tabs.png.
 
+
+
 2026-10-22 browser ban implementation: owner TOTP endpoints /device/ban,/device/unban,/device/status; public boolean /device/check/:uuid. HttpOnly host-only browser cookie; per-origin limits explicit. 26 tests passed including live WebSocket disconnection and TCP reset during pending authorization. Admin deployed first and boolean endpoint verified200. Fly pending. Rollback Fly image deployment-01M5GMHJMFJ525PJX6KXYF28TT first, then restore previous admin CodeKey if needed; retained ban records are additive, no enrollment mutation.
+
+
 
 Browser-ban rollout: admin CloudFormation UPDATE_COMPLETE; /device/check syntheticUUID returned200 boolean only; Fly deployment-01M5HNCHZ901FC3RYJ3V205WT2 healthy on both machines. Live /api/device200 issued Secure/HttpOnly cookie through main CloudFront. Owner unlocked console; ban controls visibly present. Browser automation stalled on native confirm dialog during synthetic client test; no ban applied at last status check. Live synthetic relay opened successfully but timed out waiting for the UI confirmation. Automated disconnect and reset regression remain passed; do not count timeout as a successful live ban.
 
+
+
 2026-10-23: created private GitHub repository https://github.com/garrett-warin/frost. Frost now has its own Git root, with upstream pinned as a submodule. Local evidence, generated archives, credentials and obsolete engine checkout excluded. Owner requests keyboard-smash commit messages.
+
+
 
 Frosty visual revision (local, 2026-10-23): replaced shaded mascot with a two-snowball outline drawing, reused Frost wordmark paths with a hand-drawn y, flattened the panel to existing site colors/type, and removed promotional empty-state copy. Opening/thinking/success use a separating jump with spring landing and no rotation. Reduced motion resets both segments. 32 existing tests passed; additional motion regression verifies separation, settling, no rotation and reduced-motion reset. Live provider remains unconfigured. Not deployed.
 
+
+
 2026-10-23 Frosty page revision (local only): replaced floating panel with dedicated /#frosty page and sparkle toolbar entry; browser tabs stay mounted. Added hand-driven head screw-in jump and replayable preview at /frosty/preview.html. User configured the API key locally; key presence checked without printing it. Tiny direct-provider smoke: Gemma returned429; North Mini Code returned200 with nonempty content. Independent review found reopen animation not resetting state; fixed close to reset idle. No Fly deployment or production secret change. Final browser/full-suite results follow.
+
+
 
 Final local verification: all35 Node tests passed; JavaScript syntax and diff whitespace checks passed. Browser verified sparkle route, Back to Frost, retained chat/model, direct-route reload, unavailable page-context error, and New chat cleanup. Real North Mini Code streaming returned hello from frosty through the UI. Page and animation preview visually checked in390x844 iframe viewports (not a physical mobile device). Preview replay and scrub verified independently. Evidence: frosty-page.png, frosty-page-narrow.png, frosty-hands-preview.png under .project-memory/evidence. Local server remains on3104; not deployed.
 
+
+
 2026-10-23 latest Frosty simplification (local, verification pending): user replaced the prior head screw-in design with a minimal two-snowball outline, dot eyes and small nose; arms, buttons, mouth and shadow are removed. Keep a small intact hop and the dedicated /#frosty page with sparkle entry. Remove the animation preview page, controls and navigation link. Earlier dated preview evidence above is historical, not the current design. Runtime verification for this revision is still pending; no deployment or provider configuration change is part of this revision.
+
+
 
 Minimal-mascot verification: three targeted motion/route tests passed; assistant JavaScript syntax passed. Browser inspected retained chat with simplified snowman and no preview link. All three removed preview URLs return404. Evidence: .project-memory/evidence/frosty-simple.png. Local-only update; no deployment.
 
+
+
 2026-10-23 Frosty release preparation: latest-reply mascot placement added before deployment.35 tests and production asset build passed; independent release review found no blocker. Target frost-browsing existing machines683e3d9ae17238/839496c774d638, iad,1024MB, autostop off. Rollback image registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2. No database/admin migration; AI configuration is additive. Default new visitors to tested North Mini Code; retain Gemma in picker. Deploy and live verification pending.
+
+
 
 Release scope expanded before rollout: image attachment UI and server multimodal request support. Three image validation/HTTP tests pass; local browser verified attach, preview, model switching, text-only send blocking and removal. Images are capped2MiB; no binary history persistence. Live vision response and final release checks pending.
 
-## Groq switch before deployment — 2026-10-23
+
+
+## Groq switch before deployment â€” 2026-10-23
+
+
 
 The user accepted Groq Free before the Frosty rollout. The adapter uses `FROST_AI_PROVIDER=groq`, fixed official endpoint, separate `GROQ_API_KEY`, and the GPT-OSS 20B/120B + Qwen 3.8 27B preview allowlist. Qwen handles images; prior Gemma/North Mini smoke results remain OpenRouter-only evidence. OpenRouter is still available by explicit selection with the old `:free` and zero-price safeguards.
+
+
 
 Groq requires the account to remain Free; there is no request-level zero-price switch. The conservative all-text UTF-8 guard rejects above 5,440 bytes without an image or 3,392 with one, reserving output/image/framing budget. Existing 2 MiB image UI and validation checks passed; provider-specific tests are pending. User key entry, a live Groq response and deployment have not occurred at this checkpoint. Preserve rollback image `registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2`, both existing Fly Machines, and admin state. Details: [FROSTY.md](FROSTY.md), [ADR 004](decisions/004-frosty-groq.md).
 
 
 
+
+
+
+
 Pre-release verification, 2026-10-23: all 42 Node tests passed, production build and JavaScript syntax passed, and independent backend review passed 13 targeted tests with no runtime blocker. README setup corrected to Groq. Local browser received real responses from GPT-OSS 20B and 120B; Qwen correctly identified a synthetic red PNG. Model auto-selection, removal and text-only gating verified. The owner saved the Groq key locally, and only GROQ_API_KEY was securely staged in Fly. No rollout has occurred yet. Earlier OpenRouter vision attempt returned a capacity error, not a successful image response.
 
+
+
 Hosted Frosty release verified, 2026-10-23: runtime commit d1d4097 deployed as registry.fly.io/frost-browsing:deployment-01M5NXT0CTA1SYP74QTFTJ9SRZ. Both existing Machines (683e3d9ae17238, 839496c774d638) are started and healthy in iad, 1024 MB, one shared CPU, autostop false, minimum two, restart always. Fly plus all six main-site CloudFront addresses return health/config 200, Groq ready with all three models, and removed preview 404. Main CloudFront browser streamed GPT-OSS 20B successfully; a synthetic image request through the hosted API returned completed HTTP200 with Red. Local browser separately verified all three models and image upload. No universal availability or load benchmark claim.
+
+
 
 All42 automated tests and production build passed; independent backend/Groq/image review passed13 targeted tests. UI keeps the minimal mascot beside the latest assistant response. Screenshot: .project-memory/evidence/frosty-groq-live.png. Source archive SHA256 574682b11058d9d861872b7fc1d5d8f5a6254556fd1927bacda843d36879e930; archive audit found no configured key or private .env file. Source archive was packaged with pre-release docs; these post-release observations do not change runtime code. Both implementation commits pushed to the private GitHub repo. No admin/database migration. Rollback: redeploy registry.fly.io/frost-browsing:deployment-01M5HNCHZ901FC3RYJ3V205WT2 using the current Fly origins/machine settings; the older browser-ban runtime ignores AI variables.
 
 
-## Email-only sign-in revision — 2026-10-25
+
+
+
+## Email-only sign-in revision â€” 2026-10-25
+
+
 
 The owner requested site-generated codes with no outgoing email and no visitor OAuth. Frost displays a one-time code which the user manually pastes into the Google Form. A signed Apps Script event must match both this code and the pending Google-verified email. The original dispenser browser completes using its separate private HttpOnly polling cookie. Requests expire after fifteen minutes and complete once; returning verification preserves the Frost ID. Restricted accounts remain appeals-only. Forwarding a code to another person can still authorize the initiating browser: this social-engineering limitation is not solved by the polling cookie. Live integration and deployment remain pending.
 
+
+
 The previous mailbox-code test checkpoint is superseded by the site-code revision; see the latest validation below.
 
-## Account entry clarity — 2026-10-26
+
+
+## Account entry clarity â€” 2026-10-26
+
 Deployed single-form sign-in/signup and dedicated three-step verification to the isolated dispenser. Added wrong-email/back and expired-code recovery plus stale-poll protection. Five targeted UI/HTTP tests, syntax and bundle passed; live entry views and local desktop/mobile verification UI inspected. Real user end-to-end Form verification and main browsing account integration remain pending. See worklog/2026-10-26.md.
 
-## Username beside Frost ID — 2026-10-27 (local, awaiting deployment)
+
+
+## Username beside Frost ID â€” 2026-10-27 (local, awaiting deployment)
+
+
 
 Account/appeal identity now shows @username beside Frost ID. Main authenticated /api/device receives only the caller's username and Frost ID; footer displays it using textContent and keeps the separate device code. Footer wraps on narrow screens. Changed platform/accounts.mjs, platform/ui/account.mjs, server.mjs, public/device-access.mjs, public/index.html, public/style.css, test/account-enforcement.test.mjs. Twelve focused account enforcement/client/UI tests pass. AWS browser session remains signed out; requested owner sign-in. NOT deployed. Do not bundle deferred response-sheet feature during rollout; patch current production Lambda and gated Fly image narrowly.
 
+
+
 Wordmark follow-up: increased intro from760ms to1300ms with cubic-bezier(.42,0,.25,1), giving a slower eased start and soft finish. Wordmark regression passed. Narrow Fly overlay in .project-memory/intro-slower-release; previous image retained in rollback.txt.
+
+
+
 
 
 Return to dispenser: public/app.mjs now has a three-dot menu action that retrieves the configured dispenser, validates the HTTPS CloudFront origin, saves existing tabs and navigates the outer page. Focused action checks cover saving/navigation/invalid destination; syntax passed. Live menu click successfully reached the signed-in dispenser. Narrow deployment artifact .project-memory/dispenser-menu-release; initial missing saveSession arguments caught and corrected in follow-up rollout.
 
 
+
+
+
 Creator footer: added a compact new-tab-only Creator section crediting Garrett Warin and the owner's requested learning-space/network-blocking notice. Changed public/index.html and public/style.css; desktop rendered preview checked and Fly rollout passed both health checks. No automated tests added for static copy/layout. Extra product-description wording awaits clarification on technical terminology. Artifact .project-memory/creator-footer-release.
 
 
-Contact footer — 2026-10-27: replaced Garrett credit with Contact and mailto:hi@garretts.space plus a decorative inline SVG envelope. public/index.html and public/style.css changed; live packaged HTML/CSS match and health returned200. Narrow overlay deployment-01M5ZWES3WBX8CYS3G1J5D7TRA; rollback deployment-01M5ZW5R1ZGWKJVJ8NA4MGV0A5. No full suite rerun for static footer edit; no new browser visual check.
 
-Footer copy — 2026-10-27: removed the Frost brings tabs/search/bookmarks/Frosty sentence from public/index.html at owner request. Contact and notice retained. Live packaged HTML matches; both Fly health checks passed. Deployment-01M5ZWQ1Y5049J2YK1NMVQASJV; rollback deployment-01M5ZWES3WBX8CYS3G1J5D7TRA. Full tests not rerun for text-only removal.
 
-Outage banner deployed — 2026-10-27: orange main-browser top strip with attributed iconading/Flaticon warning PNG. Existing /api/server-health polled15s while visible; healthy recovery hides, unknown/connection failures use qualified wording. Six focused tests and syntax check passed. Desktop/390px synthetic renders and recovery inspected; production module/icon bytes match; both Machines healthy. Files: public/index.html, style.css, outage-banner.mjs, outage-warning.png, flaticon-attribution.txt; test/outage-banner.test.mjs. Image deployment-01M5ZX05Q989RHGYQY1W87Z22R; rollback deployment-01M5ZWQ1Y5049J2YK1NMVQASJV. No production outage induced; already-open browsers need one refresh to load new module.
 
-Analytics copy removal — 2026-10-28: removed the local-timezone/sampling/history explanatory paragraph from admin/index.html and rebuilt admin/assets.mjs and both Lambda packages successfully. AWS browser session is signed out; deployment pending. No automated tests run for copy-only removal.
+Contact footer â€” 2026-10-27: replaced Garrett credit with Contact and mailto:hi@garretts.space plus a decorative inline SVG envelope. public/index.html and public/style.css changed; live packaged HTML/CSS match and health returned200. Narrow overlay deployment-01M5ZWES3WBX8CYS3G1J5D7TRA; rollback deployment-01M5ZW5R1ZGWKJVJ8NA4MGV0A5. No full suite rerun for static footer edit; no new browser visual check.
 
-Analytics copy removal deployed — 2026-10-28: patched only the exact requested paragraph text in both current deployed Lambda archives, preserving other live changes. Both update waiters succeeded and both CloudFront admin HTML responses200 omit the paragraph. Backups saved in CloudShell ~/frost-analytics-copy-<timestamp>/*-before.zip. Local admin/index.html/assets.mjs already rebuilt successfully; no tests rerun for copy-only removal.
 
-Timed suspensions deployed — 2026-10-28: both existing AWS Lambda services updated, no IAM/config changes. Admin selects minutes/hours/days (server bounds1minute–365days); new suspension deadline is enforced via shared effective status, preserves epoch revocation and forced rename, and safely expires deleted-email restrictions. Legacy no-deadline suspensions and bans remain indefinite. Redesigned restriction page shows reason, local deadline, remaining time, appeal and access recheck. All129tests passed; independent review fixed raw-status consumers and stale tombstone deletion. Synthetic desktop/390px and admin dialog reviewed; live account.mjs/account.css/admin.js bytes match on both hosts. No real account moderated. Backups CloudShell ~/frost-timed-suspension-<timestamp>/*-before.zip; prefer repair-forward because old code treats timed suspensions as indefinite. Files: platform/{restrictions,accounts,control,analytics,online,staff}.mjs, platform/ui/{account.mjs,account.css,index.html}, admin/{index.html,admin.js,admin.css,assets.mjs}, tests and docs.
 
-Administrator wording deployed — 2026-10-28: support headings, restriction review copy, reply labels and future reply notifications now say administrator. Historical reply actor labels normalized for display. Both Lambda updates succeeded; 39 focused account/UI tests passed. Files: platform/ui/index.html, account.mjs, platform/control.mjs, admin/admin.js and generated assets.
+Footer copy â€” 2026-10-27: removed the Frost brings tabs/search/bookmarks/Frosty sentence from public/index.html at owner request. Contact and notice retained. Live packaged HTML matches; both Fly health checks passed. Deployment-01M5ZWQ1Y5049J2YK1NMVQASJV; rollback deployment-01M5ZWES3WBX8CYS3G1J5D7TRA. Full tests not rerun for text-only removal.
 
-New-tab note — 2026-10-28: separate 160-character plain-text admin editor under Announcements; empty value hides the line under the wordmark. Authenticated TOTP and account-admin routes share the existing admin store, independent of the announcement key. Existing public announcement read carries note through the Fly cache and minute polling. Text uses textContent, wraps long content; no HTML rendering. Changed admin/index.html, admin.js, service.mjs, handler.mjs, assets.mjs; platform/staff.mjs; server.mjs; public/index.html, app.mjs, style.css; test/admin.test.mjs. Both Lambda builds and 16 focused admin/staff/deployment tests passed; desktop new-tab and editor synthetic browser checks passed. Both live admin scripts and Fly app/style bytes match. Narrow Fly image deployment-01M6212FGS3W6G34TEBC1MD1VT; rollback deployment-01M5ZX05Q989RHGYQY1W87Z22R. AWS code backups CloudShell ~/frost-new-tab-note-<timestamp>. No production note published on the owner's behalf. Screenshot .project-memory/new-tab-note/editor.png.
 
-Maintenance banner deployed — 2026-10-28: blue notice independent of orange outage warning. Admin Announcements has enable, local start/end and 300-character reason; immediate scheduled notice, in-progress wording at start, hides after end on next 15-second poll. Does not stop service. Both Lambda updates succeeded with code backups, no IAM/config changes. Narrow Fly deployment-01M622W979BYKCWFWNX0AM0XBF; both Machines healthy; rollback deployment-01M6212FGS3W6G34TEBC1MD1VT. Thirteen focused tests passed independently, desktop/390px banner and enabled/disabled editor reviewed. Live scripts/styles match; public maintenance is disabled, no real notice published. Files admin/{maintenance.mjs,service.mjs,handler.mjs,admin.js,index.html,admin.css,assets.mjs}, platform/staff.mjs, server.mjs, public/{maintenance-banner.mjs,index.html,style.css}, tests and docs. Proof .project-memory/maintenance-release/banner.png. History-sharing request was canceled; no related code added.
 
-404 page deployed — 2026-10-28: replaced main browser plain Not found response with wordmark, Lost in the frost heading and home link. Real404 for missing page routes and /404.html; HEAD omits body; missing asset text and unknown API JSON preserved; no request echo. Seven focused deployment/404 tests passed. Desktop/390px render and home navigation checked, live Fly and drst2thr825aj mirror HTML/CSS exact matches and404 status verified. Both Machines healthy on deployment-01M62763JQ902RCSNNPDY8B1MG; rollback deployment-01M622W979BYKCWFWNX0AM0XBF. Files server.mjs, public/404.html, public/404.css, test/not-found.test.mjs, docs. Narrow release .project-memory/not-found-release; live.png proof. No AWS changes; dispenser/admin routes unaffected.
+Outage banner deployed â€” 2026-10-27: orange main-browser top strip with attributed iconading/Flaticon warning PNG. Existing /api/server-health polled15s while visible; healthy recovery hides, unknown/connection failures use qualified wording. Six focused tests and syntax check passed. Desktop/390px synthetic renders and recovery inspected; production module/icon bytes match; both Machines healthy. Files: public/index.html, style.css, outage-banner.mjs, outage-warning.png, flaticon-attribution.txt; test/outage-banner.test.mjs. Image deployment-01M5ZX05Q989RHGYQY1W87Z22R; rollback deployment-01M5ZWQ1Y5049J2YK1NMVQASJV. No production outage induced; already-open browsers need one refresh to load new module.
+
+
+
+Analytics copy removal â€” 2026-10-28: removed the local-timezone/sampling/history explanatory paragraph from admin/index.html and rebuilt admin/assets.mjs and both Lambda packages successfully. AWS browser session is signed out; deployment pending. No automated tests run for copy-only removal.
+
+
+
+Analytics copy removal deployed â€” 2026-10-28: patched only the exact requested paragraph text in both current deployed Lambda archives, preserving other live changes. Both update waiters succeeded and both CloudFront admin HTML responses200 omit the paragraph. Backups saved in CloudShell ~/frost-analytics-copy-<timestamp>/*-before.zip. Local admin/index.html/assets.mjs already rebuilt successfully; no tests rerun for copy-only removal.
+
+
+
+Timed suspensions deployed â€” 2026-10-28: both existing AWS Lambda services updated, no IAM/config changes. Admin selects minutes/hours/days (server bounds1minuteâ€“365days); new suspension deadline is enforced via shared effective status, preserves epoch revocation and forced rename, and safely expires deleted-email restrictions. Legacy no-deadline suspensions and bans remain indefinite. Redesigned restriction page shows reason, local deadline, remaining time, appeal and access recheck. All129tests passed; independent review fixed raw-status consumers and stale tombstone deletion. Synthetic desktop/390px and admin dialog reviewed; live account.mjs/account.css/admin.js bytes match on both hosts. No real account moderated. Backups CloudShell ~/frost-timed-suspension-<timestamp>/*-before.zip; prefer repair-forward because old code treats timed suspensions as indefinite. Files: platform/{restrictions,accounts,control,analytics,online,staff}.mjs, platform/ui/{account.mjs,account.css,index.html}, admin/{index.html,admin.js,admin.css,assets.mjs}, tests and docs.
+
+
+
+Administrator wording deployed â€” 2026-10-28: support headings, restriction review copy, reply labels and future reply notifications now say administrator. Historical reply actor labels normalized for display. Both Lambda updates succeeded; 39 focused account/UI tests passed. Files: platform/ui/index.html, account.mjs, platform/control.mjs, admin/admin.js and generated assets.
+
+
+
+New-tab note â€” 2026-10-28: separate 160-character plain-text admin editor under Announcements; empty value hides the line under the wordmark. Authenticated TOTP and account-admin routes share the existing admin store, independent of the announcement key. Existing public announcement read carries note through the Fly cache and minute polling. Text uses textContent, wraps long content; no HTML rendering. Changed admin/index.html, admin.js, service.mjs, handler.mjs, assets.mjs; platform/staff.mjs; server.mjs; public/index.html, app.mjs, style.css; test/admin.test.mjs. Both Lambda builds and 16 focused admin/staff/deployment tests passed; desktop new-tab and editor synthetic browser checks passed. Both live admin scripts and Fly app/style bytes match. Narrow Fly image deployment-01M6212FGS3W6G34TEBC1MD1VT; rollback deployment-01M5ZX05Q989RHGYQY1W87Z22R. AWS code backups CloudShell ~/frost-new-tab-note-<timestamp>. No production note published on the owner's behalf. Screenshot .project-memory/new-tab-note/editor.png.
+
+
+
+Maintenance banner deployed â€” 2026-10-28: blue notice independent of orange outage warning. Admin Announcements has enable, local start/end and 300-character reason; immediate scheduled notice, in-progress wording at start, hides after end on next 15-second poll. Does not stop service. Both Lambda updates succeeded with code backups, no IAM/config changes. Narrow Fly deployment-01M622W979BYKCWFWNX0AM0XBF; both Machines healthy; rollback deployment-01M6212FGS3W6G34TEBC1MD1VT. Thirteen focused tests passed independently, desktop/390px banner and enabled/disabled editor reviewed. Live scripts/styles match; public maintenance is disabled, no real notice published. Files admin/{maintenance.mjs,service.mjs,handler.mjs,admin.js,index.html,admin.css,assets.mjs}, platform/staff.mjs, server.mjs, public/{maintenance-banner.mjs,index.html,style.css}, tests and docs. Proof .project-memory/maintenance-release/banner.png. History-sharing request was canceled; no related code added.
+
+
+
+404 page deployed â€” 2026-10-28: replaced main browser plain Not found response with wordmark, Lost in the frost heading and home link. Real404 for missing page routes and /404.html; HEAD omits body; missing asset text and unknown API JSON preserved; no request echo. Seven focused deployment/404 tests passed. Desktop/390px render and home navigation checked, live Fly and drst2thr825aj mirror HTML/CSS exact matches and404 status verified. Both Machines healthy on deployment-01M62763JQ902RCSNNPDY8B1MG; rollback deployment-01M622W979BYKCWFWNX0AM0XBF. Files server.mjs, public/404.html, public/404.css, test/not-found.test.mjs, docs. Narrow release .project-memory/not-found-release; live.png proof. No AWS changes; dispenser/admin routes unaffected.
+
+
+
 
 
 ## New-tab customization (local, not deployed)
+
 Full account-side /customize editor and community templates implemented; see [plan](plans/customize.md). Wordmark stays centered and mandatory, with editable validated color. Shared renderer isolated to new-tab canvas. Draft/published/previous account records and revision checks; explicit template publishing; reporting and staff/TOTP inspection/removal. No browsing history accessed. Browser checks use synthetic local accounts; production remains unchanged pending coordinated release checks.
 
-Customization deployed — 2026-10-28: both existing AWS Lambda code updates Successful; backups CloudShell ~/frost-customize-1793225214/{frost-accounts,frost-admin}-before.zip. Narrow Fly overlay image deployment-01M628TNDGD95FHPM0RCQVA7CB on both iad1GB machines, each started1/1 checks. Rollback Fly image deployment-01M62763JQ902RCSNNPDY8B1MG. No IAM/config changes. Live account editor authenticated Ready; gallery and account-admin Templates APIs loaded; both admin scripts/editor bundle exact matches; main renderer modules/CSS exact matches and health200. Mirror menu Customize entry confirmed. Prior143 automated tests passed; deployment reused tested packages. No real designs published or real templates moderated during live checks. Screenshot .project-memory/customize-release/live-editor.png.
+
+
+Customization deployed â€” 2026-10-28: both existing AWS Lambda code updates Successful; backups CloudShell ~/frost-customize-1793225214/{frost-accounts,frost-admin}-before.zip. Narrow Fly overlay image deployment-01M628TNDGD95FHPM0RCQVA7CB on both iad1GB machines, each started1/1 checks. Rollback Fly image deployment-01M62763JQ902RCSNNPDY8B1MG. No IAM/config changes. Live account editor authenticated Ready; gallery and account-admin Templates APIs loaded; both admin scripts/editor bundle exact matches; main renderer modules/CSS exact matches and health200. Mirror menu Customize entry confirmed. Prior143 automated tests passed; deployment reused tested packages. No real designs published or real templates moderated during live checks. Screenshot .project-memory/customize-release/live-editor.png.
+
+
+
 
 
 2026-10-31 versioned terms: updated disclosure distinguishes planned administrator history access from current local-only history. No history collection added. Build derives terms version from normalized document SHA-256; explicit authenticated CSRF-protected acceptance records version/time on account. All handoff, redemption, browse checks, refresh and ongoing connection checks require current acceptance. Account support, appeals, logout and deletion remain accessible. UI offers explicit unchecked agreement and account-options alternative. No production deployment or GitHub push for this change.
 
-## Admin browsing history — 2026-10-31
+
+
+## Admin browsing history â€” 2026-10-31
+
+
 
 Local implementation, not deployed or pushed. Supersedes the earlier planned/local-only history statements. After current terms acceptance, newly observed visits are sent through the authenticated browsing adapter to the existing account store. No local history backfill. Authorized staff and the TOTP owner can view the latest 100 visits within 30 days from Accounts > Browsing history; reads are audited. URL credentials, queries and fragments are stripped, titles are bounded, times are server-recorded, expired entries are filtered/pruned, and account deletion removes the row. Client reporting is best effort, not a comprehensive or tamper-proof activity log.
 
+
+
 Verification: 154/154 tests pass; admin and platform Lambda builds pass. Independent review found no remaining blockers; suggested adapter tests were added. Desktop and 390px synthetic browser dialog inspected, HTML title rendered literally, Close restores focus. No real history collected or real consent submitted. Evidence: `.project-memory/history-test-results.txt` and `.project-memory/history-mobile.png`.
+
+
 
 Release remains pending: coordinate account Lambda, admin Lambda and browsing app deployments so terms/hash/gate and collector agree. No schema or IAM change. Preserve current deployment artifacts before rollout; rollback all three components together. New history rows are additive with DynamoDB TTL; stop the collector on rollback and preserve deletion handling or explicitly remove retained synthetic history before retiring it. Earlier deployment artifacts and unrelated pending work were not modified through a release.
 
+
+
 2026-10-31 source publication: prepared on `codex/admin-browsing-history` at owner request, including prerequisite account platform code missing from main. Earlier local-only statements describe the pre-publication checkpoint. Hosting remains unchanged; no merge or deployment performed.
 
+
+
 October31 repository repair: latest GitHub already contained full account source (05cf18b and later), superseding the missing-backend warning. Repair restores README/release guidance, makes Docker build assets/tests, and packages tracked files only. Browser history transmission removed and production collector disabled pending separate clear consent. Live machines remained on v37; no live deployment authorized as part of repo repair.
+
+
+
+## Verification repair â€” 2026-11-04
+
+
+
+Deployed only the verification-handler, status-response and waiting-UI patch to the existing AWS account Lambda; saved retry changes in the private Apps Script. Full tests 162/162, independent focused review 45/45, live signed callback mismatch/recovery and anonymous-poll rejection passed. No account was created by the probe. Backups: CloudShell ~/frost-verification-fix-20261104/before.zip; Apps Script original Code.gs remains in Git HEAD before this change. Rollback Lambda with that ZIP and restore Code.gs from the preceding commit. No Fly release or unrelated account feature rollout.
+
+
+
+Remaining: Google owner OAuth is External/Testing, and Publish app is disabled until Branding is completed. Production homepage/privacy URLs are not configured; dispenser /terms.html currently returns 404. Do not claim the original intermittent outage cause is proven or future authorization expiry is resolved. See worklog/2026-11-04-verification-fix.md.
+
+
+
+## Customization retired â€” 2026-11-04
+
+
+
+Original new-tab layout restored. Editor/gallery code and dependencies removed; routes retired with410. Both Fly machines healthy on deployment-01M6M7BSBYN7AS4G1KW2AN3JX0; account and isolated admin Lambda patched narrowly. Full suite157 passed; independent review16 passed. Browser original-layout/menu preview and live route/asset checks passed. See worklog/2026-11-04-remove-customization.md.
+
+
+
+## Migration popup released â€” 2026-11-04
+
+Live dismissible server-move popup and existing announcement broadcast. Owner-authorized global browser refresh accepted after release verification. Both Fly machines healthy on deployment-01M6MB4VQJQEGEMZTFEJJ93CHT; nine focused tests pass. Local dismissal persistence and live desktop modal verified; mobile browser inspection not performed. Actual OVH migration remains paused. Details: [release record](worklog/2026-11-04-migration-popup.md).
+
+
+
+## OVH preparation verified â€” 2026-11-04
+
+Rehearsal passed persistence and browser enforcement checks. Production runtime is prepared behind a CLOSED HTTPS gate with EMPTY database and jobs disabled. Both AWS backups available. No live routing changes or AWS writer freeze yet. Six adapter tests pass plus synthetic end-to-end rehearsal and backup-restore/encryption checks. Migration scope/release gates: [OVH plan](plans/ovh-migration.md).
+
+
+
+## Administrator notifications — 2026-11-06
+Live on OVH. Account rows offer Send notification (500 characters). Delivery is account-scoped on the browsing shell and dispenser, with a dismissible green slide-down message, silent animated SVG bell, reduced-motion support, and retry on failed dismissal. Offline notes remain queued for up to 30 days. Dismissal removes popup delivery and marks the Activity notice read. Admin identity is audited, user-facing sender is Administrator. Sending limits: 5 per recipient per minute, 30 per sender per hour. Staff session is revalidated within the mutation transaction. Browser dismissal uses only the limited browse signing key. Existing open pages need one normal reload to load the new client.
+Validation: 208/208 tests passed; browser preview verified appearance, plain-text rendering, retry and queue progression. Accounts/admin deployed smoke tests passed; all 19 public routes passed; canonical dispenser, browser CSS and both admin JS assets matched source. No notifications sent to real users during testing. Rollback: /opt/frost/releases/before-notifications-theme-20261106/source.tgz.
+Changed files: platform/accounts.mjs, control.mjs, staff.mjs, owner.mjs, http.mjs, internal.mjs, ui/account.mjs; admin/admin.js, index.html, service.mjs, assets.mjs; account-access.mjs; server.mjs; public/device-access.mjs, admin-notifications.mjs, admin-notifications.css; scripts/build-platform.mjs; test/admin-notifications.test.mjs, staff.test.mjs, account-ui.test.mjs, account-client.test.mjs.

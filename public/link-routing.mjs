@@ -24,7 +24,7 @@ export function installLinkRouting(win,{base,proxyOrigin,prefix,open}) {
  };
  doc.addEventListener('click',handler,true);
  doc.addEventListener('auxclick',handler,true);
- // Keep form submissions in the browsing frame, preserving POST bodies.
+                                                                        
  doc.addEventListener('submit',event=>{
   const form=event.target;
   if(form?.tagName!=='FORM')return;
@@ -42,7 +42,7 @@ export function installLinkRouting(win,{base,proxyOrigin,prefix,open}) {
   const url=resolve(value); if(!url)return null;
   if(!win.navigator?.userActivation?.isActive)return null;
   open(url,{newTab:!['_self','_top','_parent'].includes(String(target).toLowerCase()),background:false});
-  // No native popup or fabricated WindowProxy is exposed to the website.
+                                                                         
   return null;
  };
 }

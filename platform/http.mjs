@@ -3,7 +3,6 @@ import {createStaff,staffRole,staffKey} from './staff.mjs';
 import {importResponses} from './verification-responses.mjs';
 import {createAccounts} from './accounts.mjs';
 import {createControl} from './control.mjs';
-import {createDesigns} from './designs.mjs';
 import {createVault} from './vault.mjs';
 import {verifyInternal} from './internal.mjs';
 import {atomic} from './store.mjs';
@@ -20,15 +19,23 @@ const cookie=(name,value,seconds)=>`${name}=${value}; Path=/; Secure; HttpOnly; 
 export function createPlatformService({store,config,assets={},now,legacyAdmin}){
  const accounts=createAccounts({store,config,now}),control=createControl(accounts),vault=createVault(accounts);
  const browsingHistory=createBrowsingHistory(accounts);
- const staff=createStaff(accounts,{legacyAdmin}),designs=createDesigns(accounts);
+ const staff=createStaff(accounts,{legacyAdmin});
  const base={'cache-control':'no-store','referrer-policy':'no-referrer','x-content-type-options':'nosniff','x-frame-options':'DENY','cross-origin-opener-policy':'same-origin','content-security-policy':"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"};
  const response=(statusCode,value,cookies=[])=>({statusCode,headers:{...base,'content-type':'application/json; charset=utf-8'},cookies,body:JSON.stringify(value)});
  const redirect=(location,cookies=[])=>({statusCode:303,headers:{...base,location},cookies,body:''});
  const sessions=session=>[cookie(names.access,session.access,session.expiresIn),cookie(names.refresh,session.refresh,session.refreshExpiresIn)];
  const clear=()=>[cookie(names.access,'',0),cookie(names.refresh,'',0)];
+ let noticeCache,noticePending;
+ async function publicServiceNotice(){
+  if(noticeCache&&noticeCache.until>Date.now())return noticeCache.value;
+  if(!noticePending)noticePending=(async()=>{requireThat(legacyAdmin,503,'Service notice unavailable.');const result=await legacyAdmin('/announcement',{});requireThat(result?.statusCode===200,503,'Service notice unavailable.');const raw=result.data?.maintenance;const maintenance=raw?.enabled===true?{enabled:true,type:raw.type==='disruption'?'disruption':'maintenance',reason:typeof raw.reason==='string'?raw.reason.slice(0,300):'',startsAt:raw.startsAt,endsAt:raw.endsAt}:{enabled:false};const value={maintenance};noticeCache={until:Date.now()+15000,value};return value;})().finally(()=>{noticePending=null;});
+  return noticePending;
+ }
  async function handler(event){
   try{
    const method=event.requestContext?.http?.method||'GET',path=event.rawPath||'/',headers=Object.fromEntries(Object.entries(event.headers||{}).map(([k,v])=>[k.toLowerCase(),v]));
+   if(path==='/api/terms/accept')return response(410,{error:'Terms acceptance is not required.'});
+   if(/^\/(?:customize(?:\/|$)|template-preview\.mjs$|api\/(?:design$|templates(?:\/|$)|admin\/templates(?:\/|$))|internal\/design$)/.test(path))return response(410,{error:'New-tab customization has been removed.'});
    requireThat(['GET','POST'].includes(method),405,'Method not allowed.');
    const raw=event.isBase64Encoded?Buffer.from(event.body||'','base64').toString('utf8'):event.body||'';
    requireThat(Buffer.byteLength(raw)<=280*1024,413,'Request too large.');
@@ -44,13 +51,14 @@ export function createPlatformService({store,config,assets={},now,legacyAdmin}){
     else if(path==='/internal/refresh')result=await accounts.refresh(body.refresh,'browse',body.origin);
     else if(path==='/internal/check')result=await accounts.checkBrowsing(body.access,body.origin);
     else if(path==='/internal/connection')result=await accounts.checkConnection(body.grant,body.origin);
+    else if(path==='/internal/notification-read')result=await accounts.dismissAdminNotification(body.access,body.id,{scope:'browse',origin:body.origin});
     else if(path==='/internal/history')result=await browsingHistory.record(body.access,body.origin,body.visit);
-    else if(path==='/internal/design')result=await designs.published(body.access,body.origin);
     else if(path==='/internal/vault')result=await vault.sync(body.access,body.value,{scope:'browse',origin:body.origin});
     else if(path==='/internal/preferences')result=await accounts.preferences(body.access,body.value,{scope:'browse',origin:body.origin});
     else throw new Problem(404,'Not found.');
     return response(200,result);
    }
+   if(method==='GET'&&path==='/api/announcement')return response(200,await publicServiceNotice());
    if(path==='/forms/verified'||path==='/forms/responses'){
     requireThat(method==='POST'&&config.formsSecret?.length>=32,401,'Verification unavailable.');
     const timestamp=headers['x-frost-time'];requireThat(/^\d{10}$/.test(timestamp||'')&&Math.abs(accounts.now()-Number(timestamp))<=300&&equal(headers['x-frost-signature'],hmac(config.formsSecret,`${timestamp}\n${path==='/forms/responses'?path+'\n':''}${hash(raw)}`)),401,'Invalid verification signature.');
@@ -60,12 +68,12 @@ export function createPlatformService({store,config,assets={},now,legacyAdmin}){
     requireThat(headers.origin===config.origin&&headers['content-type']?.split(';')[0]==='application/json',403,'Open the dispenser to make this request.');
     if(!['/api/register','/api/verify','/api/entry'].includes(path)){
      const bootstrap=await accounts.bootstrap(cookies[names.refresh]);
-     // Registration completion is bound to an unguessable HttpOnly poll cookie.
+                                                                                
      if(path!=='/api/register/complete'){requireThat(bootstrap.signedIn,401,'Verify your email again at the dispenser.');requireThat(equal(headers['x-frost-csrf'],bootstrap.csrf),403,'Refresh this page before continuing.');}
     }
    }
    if(['/api/verify','/api/username','/api/register','/api/entry'].includes(path)){
-    // CloudFront must overwrite this viewer header and the Lambda URL must be OAC-only.
+                                                                                        
     requireThat(isIP(viewerIp||''),503,'Request origin could not be verified.');
     await atomic(store,async tx=>{await accounts.rate(tx,'public:'+path+':'+hmac(config.internalSecret,viewerIp),30,60);await accounts.rate(tx,'public-global:'+path,500,60);});
    }
@@ -76,21 +84,25 @@ export function createPlatformService({store,config,assets={},now,legacyAdmin}){
    if(method==='GET'&&path==='/api/username')return response(200,{available:await accounts.available(query.get('name'))});
    if(method==='POST'&&['/api/verify','/api/email','/api/entry'].includes(path)){const result=await accounts.startVerification({...body,purpose:path==='/api/email'?'email':path==='/api/entry'?'entry':'login'},viewerIp,access);return response(200,{formUrl:result.formUrl,siteCode:result.siteCode,expiresIn:result.expiresIn},[cookie(names.poll,result.poll,900)]);}
    if(method==='POST'&&path==='/api/refresh'){const session=await accounts.refresh(cookies[names.refresh]);return response(200,{ok:true,csrf:session.csrf},sessions(session));}
-   if(method==='POST'&&path==='/api/terms/accept')return response(200,await accounts.acceptTerms(access,body));
    if(method==='GET'&&path==='/api/me'){const me=await accounts.me(access);return response(200,{...me,role:me.status==='active'?staffRole(await store.get(staffKey),me.frostId):'member'});}
    if(path.startsWith('/api/admin/')){requireThat(method==='POST',405,'POST required.');return response(200,await staff.run(access,path.slice('/api/admin'.length),body,headers['x-frost-csrf']));}
+   if(method==='GET'&&path==='/api/admin-notifications')return response(200,await accounts.adminNotifications(access));
+   if(method==='POST'&&path==='/api/admin-notifications/read')return response(200,await accounts.dismissAdminNotification(access,body.id));
    if(method==='GET'&&path==='/api/devices')return response(200,await accounts.devices(access));
    if(method==='POST'&&path==='/api/devices')return response(200,await accounts.deviceAction(access,body),body.action==='logout'?clear():[]);
    if(method==='POST'&&path==='/api/username')return response(200,await accounts.rename(access,body.username));
-   if(path==='/api/design')return response(200,method==='GET'?await designs.read(access):await designs.write(access,body));
-   if(path==='/api/templates'&&method==='POST')return response(200,await designs.gallery(access,body));
-   if(path==='/api/templates/publish'&&method==='POST')return response(200,await designs.publish(access,body));
-   if(path==='/api/templates/report'&&method==='POST')return response(200,await designs.report(access,body));
    if(path==='/api/preferences')return response(200,await accounts.preferences(access,method==='POST'?body:undefined));
    if(method==='GET'&&path==='/api/assignment')return response(200,await control.assignment(access));
    if(method==='POST'&&path==='/api/assignment')return response(200,await control.allocate(access));
+   if(method==='POST'&&path==='/api/assignment/rotate')return response(200,await control.rotateLink(access,body));
    if(method==='POST'&&path==='/api/handoff'){const result=await accounts.createHandoff(access,body.origin,body.binding);return response(200,{url:body.origin+'/auth/callback?code='+encodeURIComponent(result.code)});}
    if(method==='POST'&&path==='/api/reports')return response(200,await control.report(access,body));
+   if(method==='POST'&&path==='/api/support/human')return response(200,await control.requestHuman(access,body));
+   if(method==='POST'&&path==='/api/support/read')return response(200,await control.readSupport(access,body));
+   if(method==='POST'&&path==='/api/support/reply')return response(200,await control.replySupport(access,body));
+   if(method==='GET'&&path==='/api/support/thread')return response(200,await control.supportThread(access,new URLSearchParams(event.rawQueryString||'').get('id')));
+   if(method==='POST'&&path==='/api/support/close')return response(200,await control.closeSupport(access,body.id));
+   if(method==='GET'&&path==='/api/support/state')return response(200,await control.supportState(access));
    if(method==='POST'&&path==='/api/support')return response(200,await control.support(access,body));
    if(method==='GET'&&path==='/api/restriction')return response(200,await control.restriction(access));
    if(method==='POST'&&path==='/api/notifications/read')return response(200,await control.readNotice(access,body.id));
@@ -103,5 +115,5 @@ export function createPlatformService({store,config,assets={},now,legacyAdmin}){
    return response(404,{error:'Not found.'});
   }catch(error){const result=response(error instanceof Problem?error.status:503,{error:error instanceof Problem?error.message:'Account service is unavailable. Please try again.',...(['ACCOUNT_RESTRICTED','ASSIGNMENT_CHANGED','USERNAME_CHANGE_REQUIRED','TERMS_ACCEPTANCE_REQUIRED'].includes(error.code)?{code:error.code,redirect:config.origin+(error.code==='ACCOUNT_RESTRICTED'?'/appeal':'/')}:{}),...(error instanceof Problem&&error.status===429&&Number.isInteger(error.retryAfter)?{retryAfter:error.retryAfter}:{})});if(error instanceof Problem&&error.status===429&&Number.isInteger(error.retryAfter))result.headers['retry-after']=String(error.retryAfter);return result;}
  }
- return {handler,accounts,control,vault,designs,browsingHistory};
+ return {handler,accounts,control,vault,browsingHistory};
 }

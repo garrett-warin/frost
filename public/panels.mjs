@@ -9,7 +9,7 @@ const panelTitles = {
   bookmarks: "Bookmarks",
   downloads: "Downloads",
   commands: "Commands",
-  about: "About Frost",
+  about: "About Grove",
 };
 const element = (tag, className, text) => {
   const node = document.createElement(tag);
@@ -36,7 +36,7 @@ const formatBytes = (value) => {
 
 export function createPanels({ getState, actions }) {
   const dialog = document.getElementById("panel-dialog");
-  if (!dialog) throw new Error("Frost panel dialog is missing.");
+  if (!dialog) throw new Error("Grove panel dialog is missing.");
   let current = "",
     returnFocus = null,
     body,
@@ -216,7 +216,7 @@ export function createPanels({ getState, actions }) {
     appearance.append(
       row(
         "Animations",
-        "Use brief transitions and the Frost loading effect.",
+        "Use brief transitions and the Grove loading effect.",
         toggle("Animations", prefs.animations !== false, (value) =>
           setting({ animations: value }),
         ),
@@ -262,7 +262,7 @@ export function createPanels({ getState, actions }) {
     privacy.append(
       row(
         "Local history",
-        "Remove the list of websites visited in Frost.",
+        "Remove the list of websites visited in Grove.",
         button("Clear history", () =>
           run(() => actions.clearHistory(), {
             message: "Local history cleared.",
@@ -272,7 +272,7 @@ export function createPanels({ getState, actions }) {
     );
     privacy.append(
       row(
-        "Frost browsing data",
+        "Grove browsing data",
         "Clear stored browser data and start a fresh session.",
         button("Clear data…", () => {
           confirmClear = !confirmClear;
@@ -287,7 +287,7 @@ export function createPanels({ getState, actions }) {
         element(
           "p",
           "",
-          "Clear Frost’s saved data and website storage? This may sign you out of websites. Open pages may need to reload.",
+          "Clear Grove’s saved data and website storage? This may sign you out of websites. Open pages may need to reload.",
         ),
       );
       const controls = element("div", "panel-actions");
@@ -317,12 +317,12 @@ export function createPanels({ getState, actions }) {
       element(
         "p",
         "panel-description",
-        "Frost uses a local connection service. An external endpoint must accept an encoded target URL and support framing. Connection changes affect new navigations.",
+        "Grove uses a local connection service. An external endpoint must accept an encoded target URL and support framing. Connection changes affect new navigations.",
       ),
     );
     const transport = select(
       "Connection type",
-      { bonfire: "Frost", external: "External endpoint" },
+      { bonfire: "Grove", external: "External endpoint" },
       prefs.transport || "bonfire",
       (value) => {
         endpoint.disabled = value !== "external";
@@ -410,9 +410,9 @@ export function createPanels({ getState, actions }) {
   function history() {
     const tools = element("div", "panel-intro");
     tools.append(
-      element("p", "panel-description", "Websites visited on this device."),
+      element("p", "panel-description", "History is saved on the server and may be viewed by administrators."),
       button(
-        "Clear history",
+        "Clear local history",
         () =>
           run(() => actions.clearHistory(), {
             redraw: true,
@@ -430,7 +430,7 @@ export function createPanels({ getState, actions }) {
             query ? "No matching visits" : "No history yet",
             query
               ? "Try a different website or title."
-              : "Websites you visit in Frost will appear here.",
+              : "Websites you visit in Grove will appear here.",
           ),
         );
         return;
@@ -546,7 +546,7 @@ export function createPanels({ getState, actions }) {
       list.append(
         empty(
           "No downloads yet",
-          "Paste a direct file URL above to save it through Frost.",
+          "Paste a direct file URL above to save it through Grove.",
         ),
       );
       return;
@@ -678,7 +678,7 @@ export function createPanels({ getState, actions }) {
     ].filter((item) => item.label.toLowerCase().includes(query.toLowerCase()));
   }
   function commands() {
-    const search = input("Search Frost commands", "Search commands", query);
+    const search = input("Search Grove commands", "Search commands", query);
     search.autofocus = true;
     search.setAttribute("role", "combobox");
     search.setAttribute("aria-expanded", "true");
@@ -766,19 +766,19 @@ export function createPanels({ getState, actions }) {
   function about() {
     const logo = element("img", "about-wordmark");
     logo.src = "/wordmark.svg";
-    logo.alt = "frost";
+    logo.alt = "grove";
     body.append(
       logo,
-      element("p", "about-version", "Frost 1.1"),
+      element("p", "about-version", "Grove 1.1"),
       element(
         "p",
         "panel-description",
-        "Frost is a focused browser for the web.",
+        "Grove is a focused browser for the web.",
       ),
     );
     const detail = element("dl", "about-details");
     for (const [label, value] of [
-      ["Browser", "Frost"],
+      ["Browser", "Grove"],
       [
         "Connection",
         getState().settings?.transport === "external"
@@ -793,7 +793,7 @@ export function createPanels({ getState, actions }) {
       element(
         "p",
         "panel-description",
-        "Frost runs inside your browser. Some browser shortcuts and website downloads remain controlled by the host browser. Website compatibility depends on the selected connection type.",
+        "Grove runs inside your browser. Some browser shortcuts and website downloads remain controlled by the host browser. Website compatibility depends on the selected connection type.",
       ),
     );
   }

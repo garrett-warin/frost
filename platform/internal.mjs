@@ -8,7 +8,7 @@ export function signInternal(secret,path,body,now=Math.floor(Date.now()/1000)){
 export async function verifyInternal(accounts,path,body,headers){
  const {atomic}=await import('./store.mjs');
  const {store,config,now}=accounts;
- const secret=['/internal/redeem','/internal/refresh','/internal/check','/internal/connection','/internal/design','/internal/history'].includes(path)?config.browseSecret||config.internalSecret:config.internalSecret;
+ const secret=['/internal/redeem','/internal/refresh','/internal/check','/internal/connection','/internal/design','/internal/history','/internal/notification-read'].includes(path)?config.browseSecret||config.internalSecret:config.internalSecret;
  const timestamp=headers['x-frost-time'],nonce=headers['x-frost-nonce'],signature=headers['x-frost-signature'];
  requireThat(secret?.length>=32&&/^\d{10}$/.test(timestamp||'')&&Math.abs(now()-Number(timestamp))<=60&&isToken(nonce),401,'Invalid internal request.');
  requireThat(equal(signature,hmac(secret,`${timestamp}\n${nonce}\nPOST\n${path}\n${hash(body)}`)),401,'Invalid internal request.');

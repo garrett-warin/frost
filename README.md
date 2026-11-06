@@ -1,4 +1,6 @@
-# Frost
+# Grove
+
+Current production runs on OVH with PostgreSQL and Caddy; CloudFront provides public entry links. This repository was reconciled with live source on November 6, 2026. The older Fly/AWS instructions below are historical. Use [the current OVH guide](docs/OVH-DEPLOYMENT.md) and `npm run build:ovh`.
 
 Frost browser workspace, account/dispenser backend, and administrator console.
 
@@ -13,7 +15,7 @@ npm test
 npm start
 ```
 
-Local secrets belong in `.env`, never Git. Production keys remain in Fly/AWS.
+Local secrets belong in `.env`, never Git. Production keys remain on OVH, outside source control.
 
 ## Releases
 
@@ -22,14 +24,14 @@ Read [the deployment guide](docs/DEPLOYMENT.md) before publishing. A GitHub push
 - `npm run verify:release` checks a clean checkout, builds browser and AWS artifacts, runs tests, and packages source.
 - Docker builds the browser assets and runs tests itself. It no longer relies on ignored local build outputs.
 - After adding/removing files: stage them, run `npm run sync:context`, and commit the generated `.dockerignore` too. Only named source files enter the remote build context.
-- Fly updates do not update the AWS account/admin services. Coordinate authentication and terms releases across both.
+- `npm run build:ovh` assembles current browser/account/admin code without deploying. Follow the OVH guide above.
 
-History collection is disabled in production configuration; normal browsing does not report visits. Existing local history remains local. Dormant collection code is not an enabled feature or permission to activate monitoring.
+Browsing history is stored on the server and can be viewed by administrators. The History page displays the notice; current terms have no acceptance gate.
 
 ## Source map
 
-- `public/`: browser UI, Frosty, editor, terms.
-- `server.mjs` and `account-access.mjs`: Fly app and access enforcement.
+- `public/`: Grove browser UI, AI and terms.
+- `server.mjs` and `account-access.mjs`: browsing server and access enforcement.
 - `platform/`: account/dispenser backend.
 - `admin/`: isolated TOTP console.
 - `scripts/` and `test/`: builds and automated checks.

@@ -1,0 +1,100 @@
+{
+  "new": [
+    {
+      "label": "browser-1",
+      "role": "browser",
+      "id": "E29I81M2PEOX5S",
+      "domain": "dzj1ekbarcx0o.cloudfront.net"
+    },
+    {
+      "label": "browser-2",
+      "role": "browser",
+      "id": "E1FJ5Y76LTVSAY",
+      "domain": "d2b2en1f5n1ip8.cloudfront.net"
+    },
+    {
+      "label": "browser-3",
+      "role": "browser",
+      "id": "E38XR3SB4OC3FS",
+      "domain": "d26px1bdn6ok88.cloudfront.net"
+    },
+    {
+      "label": "browser-4",
+      "role": "browser",
+      "id": "E2S6A4W4SSDCJE",
+      "domain": "d243slrq91u1yp.cloudfront.net"
+    },
+    {
+      "label": "browser-5",
+      "role": "browser",
+      "id": "EYTOFVSD4V34D",
+      "domain": "ddljnl6sf6jw.cloudfront.net"
+    },
+    {
+      "label": "browser-6",
+      "role": "browser",
+      "id": "EBP0NCIVB2ZJW",
+      "domain": "d2pgpskmy7s0xp.cloudfront.net"
+    },
+    {
+      "label": "browser-7",
+      "role": "browser",
+      "id": "EKST3STBEHX36",
+      "domain": "dyw6wzlmu4nak.cloudfront.net"
+    },
+    {
+      "label": "browser-8",
+      "role": "browser",
+      "id": "E9HTWTUYMBIY7",
+      "domain": "dtqrrbb6im2l7.cloudfront.net"
+    },
+    {
+      "label": "browser-9",
+      "role": "browser",
+      "id": "EAEMBUNH8I3OL",
+      "domain": "do5pdsjmx5p0z.cloudfront.net"
+    },
+    {
+      "label": "browser-10",
+      "role": "browser",
+      "id": "EVJWFAJIGNG7U",
+      "domain": "d2qw76gdla7rs4.cloudfront.net"
+    },
+    {
+      "label": "browser-11",
+      "role": "browser",
+      "id": "E1QHIG9TUWI5QN",
+      "domain": "d1kkroxfqq5ljl.cloudfront.net"
+    },
+    {
+      "label": "browser-12",
+      "role": "browser",
+      "id": "E3ULDKX932MBZM",
+      "domain": "dekfpqxiknhql.cloudfront.net"
+    },
+    {
+      "label": "browser-13",
+      "role": "browser",
+      "id": "E1ODS22K44A5JS",
+      "domain": "dc9n2hov9l11z.cloudfront.net"
+    },
+    {
+      "label": "browser-14",
+      "role": "browser",
+      "id": "E20ZLHPD88AGFT",
+      "domain": "d3r48xaz4kvf9w.cloudfront.net"
+    },
+    {
+      "label": "browser-15",
+      "role": "browser",
+      "id": "E1PELQTVTVZW2T",
+      "domain": "dwfnlkpnmb2n.cloudfront.net"
+    },
+    {
+      "label": "accounts-1",
+      "role": "accounts",
+      "id": "ELY1B5YOAPO1R",
+      "domain": "d2bvqh2y4lapn8.cloudfront.net"
+    }
+  ]
+}

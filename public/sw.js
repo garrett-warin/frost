@@ -29,7 +29,7 @@ addEventListener("fetch", (event) => {
       })().catch(
         () =>
           new Response(
-            '<!doctype html><title>Frost connection error</title><body data-frost-error style="background:#edf1ec;color:#253b42;font:18px system-ui;padding:60px"><h1>This page couldn’t load.</h1><p>Check the address and your connection, then use Frost’s reload button. Some websites are incompatible with this browser.</p></body>',
+            '<!doctype html><title>Grove connection error</title><body data-frost-error style="background:#f2f4eb;color:#293d2e;font:18px system-ui;padding:60px"><h1>This page couldn’t load.</h1><p>Check the address and your connection, then use Grove’s reload button. Some websites are incompatible with this browser.</p></body>',
             { status: 502, headers: { "Content-Type": "text/html" } },
           ),
       ),

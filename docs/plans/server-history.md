@@ -1,0 +1,7 @@
+# Server history — November 4, 2026
+
+Owner requests new Frost visits stored with the authenticated account username and site, readable by administrators. TOS page and agreement requirement are removed at the owner's request. Disclosure belongs only in the user-facing History panel: “History is saved on the server and may be viewed by administrators.” No new TOS screen or retroactive local-history upload.
+
+Reuse the existing bounded history service and signed browsing adapter. Store server-derived username, hostname and timestamp alongside sanitized URL/title. Preserve 100-entry/30-day limits, rate limits, account deletion cleanup, staff/TOTP authorization and access auditing. Clearing local history remains local and is labeled accordingly. Visits remain best-effort client navigation reports, not tamper-proof server traffic evidence. Do not record requests for embedded assets or arbitrary network traffic.
+
+Release current tested account/admin source through existing OVH PostgreSQL/bridge adapters. Keep the current browsing engine; change only the history reporter, account adapter, panel notice, footer and retired terms-route guard. Preserve secrets, sessions, bans and stored state. Back up exact runtime files before replacement; rollback code only, retaining newly collected rows. Run full tests, independent review, compiled PostgreSQL rehearsal, then browser verification of History and admin rows without exposing other users' data.

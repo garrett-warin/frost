@@ -16,4 +16,6 @@ Latest direction: light-only UI, saved tabs alongside local history, site-only f
 
 Frosty is a dedicated optional chat page within Frost, reached from a small sparkle control. It shares the handmade branding and keeps the browsing workspace intact when users switch views. The snowman is a minimal two-snowball outline with dot eyes and a small nose. A small intact hop adds character without twisting, detached parts, or a separate animation preview.
 
-Administrators can review recent account browsing history for moderation and support, with explicit prior terms acceptance and clear limits on collection and retention.
+Administrators can review recent account browsing history for moderation and support, with the user-facing History-page notice and bounded retention. The current release has no terms-acceptance gate.
+
+Current brand (2026-11-05): Grove. Use the supplied hand-drawn lowercase green wordmark with leaf detail, forest-green accents and pale cream/green surfaces across browser, accounts and administration. This supersedes the Frost winter branding; compatibility identifiers retain their historical names.

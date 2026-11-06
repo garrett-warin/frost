@@ -5,7 +5,7 @@ import QRCode from 'qrcode';
 import { validDevice } from '../device-access.mjs';
 const digest = value => createHash('sha256').update(value).digest('hex');
 const equal = (a,b) => typeof a === 'string' && typeof b === 'string' && a.length === b.length && timingSafeEqual(Buffer.from(a),Buffer.from(b));
-export function totp(secret) { return new TOTP({issuer:'Frost',label:'Developer',algorithm:'SHA1',digits:6,period:30,secret:Secret.fromBase32(secret)}); }
+export function totp(secret) { return new TOTP({issuer:'Grove',label:'Developer',algorithm:'SHA1',digits:6,period:30,secret:Secret.fromBase32(secret)}); }
 export function createAdminService({store,assets,setupHash,owner,now=Date.now}) {
  const reply=(statusCode,data,type='application/json')=>({statusCode,headers:{'content-type':type,'cache-control':'no-store','x-content-type-options':'nosniff','referrer-policy':'no-referrer','x-frame-options':'DENY','cross-origin-opener-policy':'same-origin','content-security-policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'"},body:type==='application/json'?JSON.stringify(data):data});
  return async event=>{
@@ -18,6 +18,7 @@ export function createAdminService({store,assets,setupHash,owner,now=Date.now}) 
     return reply(200,{banned:!!await store.get('ban:'+id)});
    }
    if(method==='GET' && path==='/announcement') return reply(200,{message:(await store.get('announcement'))?.message || '',note:(await store.get('new-tab-note'))?.message || '',maintenance:await store.get('maintenance')||{enabled:false}});
+   if(/^\/(?:customize(?:\/|$)|template-preview\.mjs$|templates(?:\/|$))/.test(path))return reply(410,{error:'New-tab customization has been removed.'});
    if(method==='GET' && Object.hasOwn(assets,path)) return reply(200,assets[path].body,assets[path].type);
    if(method!=='POST') return reply(405,{error:'Method not allowed.'});
    const config=await store.get('config');
@@ -51,14 +52,14 @@ export function createAdminService({store,assets,setupHash,owner,now=Date.now}) 
    const session=/^[A-Za-z0-9_-]{43}$/.test(token)?await store.get('session:'+digest(token)):null;
    if(!session || session.expires<=Math.floor(now()/1000)) return reply(401,{error:'Sign in with a fresh authenticator code.'});
    if(path==='/logout'){await store.remove('session:'+digest(token));return reply(200,{ok:true});}
-   const ownerRoutes={'/accounts/history':'browsing-history','/templates/detail':'templates-detail','/templates/list':'templates-list','/templates/reports':'templates-reports','/templates/remove':'templates-remove','/verification/responses':'verification-responses','/browsers/refresh':'refresh','/links':'links','/links/action':'link','/accounts/assign':'assign','/dashboard':'dashboard','/accounts':'accounts','/accounts/action':'user','/activity':'list','/tickets/reply':'ticket'};
+   const ownerRoutes={'/accounts/notify':'notify','/accounts/history':'browsing-history','/templates/detail':'templates-detail','/templates/list':'templates-list','/templates/reports':'templates-reports','/templates/remove':'templates-remove','/verification/responses':'verification-responses','/browsers/refresh':'refresh','/links':'links','/links/action':'link','/accounts/assign':'assign','/dashboard':'dashboard','/accounts':'accounts','/accounts/action':'user','/activity':'list','/tickets/reply':'ticket','/tickets/create':'ticket-create'};
    if(ownerRoutes[path]){
     if(!owner)return reply(503,{error:'Account controls are not connected yet.'});
     if(path==='/activity'&&!['audit','tickets'].includes(body.kind))return reply(400,{error:'Invalid collection.'});
     const result=await owner(ownerRoutes[path],body);return reply(result.statusCode,result.data);
    }
    if(['/device/ban','/device/unban','/device/status'].includes(path)) {
-    if(!validDevice(body.device))return reply(400,{error:'Enter a complete device code from Frost.'});
+    if(!validDevice(body.device))return reply(400,{error:'Enter a complete device code from Grove.'});
     const key='ban:'+body.device;
     if(path==='/device/ban') {
      if(typeof body.reason!=='string'||body.reason.length>200)return reply(400,{error:'Keep the private note under 200 characters.'});

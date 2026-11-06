@@ -54,14 +54,14 @@ test("private, mapped, reserved, and malformed destinations fail closed", () => 
   assert.equal(isPublicAddress("1.1.1.1"), true);
   assert.equal(isPublicAddress("2606:4700:4700::1111"), true);
 });
-test("HTTP serves Frost, engine assets, and errors safely", async () => {
+test("HTTP serves Grove, engine assets, and errors safely", async () => {
   const server = createFrostServer().listen(0, "127.0.0.1");
   await once(server, "listening");
   const origin = `http://localhost:${server.address().port}`;
   try {
     const home = await fetch(origin);
     assert.equal(home.status, 200);
-    assert.match(await home.text(), /Frost/);
+    assert.match(await home.text(), /Grove/);
     const wasm = await fetch(origin + "/vendor/runtimekit.wasm");
     assert.equal(wasm.status, 200);
     assert.equal(wasm.headers.get("content-type"), "application/wasm");

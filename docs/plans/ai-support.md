@@ -1,0 +1,11 @@
+# AI support release
+
+Use existing ticket store, authenticated routes, staff claim controls and Groq provider key; no new database/framework. New support jobs share existing encrypted PostgreSQL storage and ticket expiry. Five-second account-process worker leases jobs before provider calls outside transactions and verifies revision, status, ownership, restriction and lease before committing. Public HTTP cannot forge the worker envelope. Per-user six/provider calls per minute and global thirty/minute; Groq provider failure routes humans. Existing tickets are not retroactively sent to AI.
+
+Terms source is built from public/terms.html and stripped into trusted policy text. Provider sees only subject and bounded message text/sender, no account metadata, credentials or browsing history. User-authored content is untrusted. Replies clearly labeled Grove AI; no tools or autonomous moderation. Admin summaries are labeled unverified and unavailable to user APIs.
+
+Target OVH accounts/admin containers. Backup old account/admin/run modules and root-only accounts.env before deployment. Add existing Groq credential to account container server-side without printing/exporting it; recreate account/admin services to reload. Roll back modules/run/environment and recreate services; additive ticket fields remain ignored by old code. Existing AI-mode tickets should be returned to the human queue on rollback so support notifications remain usable. No user accounts or real support tickets modified for testing.
+
+Verification: mocked provider failures/bounds/timeout, leases, concurrent workers, human takeover, new message, close, appeals/restrictions, owned handoff, public summary stripping, full suite, real synthetic Groq reply/summary, actual local API+browser flow, production service/worker and existing route smoke.
+
+Changed files: platform/support-automation.mjs, platform/support-ai-provider.mjs, platform/control.mjs, platform/accounts.mjs, platform/http.mjs, platform/handler.mjs, platform/ui/account.mjs, platform/ui/index.html, admin/admin.js, admin/admin.css, generated admin/assets.mjs, migration/run.mjs, test/support-automation.test.mjs, test/support-ai-provider.test.mjs, docs/PRD.md, docs/INDEX.md, docs/CURRENT.md, docs/ACCEPTANCE.md, and this plan.

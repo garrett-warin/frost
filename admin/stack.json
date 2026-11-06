@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Frost isolated TOTP admin console",
+  "Description": "Grove isolated TOTP admin console",
   "Parameters": {
     "CodeBucket": {
       "Type": "String"
@@ -193,7 +193,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser",
+          "Comment": "Grove browser",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -280,7 +280,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost Admin Console — TOTP protected",
+          "Comment": "Grove Admin Console — TOTP protected",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -359,7 +359,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 1",
+          "Comment": "Grove browser additional 1",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -420,7 +420,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 2",
+          "Comment": "Grove browser additional 2",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -481,7 +481,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 3",
+          "Comment": "Grove browser additional 3",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -542,7 +542,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 4",
+          "Comment": "Grove browser additional 4",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -603,7 +603,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 5",
+          "Comment": "Grove browser additional 5",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -664,7 +664,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 6",
+          "Comment": "Grove browser additional 6",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -725,7 +725,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 7",
+          "Comment": "Grove browser additional 7",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -786,7 +786,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 8",
+          "Comment": "Grove browser additional 8",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -847,7 +847,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 9",
+          "Comment": "Grove browser additional 9",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -908,7 +908,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 10",
+          "Comment": "Grove browser additional 10",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -969,7 +969,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 11",
+          "Comment": "Grove browser additional 11",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1030,7 +1030,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 12",
+          "Comment": "Grove browser additional 12",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1091,7 +1091,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 13",
+          "Comment": "Grove browser additional 13",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1152,7 +1152,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 14",
+          "Comment": "Grove browser additional 14",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1213,7 +1213,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": false,
-          "Comment": "Frost browser additional 15",
+          "Comment": "Grove browser additional 15",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1274,7 +1274,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 1",
+          "Comment": "Grove browser refresh 2026-10-29 1",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1335,7 +1335,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 2",
+          "Comment": "Grove browser refresh 2026-10-29 2",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1396,7 +1396,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 3",
+          "Comment": "Grove browser refresh 2026-10-29 3",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1457,7 +1457,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 4",
+          "Comment": "Grove browser refresh 2026-10-29 4",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1518,7 +1518,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 5",
+          "Comment": "Grove browser refresh 2026-10-29 5",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1579,7 +1579,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 6",
+          "Comment": "Grove browser refresh 2026-10-29 6",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1640,7 +1640,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 7",
+          "Comment": "Grove browser refresh 2026-10-29 7",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1701,7 +1701,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 8",
+          "Comment": "Grove browser refresh 2026-10-29 8",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1762,7 +1762,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 9",
+          "Comment": "Grove browser refresh 2026-10-29 9",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1823,7 +1823,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 10",
+          "Comment": "Grove browser refresh 2026-10-29 10",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1884,7 +1884,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 11",
+          "Comment": "Grove browser refresh 2026-10-29 11",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -1945,7 +1945,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 12",
+          "Comment": "Grove browser refresh 2026-10-29 12",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -2006,7 +2006,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 13",
+          "Comment": "Grove browser refresh 2026-10-29 13",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -2067,7 +2067,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 14",
+          "Comment": "Grove browser refresh 2026-10-29 14",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",
@@ -2128,7 +2128,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost browser refresh 2026-10-29 15",
+          "Comment": "Grove browser refresh 2026-10-29 15",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",

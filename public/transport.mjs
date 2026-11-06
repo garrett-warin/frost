@@ -54,7 +54,7 @@ export function createBrowserTransport(getSettings) {
       await checkDevice();
       if (!isSecureContext || !navigator.serviceWorker)
         throw new Error(
-          "Frost needs HTTPS or localhost with service workers enabled.",
+          "Grove needs HTTPS or localhost with service workers enabled.",
         );
       if (document.readyState === "loading")
         await new Promise((resolve) =>
@@ -64,7 +64,7 @@ export function createBrowserTransport(getSettings) {
         );
       if (!window.$runtimekitController || !window.HttpEngineTransport)
         throw new Error(
-          "Browser assets are unavailable. Run npm run build, then reload Frost.",
+          "Browser assets are unavailable. Run npm run build, then reload Grove.",
         );
       const registration = await navigator.serviceWorker.register("/sw.js", {
         scope: "/",
@@ -73,7 +73,7 @@ export function createBrowserTransport(getSettings) {
       await deadline(
         navigator.serviceWorker.ready,
         12000,
-        "The service worker did not start. Reload Frost to retry.",
+        "The service worker did not start. Reload Grove to retry.",
       );
       if (!navigator.serviceWorker.controller)
         await deadline(
@@ -91,7 +91,7 @@ export function createBrowserTransport(getSettings) {
         relay: `${location.protocol === "https:" ? "wss:" : "ws:"}//${location.host}/relay/`,
       });
       await deadline(initializeTransportOnce(transport), 15000,
-        "The connection could not start. Reload Frost to retry.");
+        "The connection could not start. Reload Grove to retry.");
       const candidate = new window.$runtimekitController.Controller({
         serviceworker: registration.active,
         transport,
@@ -105,7 +105,7 @@ export function createBrowserTransport(getSettings) {
       await deadline(
         candidate.wait(),
         15000,
-        "The browsing engine could not start. Reload Frost to retry.",
+        "The browsing engine could not start. Reload Grove to retry.",
       );
       controller = candidate;
       return controller;
@@ -185,7 +185,7 @@ export function createBrowserTransport(getSettings) {
     async request(url) {
       if (getSettings().transport !== "bonfire")
         throw new Error(
-          "File transfers are available with the Frost connection.",
+          "File transfers are available with the Grove connection.",
         );
       return (await initialize()).transport.request(
         new URL(url),

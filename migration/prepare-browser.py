@@ -1,0 +1,11 @@
+import pathlib,json,tarfile,os
+os.umask(0o077)
+source=pathlib.Path('/home/debian/frost-import');target=pathlib.Path('/opt/frost/rehearsal')
+def readenv(path):return dict(line.split('=',1) for line in path.read_text().splitlines() if line)
+config=json.loads((source/'browser-configuration.json').read_text())
+config.update(NODE_ENV='production',HOST='0.0.0.0',PORT='8080',PUBLIC_ORIGIN='https://vps-273aa89f.vps.ovh.ca',FROST_SERVER_ID='ovh-bhs-1',FROST_PRESENCE_MACHINE='',ACCOUNTS_ORIGIN_KEY=readenv(target/'accounts.env')['ORIGIN_KEY'],ADMIN_ORIGIN_KEY=readenv(target/'admin.env')['ORIGIN_KEY'])
+if any('\n' in v or '\r' in v for v in config.values()):raise ValueError('Unexpected multiline setting')
+(target/'browser.env').write_text(''.join(k+'='+v+'\n' for k,v in config.items()))
+(target/'browser').mkdir(mode=0o700,exist_ok=True)
+with tarfile.open(source/'browser-adapted.tgz') as tar:tar.extractall(target/'browser',filter='data')
+print('Private browsing rehearsal prepared')

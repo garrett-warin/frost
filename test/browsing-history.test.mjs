@@ -8,12 +8,11 @@ import {reportVisit} from '../public/browsing-history.mjs';
 import {signInternal} from '../platform/internal.mjs';
 import {memoryStore} from './helpers/platform-store.mjs';
 import {hash,token} from '../platform/security.mjs';
-import {termsVersion} from '../platform/terms-document.mjs';
 
 function fixture(){
- const store=memoryStore(),time={value:1800000000},origin='https://browse.example',config={historyCollectionEnabled:true,origin:'https://accounts.example',endpoints:[origin],assignedOnly:true,internalSecret:'a'.repeat(64),browseSecret:'b'.repeat(64),termsVersion};
+ const store=memoryStore(),time={value:1800000000},origin='https://browse.example',config={historyCollectionEnabled:true,origin:'https://accounts.example',endpoints:[origin],assignedOnly:true,internalSecret:'a'.repeat(64),browseSecret:'b'.repeat(64)};
  const service=createPlatformService({store,config,now:()=>time.value}),uid='fr_11111111-1111-1111-1111-111111111111',browse=token(),account=token(),refresh=token();
- store.rows.set('user:'+uid,{uid,email:'synthetic@example.com',username:'synthetic',status:'active',epoch:1,devices:['family'],termsAcceptedVersion:termsVersion});
+ store.rows.set('user:'+uid,{uid,email:'synthetic@example.com',username:'synthetic',status:'active',epoch:1,devices:['family']});
  store.rows.set('family:family',{fid:'family',uid,epoch:1,authAt:time.value});
  store.rows.set('assignment:'+uid,{origin});
  for(const [kind,value,scope] of [['access',browse,'browse'],['access',account,'account'],['refresh',refresh,'account']])store.rows.set(kind+':'+hash(value),{uid,fid:'family',epoch:1,scope,origin:scope==='browse'?origin:config.origin,expires:time.value+4000000});
@@ -22,12 +21,12 @@ function fixture(){
 }
 const visit={url:'https://user:password@example.com/path?secret=value#token',title:'Synthetic page'};
 test('visits are sanitized, account-bound, deduplicated and use server time',async()=>{
- const f=fixture();await f.browsingHistory.record(f.browse,f.origin,{...visit,uid:'other',recordedAt:1});await f.browsingHistory.record(f.browse,f.origin,visit);
- const result=await f.browsingHistory.read({uid:f.uid});assert.deepEqual(result.items,[{url:'https://example.com/path',title:visit.title,recordedAt:f.time.value}]);assert.equal(f.store.rows.has('browsing-history:other'),false);
+ const f=fixture();await f.browsingHistory.record(f.browse,f.origin,{...visit,uid:'other',username:'forged',site:'evil.example',recordedAt:1});await f.browsingHistory.record(f.browse,f.origin,visit);
+ const result=await f.browsingHistory.read({uid:f.uid});assert.deepEqual(result.items,[{url:'https://example.com/path',title:visit.title,username:'synthetic',site:'example.com',recordedAt:f.time.value}]);assert.equal(f.store.rows.has('browsing-history:other'),false);
  assert.throws(()=>cleanVisit({...visit,url:'javascript:alert(1)'}));assert.throws(()=>cleanVisit({...visit,title:'x'.repeat(301)}));assert.throws(()=>cleanVisit(null));
 });
-test('recording rejects missing consent, wrong scope/origin, reassignment, restrictions and revocation',async()=>{
- for(const change of [f=>f.store.rows.get('user:'+f.uid).termsAcceptedVersion='old',f=>f.store.rows.get('user:'+f.uid).status='banned',f=>f.store.rows.get('family:family').revoked=true,f=>f.store.rows.get('assignment:'+f.uid).origin='https://other.example']){
+test('recording rejects wrong scope/origin, reassignment, restrictions and revocation',async()=>{
+ for(const change of [f=>f.store.rows.get('user:'+f.uid).status='banned',f=>f.store.rows.get('family:family').revoked=true,f=>f.store.rows.get('assignment:'+f.uid).origin='https://other.example']){
   const f=fixture();change(f);await assert.rejects(f.browsingHistory.record(f.browse,f.origin,visit));assert.equal(f.store.rows.has('browsing-history:'+f.uid),false);
  }
  const f=fixture();await assert.rejects(f.browsingHistory.record(f.account,f.origin,visit));await assert.rejects(f.browsingHistory.record(f.browse,'https://other.example',visit));
@@ -64,6 +63,4 @@ test('client sends one sanitized new visit and tolerates delivery failure',async
  await reportVisit(visit,async()=>{throw Error('offline');});
 });
 
-test('production configuration disables collection even if an environment flag is set',async()=>{const {platformConfig}=await import('../platform/config.mjs');const config=platformConfig({FROST_INTERNAL_SECRET:'a'.repeat(64),FROST_HISTORY_COLLECTION_ENABLED:'true'},{origin:'https://accounts.example',endpoints:['https://browse.example']});assert.equal(config.historyCollectionEnabled,false);const f=fixture();delete f.config.historyCollectionEnabled;await assert.rejects(f.browsingHistory.record(f.browse,f.origin,visit),/disabled/);assert.equal(f.store.rows.has('browsing-history:'+f.uid),false);});
-
-test('normal browsing has no automatic history reporting call',async()=>{const {readFile}=await import('node:fs/promises');const app=await readFile(new URL('../public/app.mjs',import.meta.url),'utf8');assert.doesNotMatch(app,/reportVisit|browsing-history\.mjs/);});
+test('production collection is enabled and browser reports new visits',async()=>{const {platformConfig}=await import('../platform/config.mjs');const config=platformConfig({FROST_INTERNAL_SECRET:'a'.repeat(64)},{origin:'https://accounts.example',endpoints:['https://browse.example']});assert.equal(config.historyCollectionEnabled,true);const {readFile}=await import('node:fs/promises');const app=await readFile(new URL('../public/app.mjs',import.meta.url),'utf8');assert.match(app,/void reportVisit\(\{url:tab.url,title:tab.title\}\)/);});

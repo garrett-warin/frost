@@ -82,7 +82,7 @@ test('maintenance publishing is authenticated, validates dates and preserves oth
  assert.equal((await f.call('/maintenance/publish',{...value,endsAt:0},session)).status,400);
  assert.equal((await f.call('/maintenance/publish',value,session)).status,200);
  await f.call('/publish',{message:'Hello'},session);
- assert.deepEqual(f.rows.get('maintenance'),value);
+ assert.deepEqual(f.rows.get('maintenance'),{...value,type:'maintenance'});
  assert.equal((await f.call('/maintenance/publish',{enabled:false},session)).status,200);
  assert.deepEqual(f.rows.get('maintenance'),{enabled:false});assert.equal(f.rows.get('announcement').message,'Hello');
 });

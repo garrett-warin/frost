@@ -1,5 +1,5 @@
-// Each loaded browser observes its baseline, then acts once on a newer command.
-// A fresh document is already up to date; old commands never trigger reload loops.
+                                                                                
+                                                                                   
 export function createBrowserRefresh(refresh) {
  let baseline, requested=false;
  return value=>{

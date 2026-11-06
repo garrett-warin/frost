@@ -14,4 +14,4 @@ run(process.execPath,['--test',...readdirSync('test').filter(x=>x.endsWith('.tes
 run(process.execPath,['scripts/build-admin.mjs']);
 run(process.execPath,['scripts/build-platform.mjs']);
 run(process.execPath,['scripts/package-source.mjs']);
-console.log('Release checks passed. AWS account/admin updates are separate from Fly. Review docs/DEPLOYMENT.md before publishing.');
+console.log('Release checks passed. Production uses OVH; run npm run build:ovh and follow docs/DEPLOYMENT.md.');

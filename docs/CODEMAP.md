@@ -85,3 +85,17 @@ Terms: public/terms.html is canonical document; scripts/build-terms.mjs generate
 History: platform/browsing-history.mjs owns bounded account storage and audited reads; public/browsing-history.mjs sends new visits from app.mjs through account-access.mjs. platform/{http,internal,staff,owner,control}.mjs and admin/service.mjs route authenticated operations and deletion. admin/{admin.js,index.html,admin.css} render the viewer. test/browsing-history.test.mjs plus account-access.test.mjs cover boundaries.
 
 Release tooling: scripts/verify-release.mjs enforces clean checkout/submodule/context and builds/tests/packages; scripts/build-context.mjs generates exact .dockerignore from staged source paths; scripts/package-source.mjs packages tracked files only. Docker has build/test and minimal runtime stages with a runtime HTTP smoke check.
+
+## Removed 2026-11-04
+
+public/customize, platform/designs.mjs, platform/design-validation.mjs and scripts/build-customize.mjs removed. Retirement guards live in server.mjs, account-access.mjs, platform/http.mjs, platform/owner.mjs, platform/staff.mjs and admin/service.mjs. Original landing remains public/index.html and public/app.mjs.
+
+- Migration popup: public/migration-notice.mjs, .css and .json; loaded by public/index.html. Set enabled=false in JSON to withdraw; change id for a new acknowledgement cycle. Test: test/migration-notice.test.mjs.
+
+- migration/: PostgreSQL account/admin adapters, trusted HTTP bridges, pinned-live-artifact build scripts, isolated rehearsal/import/integrity tools, protected Caddy/Compose configuration, encrypted backup timer and explicit CloudShell cutover steps. OVH is live; see plans/ovh-migration.md and migration/README.md.
+
+- Active server history: public/browsing-history.mjs + app.mjs new-visit hook → account-access.mjs signed adapter → platform/browsing-history.mjs authenticated records; admin/admin.js renders username/site/time. TOS routes retired. migration/build-source-update.py adapts freshly tested account/admin builds to the existing OVH storage and private bridge.
+
+- Dispenser aliases: platform/config.mjs settingsForAccountHost and platform/handler.mjs per-host initialization; test/account-origin.test.mjs. migration/create-dispenser.py creates/activates a disabled clone; switch-dispenser.mjs stages/activates/restores only deployment-config. Caddyfile and account PUBLIC_HOSTS explicitly allow both dispenser domains.
+
+- Support: platform/control.mjs guard, lifecycle, claims and chat; platform/http.mjs user endpoints; platform/staff.mjs protected admin routing. admin/admin.js renders separate queue/chat/audit panels; platform/ui/account.mjs user chat. platform/accounts.mjs supplies role-gated supportUnclaimed through server.mjs /api/device; public/device-access.mjs renders notification.

@@ -1,10 +1,11 @@
 export function outageMessage(data, now = Date.now()) {
   const valid = ['healthy', 'unavailable', 'unreachable', 'unknown'];
   if (!data || !Number.isFinite(data.checkedAt) || now - data.checkedAt > 60000 || data.checkedAt > now + 5000 ||
-      !Array.isArray(data.servers) || data.servers.length !== 2 ||
+      !Array.isArray(data.servers) || !([1,2].includes(data.servers.length)) ||
       data.servers.some(server => !server || !valid.includes(server.status))) return null;
   const healthy = data.servers.filter(server => server.status === 'healthy').length;
-  if (healthy === 2) return '';
+  if (healthy === data.servers.length) return '';
+  if(data.servers.length===1) return 'Outage: Frost’s server is not responding normally. Please try again shortly.';
   const failed = data.servers.some(server => ['unavailable', 'unreachable'].includes(server.status));
   if (healthy === 1) return failed
     ? 'Outage: One server is unavailable. New connections will use the healthy server. If a page stops loading, refresh it.'

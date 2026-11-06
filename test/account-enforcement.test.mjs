@@ -18,7 +18,7 @@ async function fixture(t,{aiFetch}={}){
  for(const origin of config.endpoints)await service.control.admin('endpoint',{origin,action:'operational',reason:'Test fixture'});
  const pending=await service.accounts.register({email:'gate@example.com',username:'gate_user'},'test');
  await service.accounts.verifiedEvent({formId:'test',eventId:token(),email:'gate@example.com',correlation:pending.siteCode});
- const account=await service.accounts.completeRegistration(pending.poll,'test'),user=await service.accounts.me(account.access);await service.accounts.acceptTerms(account.access,{accept:true,version:user.terms.version});
+ const account=await service.accounts.completeRegistration(pending.poll,'test'),user=await service.accounts.me(account.access);
  await service.control.admin('assign',{uid:user.frostId,origin:mirror,reason:'Fixture mirror'});
  const binding=token(),handoff=await service.accounts.createHandoff(account.access,mirror,binding),browse=await service.accounts.redeem(handoff.code,mirror,binding);
  const cookie='__Host-frost-browse='+browse.access+'; __Host-frost-browse-refresh='+browse.refresh;
@@ -47,7 +47,7 @@ test('real server requires grants, returns minimal status, and never mounts priv
  const valid=await f.request('/api/account/status');assert.equal(valid.status,200);assert.deepEqual(await valid.json(),{allowed:true});
  assert.equal((await f.request('/')).status,200);
  for(const path of ['/api/account/session','/api/account/vault','/api/account/preferences'])for(const method of ['GET','POST'])assert.equal((await f.request(path,{method,body:method==='POST'?'{}':undefined})).status,404);
- // The Fly-derived key cannot call storage even if someone adds a route later.
+                                                                               
  const path='/internal/vault',body=JSON.stringify({origin:f.mirror,access:token()});
  const result=await f.service.handler({rawPath:path,requestContext:{http:{method:'POST'}},headers:signInternal(f.browseSecret,path,body),body});assert.equal(result.statusCode,401);
 });
@@ -110,4 +110,21 @@ test('authenticated device polling delivers only that account’s refresh revisi
  await f.service.control.admin('refresh',{scope:'account',uid:f.user.frostId,reason:'Deploy test'});
  const second=await f.request('/api/device');assert.deepEqual((await second.json()).refresh,{all:0,account:1});
  const anonymous=await f.request('/api/device',{credential:''});assert.equal(anonymous.status,401);assert.equal((await anonymous.json()).refresh,undefined);
+});
+
+test('main-site support notification is minimal, admin-only, and disappears on role removal',async t=>{
+ const f=await fixture(t),store=f.service.accounts.store;
+ await store.commit([{id:'ticket:signal',version:null,write:true,value:{kind:'tickets',sort:'1',id:'signal',status:'open',subject:'Private subject',uid:'private-user',expires:Math.floor(Date.now()/1000)+3600}}]);
+ assert.equal(Object.hasOwn(await (await f.request('/api/device')).json(),'supportUnclaimed'),false);
+ await store.commit([{id:'staff-roster',version:null,write:true,value:{owner:f.user.frostId,admins:[]}}]);
+ const data=await (await f.request('/api/device')).json();assert.equal(data.supportUnclaimed,true);assert.equal(JSON.stringify(data).includes('Private subject'),false);assert.equal(JSON.stringify(data).includes('private-user'),false);
+ const roster=await store.get('staff-roster');await store.commit([{id:'staff-roster',version:roster._v,write:true,value:{owner:'someone-else',admins:[]}}]);
+ assert.equal(Object.hasOwn(await (await f.request('/api/device')).json(),'supportUnclaimed'),false);
+});
+
+test('main site gets only its own unread support signal without message contents',async t=>{
+ const f=await fixture(t),store=f.service.accounts.store;
+ await f.service.control.admin('ticket-create',{uid:f.user.frostId,subject:'Private outreach',message:'Private message'});
+ const data=await (await f.request('/api/device')).json();assert.equal(data.supportUnread,true);assert.equal(JSON.stringify(data).includes('Private'),false);
+ const denied=await f.request('/api/device',{credential:''});assert.equal(denied.status,401);assert.equal((await denied.json()).supportUnread,undefined);
 });

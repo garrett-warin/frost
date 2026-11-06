@@ -1,6 +1,6 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
-  "Description": "Frost isolated account dispenser; browsing integration remains disabled",
+  "Description": "Grove isolated account dispenser; browsing integration remains disabled",
   "Parameters": {
     "CodeBucket": {
       "Type": "String"
@@ -213,7 +213,7 @@
       "Properties": {
         "DistributionConfig": {
           "Enabled": true,
-          "Comment": "Frost account dispenser",
+          "Comment": "Grove account dispenser",
           "HttpVersion": "http2",
           "IPV6Enabled": true,
           "PriceClass": "PriceClass_100",

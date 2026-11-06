@@ -1,5 +1,7 @@
 # Acceptance
 
+Repository synchronization:208tests pass; independent live-code semantic comparison and assembled browser startup pass. Required licenses/directives retained; no private runtime data in Git. See worklog/2026-11-06-live-repo-sync.md.
+
 Status: seven regression tests and JavaScript syntax check passed after the handmade theme; browser acceptance remains scoped and partial. Last updated: 2026-10-20.
 
 | Requirements | Observable acceptance |
@@ -143,3 +145,60 @@ Release remains pending: coordinate account Lambda, admin Lambda and browsing ap
 Repository release acceptance: test clean-clone build and full suite, both AWS package builds, exact tracked-source archive isolation, generated context allowlist, and a remote build-only container run. No production rollout in this task.
 
 Repository repair verified: clean dependency install (0 npm audit findings), browser/account/admin builds passed, tracked-source sentinel isolation passed, secret-pattern scan found no matches, independent20test review passed, and remote Linux Docker build-only passed all156tests plus final runtime /health,/app.mjs,/source.zip smoke checks. Initial Linux build caught a backslash-path portability bug, now explicitly rejected on both OSes. Build-only image deployment-01M69JECZ6H9J6TNTMJEVN7Q7X was not deployed.
+
+## Verification reliability — 2026-11-04
+
+Mismatch rejects authentication, poll-holder receives EMAIL_MISMATCH, anonymous polling fails, and correct resubmission clears the error. UI keeps the explanation through manual checking and clears it on success. Apps Script tests cover authentication/network failures, unexpected bodies, expiry, corrupt queue items, and Google inspection failure/recovery. Full suite: 162 passed. Live synthetic callback test passed mismatch/recovery/anonymous-poll checks without creating an account. Live signed Apps Script connection probe passed. Historical outage cause remains unproven; Google Testing configuration remains unresolved.
+
+## Customization retirement — 2026-11-04
+
+Original new-tab markup renders without custom design requests or renderer. Menu/account/admin no editor/gallery controls. Retired routes return410 even with stale assets and encoded Fly paths. Invalid URLs return400 without killing server; admin lock clears session without removed DOM. Full suite157 passed;16 independently reviewed tests passed.
+
+## Migration notice acceptance
+Verify valid/invalid notice data, acknowledgement after reload, blocked storage fallback, Escape, notice withdrawal, safe literal text, and actual browser appearance. Existing clients need one reload for the new module. Owner authorized global refresh only after live assets are verified.
+
+## OVH migration acceptance
+Require real PostgreSQL transaction/concurrency tests, isolated-origin authorization tests, encrypted export/import integrity comparisons, live login/Form/handoff/browsing/WebSocket/Frosty checks, persisted state recovery, TOTP replay rejection, backup restore and an explicit rollback boundary. Do not switch traffic before SSH setup and rehearsal are verified. Do not roll back to stale account state after accepting writes on OVH.
+
+## Server history revision
+Verify spoofed identity ignored; no anonymous/member access; revoked admin/ban/assignment restrictions enforced; credentials/query/fragment stripped; no old local-history upload; 100-entry/30-day retention; deleted-account cleanup; TOS routes410 and sign-in/handoff works without acceptance; History notice and local-clear labeling; compiled OVH runtime and browser admin viewer.
+
+## Replacement dispenser
+Require exact HTTPS alias validation, old-session refresh, cross-origin CSRF/session rejection, shared-account identity, protected HTTPS gateway checks, new public sign-in UI, browser default configuration, and all existing public routes. Do not retire the old Form callback hostname.
+
+## Support workspace
+Verify concurrent one-open enforcement and legacy open requests; ownership/CSRF/member denial; protected-owner link assignment; no healthy alternative leaves assignment unchanged; claim conflicts and unclaim ownership; stale replies preserve closed state; anonymous replies including legacy entries; real audit identity; safe chat text, draft preservation and responsive layout. Admin signal must omit for members/revoked roles, contain no ticket contents, and clear on errors.
+
+
+## Main-site support and administrator outreach — 2026-11-05
+
+Support initiation: test staff-only authorization, account isolation, concurrent one-open limit, anonymous initial message, claim ownership, stale read receipt vs new reply, both-direction unread state, menu route and main notifications. Verify synthetic chat browser flows and preserve live tickets.
+
+
+## Shared service notices — 2026-11-05
+
+Validate allowed notice types, backward-compatible default, schedule/expiry/disable, public read-only dispenser response excludes other bridge fields, coalesced caching, admin-only publish, visible signed-out notice and both color/label variants.
+
+Username rules: public route200; creation/forced-rename links open separately; account/TOTP admin links resolve; desktop/mobile readable.176regression tests and live markup/smoke checks passed2026-11-05.
+
+Weekly link replacement: verify confirmation, changed origin, account isolation, exact seven-day boundary, concurrent requests, no available replacements, CSRF/auth/restriction rejection, reload and cooldown display. Automated tests and local browser fixture passed; live assets, unauthenticated denial, account smoke and 19 public routes verified.
+
+Grove rebrand acceptance: verify browser, account, admin and error branding; wordmarks and green accents; new #ai and legacy #frosty routes; unchanged cookie/storage/internal API identities; full regression tests; guarded live source comparison and service smoke checks. Do not rewrite user-authored or historical stored content.
+
+Admin presence: 75-second boundary, role/status/family checks, safe rendering and no emails. Username reset: staff protections, collision handling, name-index consistency, old-name restriction, preserved access and full-ID browser confirmation. 183 tests passed; live controls and service smoke verified.
+
+
+Grove terms:183 tests passed; public unauthenticated terms, retired acceptance endpoint, no agreement gate, restriction link, browser GET/HEAD, live16origin content match and19route smoke verified. No live account restricted for testing.
+
+
+AI support:196 tests passed; worker concurrency/takeover/new-message/close, human ownership, appeal restrictions, provider bounded/error behavior and summary isolation. Synthetic local browser and real deployed provider/worker flow passed; no real ticket modified.
+
+Appeal advisory:198 tests passed; strict enum/rationale, private projection, unchanged ban, requeue reset and fallback. Local admin browser and real provider schema verified; both service smoke/asset checks passed.
+
+Head admins:202 tests passed; owner-only promotion, head regular-admin add/remove/ban, owner/peer protection, demotion/removal same-session denial and stale-head resurrection tested. Synthetic UI promotion and live service/assets passed; no real role modified.
+
+
+## Administrator notifications — 2026-11-06
+Live on OVH. Account rows offer Send notification (500 characters). Delivery is account-scoped on the browsing shell and dispenser, with a dismissible green slide-down message, silent animated SVG bell, reduced-motion support, and retry on failed dismissal. Offline notes remain queued for up to 30 days. Dismissal removes popup delivery and marks the Activity notice read. Admin identity is audited, user-facing sender is Administrator. Sending limits: 5 per recipient per minute, 30 per sender per hour. Staff session is revalidated within the mutation transaction. Browser dismissal uses only the limited browse signing key. Existing open pages need one normal reload to load the new client.
+Validation: 208/208 tests passed; browser preview verified appearance, plain-text rendering, retry and queue progression. Accounts/admin deployed smoke tests passed; all 19 public routes passed; canonical dispenser, browser CSS and both admin JS assets matched source. No notifications sent to real users during testing. Rollback: /opt/frost/releases/before-notifications-theme-20261106/source.tgz.
+Changed files: platform/accounts.mjs, control.mjs, staff.mjs, owner.mjs, http.mjs, internal.mjs, ui/account.mjs; admin/admin.js, index.html, service.mjs, assets.mjs; account-access.mjs; server.mjs; public/device-access.mjs, admin-notifications.mjs, admin-notifications.css; scripts/build-platform.mjs; test/admin-notifications.test.mjs, staff.test.mjs, account-ui.test.mjs, account-client.test.mjs.

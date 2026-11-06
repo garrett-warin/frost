@@ -1,0 +1,54 @@
+{
+  admin off
+  log default {
+    exclude http.log.error
+  }
+}
+vps-273aa89f.vps.ovh.ca {
+  @paused file {
+    root /gate
+    try_files paused
+  }
+  handle @paused {
+    header Retry-After 120
+    respond "Frost is moving servers. Please try again shortly." 503
+  }
+  @accounts {
+    header X-Frost-Service accounts
+    header X-Frost-Origin-Key {$ACCOUNTS_ORIGIN_KEY}
+    header X-Frost-Public-Host d3mbml114oiqni.cloudfront.net
+    header X-Frost-Public-Host d3mwcpxtmhbydi.cloudfront.net
+    header X-Frost-Public-Host d2bvqh2y4lapn8.cloudfront.net
+  }
+  handle @accounts {
+    @oldEntry {
+      header X-Frost-Public-Host d3mbml114oiqni.cloudfront.net
+      header X-Frost-Public-Host d3mwcpxtmhbydi.cloudfront.net
+      method GET HEAD
+      not path /api /api/* /forms /forms/* /internal /internal/*
+    }
+    redir @oldEntry https://d2bvqh2y4lapn8.cloudfront.net{uri} 302
+    reverse_proxy accounts:8080
+  }
+  @admin {
+    header X-Frost-Service admin
+    header X-Frost-Origin-Key {$ADMIN_ORIGIN_KEY}
+    header X-Frost-Public-Host d2ftxdtd3x015d.cloudfront.net
+  }
+  handle @admin {
+    reverse_proxy admin:8080
+  }
+  @browser {
+    header X-Frost-Service browser
+    header X-Frost-Origin-Key {$BROWSER_ORIGIN_KEY}
+  }
+  handle @browser {
+    reverse_proxy browser:8080 {
+      header_up Host vps-273aa89f.vps.ovh.ca
+      header_up X-Frost-Viewer-Origin "https://{http.request.header.X-Frost-Public-Host}"
+      header_up -X-Frost-Origin-Key
+      stream_close_delay 5m
+    }
+  }
+  respond "Forbidden" 403
+}

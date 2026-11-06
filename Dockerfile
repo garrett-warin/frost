@@ -2,8 +2,8 @@ FROM node:22-alpine AS build
 WORKDIR /src
 RUN apk add --no-cache git
 COPY . .
-# The allowlisted build context contains source only; create an index for the
-# source archive without transferring the developer's Git history or credentials.
+                                                                             
+                                                                                 
 RUN git init && git add . && npm ci --ignore-scripts && npm run build && npm test && npm run package:source
 
 FROM node:22-alpine AS runtime

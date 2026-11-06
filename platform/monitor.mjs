@@ -39,7 +39,7 @@ export function createMonitor(accounts,control,{probe=probeEndpoint}={}){
   await tx.put(key,changed);
  });}
  async function tick(){
-  // A lease prevents overlapping EventBridge deliveries from doubling samples.
+                                                                               
   const acquired=await atomic(store,async tx=>{const lease=await tx.get('monitor-lease');if(lease?.expires>now())return false;await tx.put('monitor-lease',{expires:now()+config.monitorIntervalSeconds});return true;});
   if(!acquired)return {skipped:true};
   for(const origin of config.endpoints){const endpoint=await store.get('endpoint:'+hash(origin));if(!endpoint||endpoint.override==='retired')continue;await record(origin,await probe(origin,{timeout:config.probeTimeoutMs}));}

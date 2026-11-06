@@ -1,5 +1,10 @@
 # Frost project index
 
+- [Current OVH deployment](OVH-DEPLOYMENT.md)
+- [Live repository reconciliation](worklog/2026-11-06-live-repo-sync.md)
+
+- [Grove TOS original review draft](drafts/grove-terms/README.md) — November 6, 2026; approved and published; see CURRENT.md.
+
 Read in order:
 
 1. [Current state](CURRENT.md)
@@ -62,3 +67,30 @@ This supersedes older pending-provider status above: Groq was deployed in the pr
 2026-10-31 source publication: prepared on `codex/admin-browsing-history` at owner request, including prerequisite account platform code missing from main. Earlier local-only statements describe the pre-publication checkpoint. Hosting remains unchanged; no merge or deployment performed.
 
 - [Deployment from a clean checkout](DEPLOYMENT.md)
+
+- [Verification reliability repair](worklog/2026-11-04-verification-fix.md)
+
+- [Customization retirement](worklog/2026-11-04-remove-customization.md)
+
+- [Migration popup](worklog/2026-11-04-migration-popup.md)
+
+- [OVH migration plan](plans/ovh-migration.md)
+
+- [Server history and TOS retirement](plans/server-history.md)
+
+- [Replacement dispenser rollout](plans/dispenser-replacement.md)
+
+- [Support workspace release](plans/support-workspace.md)
+
+- [Account site-data sync investigation](plans/account-site-storage.md) — garretts.space DNS/certificate provisioned; runtime isolation and sync still pending.
+
+- [Fresh link rotation and evidence](worklog/2026-11-05-fresh-links.md)
+- [November5public links](FROST-LINKS-2026-11-05.md)
+
+- [Username rules release](worklog/2026-11-05-username-rules.md)
+
+- [Weekly link replacement](worklog/2026-11-05-weekly-link.md)
+
+- [Grove rebrand](worklog/2026-11-05-grove-rebrand.md)
+
+- [AI support release plan](plans/ai-support.md)

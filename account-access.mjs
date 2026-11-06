@@ -1,8 +1,8 @@
 import {signInternal} from './platform/internal.mjs';
 import {token,hmac,isToken} from './platform/security.mjs';
 
-// Ban-only gate. Account storage APIs must not be exposed to browsed content.
-// This adapter never forwards dispenser management credentials to a browsing site.
+                                                                              
+                                                                                   
 export function createAccountAccess({dispenserOrigin,internalSecret,fetchService=fetch,now=()=>Math.floor(Date.now()/1000)}){
  const parsed=new URL(dispenserOrigin);
  if(parsed.protocol!=='https:'||parsed.origin!==dispenserOrigin||internalSecret?.length<32)throw Error('Invalid account service configuration.');
@@ -30,14 +30,14 @@ export function createAccountAccess({dispenserOrigin,internalSecret,fetchService
   let access=read(req,accessName),info;
   if(isToken(access))try{info=checked(await remote('/internal/check',{access,origin}));return {access,...info};}catch(error){if(error.status!==401)throw error;}
   const refresh=read(req,refreshName);if(!isToken(refresh))throw Object.assign(new Error('Sign in to continue.'),{status:401});
-  // Concurrent requests on this machine share a single rotation; cross-machine
-  // conflicts return 409 for the browser to retry once its shared cookie updates.
+                                                                               
+                                                                                  
   const key=hmac(internalSecret,origin+':'+refresh);let pending=flights.get(key);
   if(!pending){pending=remote('/internal/refresh',{refresh,origin});flights.set(key,pending);pending.finally(()=>flights.delete(key)).catch(()=>{});}
   const next=issued(await pending);set(res,[cookie(accessName,next.access,next.expiresIn),cookie(refreshName,next.refresh,next.refreshExpiresIn)]);access=next.access;info=checked(await remote('/internal/check',{access,origin}));return {access,...info};
  }
  function deny(req,res,error){
-  const restricted=error.code==='ACCOUNT_RESTRICTED',reassigned=['ASSIGNMENT_CHANGED','USERNAME_CHANGE_REQUIRED','TERMS_ACCEPTANCE_REQUIRED'].includes(error.code);const destination=dispenserOrigin+(restricted?'/appeal':reassigned?'/':'/?verify=1');
+  const restricted=error.code==='ACCOUNT_RESTRICTED',reassigned=['ASSIGNMENT_CHANGED','USERNAME_CHANGE_REQUIRED'].includes(error.code);const destination=dispenserOrigin+(restricted?'/appeal':reassigned?'/':'/?verify=1');
   if(restricted||reassigned||error.status===401){clear(res);if(!req.url.startsWith('/api/'))return redirect(res,destination);}
   const status=[400,401,403,409,413].includes(error.status)?error.status:503;
   res.writeHead(status,{...base,'Content-Type':'application/json'}).end(JSON.stringify({error:status===503?'Account service unavailable. Try again shortly.':error.message,...(restricted||reassigned||status===401?{redirect:destination}:{})}));
@@ -52,7 +52,7 @@ export function createAccountAccess({dispenserOrigin,internalSecret,fetchService
      const binding=token();set(res,[cookie(bindingName,binding,600)]);const target=new URL('/open',dispenserOrigin);target.searchParams.set('origin',origin);target.searchParams.set('binding',binding);redirect(res,target.href);return true;
     }
     if(url.pathname==='/auth/callback'&&req.method==='GET'){
-     const code=url.searchParams.get('code'),binding=read(req,bindingName);if(!isToken(code)||!isToken(binding))throw Object.assign(new Error('Sign-in link expired. Open Frost from the dispenser again.'),{status:401});
+     const code=url.searchParams.get('code'),binding=read(req,bindingName);if(!isToken(code)||!isToken(binding))throw Object.assign(new Error('Sign-in link expired. Open Grove from the dispenser again.'),{status:401});
      const next=issued(await remote('/internal/redeem',{code,binding,origin}));set(res,[cookie(accessName,next.access,next.expiresIn),cookie(refreshName,next.refresh,next.refreshExpiresIn),cookie(bindingName,'',0)]);redirect(res,'/');return true;
     }
     if(url.pathname==='/api/account/history'){
@@ -64,7 +64,13 @@ export function createAccountAccess({dispenserOrigin,internalSecret,fetchService
      const result=await remote('/internal/history',{access:auth.access,origin,visit});
      res.writeHead(200,{...base,'Content-Type':'application/json'}).end(JSON.stringify(result));return true;
     }
-    if(url.pathname==='/api/account/design'){if(req.method!=='GET'){res.writeHead(405,base).end();return true;}const auth=await credentials(req,res,origin),data=await remote('/internal/design',{access:auth.access,origin});res.writeHead(200,{...base,'Content-Type':'application/json'}).end(JSON.stringify(data));return true;}
+    if(url.pathname==='/api/account/notification-read'){
+     if(req.method!=='POST'){res.writeHead(405,base).end();return true;}
+     if(req.headers.origin!==origin||req.headers['content-type']?.split(';')[0]!=='application/json')throw Object.assign(new Error('Invalid notification request.'),{status:403});
+     const chunks=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>1024)throw Object.assign(new Error('Request too large.'),{status:413});chunks.push(chunk);}let body;try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{throw Object.assign(new Error('Invalid JSON.'),{status:400});}
+     const auth=await credentials(req,res,origin);const result=await remote('/internal/notification-read',{access:auth.access,origin,id:body?.id});res.writeHead(200,{...base,'Content-Type':'application/json'}).end(JSON.stringify(result));return true;
+    }
+    if(url.pathname==='/api/account/design'){res.writeHead(410,base).end();return true;}
     if(url.pathname!=='/api/account/status')return false;
     if(req.method!=='GET'){res.writeHead(405,base).end();return true;}
     await credentials(req,res,origin);

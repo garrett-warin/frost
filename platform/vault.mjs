@@ -18,7 +18,7 @@ export function cleanTabs(value){
   requireThat(object(tab)&&typeof tab.id==='string'&&/^[a-zA-Z0-9_-]{1,80}$/.test(tab.id)&&!ids.has(tab.id),400,'Invalid tab identifier.');ids.add(tab.id);
   requireThat(typeof tab.title==='string'&&tab.title.length<=120,400,'Invalid tab title.');
   const url=pageUrl(tab.url);
-  // Navigation history, favicons, page text and arbitrary properties are never synced.
+                                                                                       
   return {id:tab.id,title:tab.title,url,home:tab.home===true||!url};
  });
  requireThat(value.activeId===null&&tabs.length===0||ids.has(value.activeId),400,'Choose an existing active tab.');
@@ -47,7 +47,7 @@ export function cleanCookies(value,now=Date.now()){
 
 export function createVault(accounts){
  const {store,config,now,authorize}=accounts;
- // Provision a dedicated random 256-bit key; never derive it from public IDs.
+                                                                              
  const key=Buffer.from(config.vaultKey||'','base64');
  const ready=()=>requireThat(key.length===32,503,'Account storage is not configured yet.');
  const aad=uid=>Buffer.from('frost-account-vault:v1:'+uid);
@@ -66,7 +66,7 @@ export function createVault(accounts){
    ready();
    return atomic(store,async tx=>{
     const {user,session}=await authorize(tx,access,options);
-    if(session.scope==='browse'&&config.assignedOnly){const assignment=await tx.get('assignment:'+user.uid);requireThat(assignment?.origin===session.origin,403,'Use your assigned Frost endpoint.');}
+    if(session.scope==='browse'&&config.assignedOnly){const assignment=await tx.get('assignment:'+user.uid);requireThat(assignment?.origin===session.origin,403,'Use your assigned Grove endpoint.');}
     const id='vault:'+user.uid,row=await tx.get(id),revision=row?.revision||0;
     const current=row?open(user.uid,row.encrypted):{tabs:[],activeId:null,cookies:'{}'};
     if(body===undefined)return {...current,cookies:cleanCookies(current.cookies,now()*1000),revision,updatedAt:row?.updatedAt||null};
